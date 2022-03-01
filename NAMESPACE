@@ -1,0 +1,4 @@
+useDynLib(npiv, .registration = TRUE)
+import(stats)
+export(npiv,
+       gsl.bs)
