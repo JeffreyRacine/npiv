@@ -165,14 +165,11 @@ ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
 plot(X,Y,cex=0.25,
      col="lightgrey",
      ylim=ylim,
-     sub=paste("n = ",format(n,format="d", big.mark=','),", cv = ",format(model$cv,format="f",digits=5),sep=""),
+     sub=paste("n = ",format(n,format="d", big.mark=','),sep=""),
      xlab="X",
      ylab="Y")
 
-## A few hoops as evaluation data produces ordered return Q.y2, model
-## etc., while the raw h.0 and Y are not. But definitely streamlined.
-
-lines(X.eval,h.0[order(X)],lty=1,col=1,lwd=1)
+lines(X.eval,h.0,lty=1,col=1,lwd=1)
 lines(X.eval,model$h,lty=2,col=2,lwd=2)
 
 lines(X.eval,model$h-1.96*model$h.asy.se,col=4,lty=4,lwd=1)
