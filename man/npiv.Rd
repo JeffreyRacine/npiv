@@ -99,16 +99,15 @@ This function...
 }
 \examples{
 
-library(npiv)
+## Simulate data using the mvrnorm() function in the MASS package
+
 library(MASS)
 
 set.seed(42)
-
 n <- 1000
 
 cov.uy2 <- 0.5
 var.u <- 0.1
-
 mu <- c(1,1,0)
 
 Sigma <- matrix(c(1.0,0.85,cov.uy2,
@@ -122,28 +121,21 @@ foo <- mvrnorm(n = n,
                Sigma)
 
 X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
-## multivariate X
-## X <- cbind(X,rnorm(n))
 W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
-## multivariate W
-## NCOL(W) must be greater than or equal to that of X
-## W <- cbind(W,rnorm(n))
-U.star <- foo[,3]
-U <- U.star
+U <- foo[,3]
 
 ## h.0 is the instrumental DGP function
 
 h.0 <- sin(pi*X)
-Y <- h.0+sqrt(var.u)*U
+Y <- h.0 + sqrt(var.u)*U
+
+## Create evaluation data and instrumental regression function for the
+## endogenous predictor (for plotting with lines as this is sorted)
 
 X.eval <- X[order(X)]
+h.0 <- sin(pi*X.eval)
 
-## Order for plotting
-
-Y <- Y[order(X)]
-W <- W[order(X)]
-h.0 <- h.0[order(X)]
-X <- X[order(X)]
+## Call the npiv() function with specific arguments
 
 model <- npiv(Y,
               X,
@@ -154,10 +146,10 @@ model <- npiv(Y,
               W.degree=3,
               W.segments=1,
               X.degree=3,
-              X.segments=1,
-              check.is.fullrank=TRUE)
+              X.segments=1)
 
-par(mfrow=c(2,1))
+## Create a plot of the instrumental regression function and its
+## asymptotic standard error bounds
 
 ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
           max(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se))
@@ -175,20 +167,30 @@ lines(X.eval,model$h,lty=2,col=2,lwd=2)
 lines(X.eval,model$h-1.96*model$h.asy.se,col=4,lty=4,lwd=1)
 lines(X.eval,model$h+1.96*model$h.asy.se,col=4,lty=4,lwd=1)
 
-legend("topleft",c("DGP",paste("NPIV (W.degree = ",model$W.degree,", W.knots = ",model$W.segments+1,", X.degree = ", model$X.degree,", X.knots = ",model$X.segments+1,")",sep="")),
+legend("topleft",c("DGP",paste("NPIV (W.degree = ",model$W.degree,
+                               ", W.knots = ",model$W.segments+1,
+                               ", X.degree = ", model$X.degree,
+                               ", X.knots = ",model$X.segments+1,")",sep="")),
                lty=1:2,
                col=1:2,
                lwd=c(1,2),
                bty="n",
                cex=0.75)
-## Deriv
 
-ylim <- c(min(c(model$h.deriv-1.96*model$h.deriv.asy.se,model$h.deriv+1.96*model$h.deriv.asy.se)),
-          max(c(model$h.deriv-1.96*model$h.deriv.asy.se,model$h.deriv+1.96*model$h.deriv.asy.se)))
+## Create a plot of the instrumental regression function's first
+## partial derivative and its asymptotic standard error bounds
+
+ylim <- c(min(c(model$h.deriv-1.96*model$h.deriv.asy.se,
+                model$h.deriv+1.96*model$h.deriv.asy.se)),
+          max(c(model$h.deriv-1.96*model$h.deriv.asy.se,
+                model$h.deriv+1.96*model$h.deriv.asy.se)))
 
 plot(X.eval,model$h.deriv,type="l",
      ylim=ylim,
-     sub=paste("W.degree = ",model$W.degree,", W.knots = ",model$W.segments+1,", X.degree = ", model$X.degree,", X.knots = ",model$X.segments+1, sep=""),
+     sub=paste("W.degree = ",model$W.degree,
+               ", W.knots = ",model$W.segments+1,
+               ", X.degree = ", model$X.degree,
+               ", X.knots = ",model$X.segments+1, sep=""),
      xlab="X",
      ylab=paste("Order",model$deriv.order,"Derivative"),
      lty=2,
