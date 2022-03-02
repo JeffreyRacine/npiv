@@ -5,7 +5,9 @@
 Nonparametric Instrumental Variable Estimation
 }
 \description{
-...
+
+This function implements a computationally simple, data-driven procedures for estimation and inference on a structural function \code{h0} and its derivatives in nonparametric models using instrumental variables. The first procedure is a bootstrap-based, data-driven choice of sieve dimension for sieve nonparametric instrumental variables (NPIV) estimators. When implemented with this data-driven choice, sieve NPIV estimators of \code{h0} and its derivatives are adaptive: they converge at the best possible (i.e., minimax) sup-norm rate, without having to know the smoothness of \code{h0}, degree of endogeneity of the regressors, or instrument strength. The second procedure is a data-driven approach for constructing honest and adaptive uniform confidence bands (UCBs) for \code{h0} and its derivatives. The data-driven UCBs guarantee coverage for \code{h0} and its derivatives uniformly over a generic class of data-generating processes (honesty) and contract at, or within a logarithmic factor of, the minimax sup-norm rate (adaptivity). As such, these data-driven UCBs deliver asymptotic efficiency gains relative to UCBs constructed via the usual approach of undersmoothing. In addition, both procedures apply to nonparametric regression as a special case. 
+
 }
 \usage{
 npiv(Y,
@@ -124,16 +126,16 @@ X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
 W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
 U <- foo[,3]
 
-## h.0 is the instrumental DGP function
+## h0 is the instrumental DGP function
 
-h.0 <- sin(pi*X)
-Y <- h.0 + sqrt(var.u)*U
+h0 <- sin(pi*X)
+Y <- h0 + sqrt(var.u)*U
 
 ## Create evaluation data and instrumental regression function for the
 ## endogenous predictor (for plotting with lines as this is sorted)
 
 X.eval <- X[order(X)]
-h.0 <- sin(pi*X.eval)
+h0 <- sin(pi*X.eval)
 
 ## Call the npiv() function with specific arguments
 
@@ -161,7 +163,7 @@ plot(X,Y,cex=0.25,
      xlab="X",
      ylab="Y")
 
-lines(X.eval,h.0,lty=1,col=1,lwd=1)
+lines(X.eval,h0,lty=1,col=1,lwd=1)
 lines(X.eval,model$h,lty=2,col=2,lwd=2)
 
 lines(X.eval,model$h-1.96*model$h.asy.se,col=4,lty=4,lwd=1)

@@ -1,7 +1,7 @@
 Package: npiv
 Type: Package
 Title: Nonparametric Instrumental Variable Estimation
-Version: 0.1-01
+Version: 0.10-01
 Date: 2022-03-01
 Author:  Jeffrey S. Racine <racinej@mcmaster.ca> 
 Maintainer:  Jeffrey S. Racine <racinej@mcmaster.ca> 

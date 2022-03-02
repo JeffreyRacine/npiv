@@ -1,3 +1,8 @@
+## Nonparametric IV estimation per Chen, Christensen and Kankanala
+## (2021), notation-wise, I try to follow their notation closely, and
+## append .x and .w where needed for clarity (described further
+## below).
+
 npiv <- function(Y,
                  X,
                  W,
@@ -14,12 +19,12 @@ npiv <- function(Y,
                  chol.pivot=FALSE,
                  lambda=sqrt(.Machine$double.eps)) {
 
-    ## Match arguments
+    ## Match variable arguments to ensure they are valid
 
     basis <- match.arg(basis)
     knots <- match.arg(knots)
 
-    ## Basic error checking for invalid input
+    ## Conduct some basic error checking to test for valid input
 
     if(missing(Y)) stop(" must provide Y")
     if(missing(X)) stop(" must provide X")
@@ -29,7 +34,7 @@ npiv <- function(Y,
     if(W.segments <= 0) stop("W.segments must be a positive integer")
     if(X.segments <= 0) stop("X.segments must be a positive integer")
 
-    if(W.degree+W.segments < X.degree+X.segments) stop("W.degree+W.segments must be >= X.degree+X.segments")
+    ## If specified, check that passed objects are of full rank
 
     if(check.is.fullrank) {
         if(!is.fullrank(Y)) stop("Y is not of full column rank")
@@ -37,91 +42,123 @@ npiv <- function(Y,
         if(!is.fullrank(W)) stop("W is not of full column rank")
     }
 
-    ## Compute the bases for W, X, and the requested derivative
+    ## Per Chen, Christensen and Kankanala (2021), notation-wise, Psi
+    ## is the bases matrix for X, B for W. Note that I append .x to
+    ## Psi and .w to B for clarity. Per Chen, Christensen and
+    ## Kankanala (2021), notation-wise, Psi is of dimension J and B of
+    ## dimension K. For clarity I adopt W.degree/.segments
+    ## (corresponding to B hence "K") and X.degree/.segments
+    ## (corresponding to Psi hence "J"). Note K >= J is necessary
+    ## (number of columns of B.w must be greater than Psi.x, i.e.,
+    ## there must be at least as many "instruments" as "endogenous"
+    ## predictors).
+
+    if(W.degree+W.segments < X.degree+X.segments) stop("W.degree+W.segments must be >= X.degree+X.segments")
+
+    ## We allow for degree 0 (constant functions), and also allow for
+    ## additive and generalized polynomial bases (when these are used
+    ## we append a vector of ones, i.e., a "constant" term)
+
+    ## Generate basis functions for W
 
     if(W.degree==0) {
-        P.w <- matrix(1,NROW(W),1)
+        B.w <- matrix(1,NROW(W),1)
     } else {
-        P.w <- prod.spline(x=W,
+        B.w <- prod.spline(x=W,
                            K=cbind(rep(W.degree,NCOL(W)),rep(W.segments,NCOL(W))),
                            knots=knots,
                            basis=basis)
-        if(basis!="tensor") P.w <- cbind(1,P.w)
+
+        if(basis!="tensor") B.w <- cbind(1,B.w)
     }
 
+    ## Generate basis functions for X and its derivative function
+
     if(X.degree==0) {
-        Q.x <- matrix(1,NROW(X),1)
-        Q.x.deriv <- matrix(0,NROW(X),1)
+        Psi.x <- matrix(1,NROW(X),1)
+        Psi.x.deriv <- matrix(0,NROW(X),1)
     } else {
-        Q.x <- prod.spline(x=X,
+        Psi.x <- prod.spline(x=X,
                             K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
                             knots=knots,
                             basis=basis)
-        Q.x.deriv <- prod.spline(x=X,
+
+        Psi.x.deriv <- prod.spline(x=X,
                                   K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
                                   knots=knots,
                                   basis=basis,
                                   deriv.index=deriv.index,
                                   deriv=deriv.order)
-        if(basis!="tensor") Q.x <- cbind(1,Q.x)
-        if(basis!="tensor") Q.x.deriv <- cbind(0,Q.x.deriv)
+
+        if(basis!="tensor") Psi.x <- cbind(1,Psi.x)
+        if(basis!="tensor") Psi.x.deriv <- cbind(0,Psi.x.deriv)
     }
 
-    Q.xTP.wP.wTP.w.invP.w <- t(Q.x)%*%P.w%*%chol2inv(chol(t(P.w)%*%P.w,pivot=chol.pivot))%*%t(P.w)
-    beta <- chol2inv(chol(Q.xTP.wP.wTP.w.invP.w%*%Q.x+diag(lambda,NCOL(Q.x)),pivot=chol.pivot))%*%Q.xTP.wP.wTP.w.invP.w%*%Y
+    ## Generate the NPIV coefficient vector using Choleski
+    ## decomposition (computationally efficient). We first compute an
+    ## object that is reused twice to avoid unnecessary computation
+    ## (Psi.xTB.wB.wTB.w.invB.w, defined in Equation (3))
+
+    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
+    beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
 
     ## Compute the IV function and its derivative. If evaluation data
     ## for X is provided, use it.
 
     if(X.degree==0) {
-        Q.x.eval <- Q.x <- matrix(1,NROW(X),1)
-        Q.x.deriv.eval <- Q.x.deriv <- matrix(0,NROW(X),1)
+        Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
+        Psi.x.deriv.eval <- Psi.x.deriv <- matrix(0,NROW(X),1)
     } else {
-        Q.x.eval <- Q.x <- prod.spline(x=X,
-                                         K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
-                                         knots=knots,
-                                         basis=basis)
-        Q.x.deriv.eval <- Q.x.deriv <- prod.spline(x=X,
-                                                     K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
-                                                     knots=knots,
-                                                     basis=basis,
-                                                     deriv.index=deriv.index,
-                                                     deriv=deriv.order)
+        Psi.x.eval <- Psi.x <- prod.spline(x=X,
+                                           K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                           knots=knots,
+                                           basis=basis)
+
+        Psi.x.deriv.eval <- Psi.x.deriv <- prod.spline(x=X,
+                                                       K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                                       knots=knots,
+                                                       basis=basis,
+                                                       deriv.index=deriv.index,
+                                                       deriv=deriv.order)
         if(!is.null(X.eval)) {
-            Q.x.eval <- prod.spline(x=X,
-                                     xeval=X.eval,
-                                     K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
-                                     knots=knots,
-                                     basis=basis)
-            Q.x.deriv.eval <- prod.spline(x=X,
-                                          xeval=X.eval,
-                                          K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
-                                          knots=knots,
-                                          basis=basis,
-                                          deriv.index=deriv.index,
-                                          deriv=deriv.order)
+            Psi.x.eval <- prod.spline(x=X,
+                                      xeval=X.eval,
+                                      K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                      knots=knots,
+                                      basis=basis)
+
+           Psi.x.deriv.eval <- prod.spline(x=X,
+                                           xeval=X.eval,
+                                           K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                           knots=knots,
+                                           basis=basis,
+                                           deriv.index=deriv.index,
+                                           deriv=deriv.order)
         }
-        if(basis!="tensor") Q.x <- cbind(1,Q.x)
-        if(basis!="tensor") Q.x.eval <- cbind(1,Q.x.eval)
-        if(basis!="tensor") Q.x.deriv <- cbind(0,Q.x.deriv)
-        if(basis!="tensor") Q.x.deriv.eval <- cbind(0,Q.x.deriv.eval)
+        if(basis!="tensor") Psi.x <- cbind(1,Psi.x)
+        if(basis!="tensor") Psi.x.eval <- cbind(1,Psi.x.eval)
+        if(basis!="tensor") Psi.x.deriv <- cbind(0,Psi.x.deriv)
+        if(basis!="tensor") Psi.x.deriv.eval <- cbind(0,Psi.x.deriv.eval)
     }
 
-    h <- Q.x.eval%*%beta
-    h.deriv <- Q.x.deriv.eval%*%beta
+    ## h and h.deriv are the IV function and its derivatives,
+    ## respectively.
+
+    h <- Psi.x.eval%*%beta
+    h.deriv <- Psi.x.deriv.eval%*%beta
 
     ## Compute asymptotic standard errors for the IV function and its
-    ## derivatives (Chen and Pouzo 2012?)
+    ## derivatives (Chen and Pouzo 2012?) This will change.
 
-    U.hat <- Y-Q.x%*%beta
-    C <- (t(Q.x)%*%P.w)
-    PP.inv <- chol2inv(chol(t(P.w)%*%P.w,pivot=chol.pivot))
-    P.U <- P.w*as.numeric(U.hat)
+    U.hat <- Y-Psi.x%*%beta
+    C <- (t(Psi.x)%*%B.w)
+    PP.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
+    P.U <- B.w*as.numeric(U.hat)
     mho <- C%*%PP.inv%*%t(P.U)%*%(P.U)%*%PP.inv%*%t(C)
     D.inv <- chol2inv(chol(C%*%PP.inv%*%t(C),pivot=chol.pivot))
     D.inv.mho.D.inv <- D.inv%*%mho%*%D.inv
-    asy.se <- sqrt(diag(Q.x.eval%*%D.inv.mho.D.inv%*%t(Q.x.eval)))
-    asy.se.deriv <- sqrt(diag(Q.x.deriv.eval%*%D.inv.mho.D.inv%*%t(Q.x.deriv.eval)))
+    asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.mho.D.inv%*%t(Psi.x.eval)))
+    asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.mho.D.inv%*%t(Psi.x.deriv.eval)))
 
     ## Return a list with various objects that might be of interest to
     ## the user
@@ -137,8 +174,8 @@ npiv <- function(Y,
                 W.segments=W.segments,
                 X.segments=X.segments,
                 beta=beta,
-                P.w=P.w,
-                Q.x=Q.x,
-                Q.x.deriv=Q.x.deriv))
+                B.w=B.w,
+                Psi.x=Psi.x,
+                Psi.x.deriv=Psi.x.deriv))
 
 }
