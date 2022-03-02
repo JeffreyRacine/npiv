@@ -8,14 +8,12 @@
 \packageDescription{npiv}
 }
 \details{
-\packageDESCRIPTION{npiv}
-\packageIndices{npiv}
 This package provides a function with a simple interface for conducting nonparametric instrumental variable (IV) estimation, \code{npiv(...)} given a dependent variable vector \code{Y}, matrix of endogenous predictors \code{X}, and matrix of instruments \code{W}.
 }
 \author{
-\packageAuthor{npiv}
+Jeffrey S. Racine <racinej@mcmaster.ca>
 
-Maintainer: Jeffrey S. Racine <racinej@mcmaster.ca> \packageMaintainer{npiv}
+Maintainer: Jeffrey S. Racine <racinej@mcmaster.ca>
 }
 \references{
 

@@ -1,6 +1,5 @@
 \name{npiv}
 \alias{npiv}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Nonparametric Instrumental Variable Estimation
 }
@@ -16,10 +15,10 @@ npiv(Y,
      X.eval = NULL,
      deriv.index = 1,
      deriv.order = 1,
-     W.degree = 3,
-     W.segments = 1,
-     X.degree = 3,
-     X.segments = 1,
+     K.w.degree = 3,
+     K.w.segments = 1,
+     J.x.degree = 3,
+     J.x.segments = 1,
      knots = c("uniform", "quantiles"),
      basis = c("tensor", "additive", "glp"),
      check.is.fullrank = FALSE,
@@ -46,16 +45,16 @@ Column of endogenous predictor matrix for which to compute derivative
   \item{deriv.order}{
 Order of derivative to be computed
 }
-  \item{W.degree}{
+  \item{K.w.degree}{
 B-spline degree for instrument matrix
 }
-  \item{W.segments}{
+  \item{K.w.segments}{
 B-spline number of segments for instrument matrix
 }
-  \item{X.degree}{
+  \item{J.x.degree}{
 B-spline degree for endogenous predictor matrix
 }
-  \item{X.segments}{
+  \item{J.x.segments}{
 B-spline number of segments for endogemous predictor matrix
 }
   \item{knots}{
@@ -78,17 +77,30 @@ Argument fed to chol()
 This function...
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+This function returns a list with the following components:
+
+\item{h}{h returns the estimated instrumental regression function}
+\item{h.deriv}{h.deriv returns the estimated derivative of the instrumental regression function }
+\item{h.asy.se}{asy.se returns the value of }
+\item{h.deriv.asy.se}{asy.se.deriv returns the value of }
+\item{deriv.index}{deriv.index returns the index provided and used for computing the derivative}
+\item{deriv.order}{deriv.order returns the order of the estimated derivative }
+\item{K.w.degree}{K.w.degree returns the value of }
+\item{K.w.segments}{K.w.segments returns the value of }
+\item{J.x.degree}{J.x.degree returns the value of }
+\item{J.x.segments}{J.x.segments returns the value of }
+\item{beta}{beta returns the value of }
+\item{B.w}{B.w returns the value of }
+\item{Psi.x}{Psi.x returns the value of }
+\item{Psi.x.deriv}{Psi.x.deriv returns the value of }
 }
 \references{
-%% ~put references to the literature/web site here ~
+
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
+
 }
 \author{
-%%  ~~who you are~~
+Jeffrey S. Racine <racinej@mcmaster.ca>
 }
 \note{
 %%  ~~further notes~~
@@ -145,10 +157,10 @@ model <- npiv(Y,
               X.eval=X.eval,
               deriv.index=1,
               deriv.order=1,
-              W.degree=3,
-              W.segments=1,
-              X.degree=3,
-              X.segments=1)
+              K.w.degree=3,
+              K.w.segments=1,
+              J.x.degree=3,
+              J.x.segments=1)
 
 ## Create a plot of the instrumental regression function and its
 ## asymptotic standard error bounds
@@ -169,10 +181,10 @@ lines(X.eval,model$h,lty=2,col=2,lwd=2)
 lines(X.eval,model$h-1.96*model$h.asy.se,col=4,lty=4,lwd=1)
 lines(X.eval,model$h+1.96*model$h.asy.se,col=4,lty=4,lwd=1)
 
-legend("topleft",c("DGP",paste("NPIV (W.degree = ",model$W.degree,
-                               ", W.knots = ",model$W.segments+1,
-                               ", X.degree = ", model$X.degree,
-                               ", X.knots = ",model$X.segments+1,")",sep="")),
+legend("topleft",c("DGP",paste("NPIV (K.w.degree = ",model$K.w.degree,
+                               ", W.knots = ",model$K.w.segments+1,
+                               ", J.x.degree = ", model$J.x.degree,
+                               ", X.knots = ",model$J.x.segments+1,")",sep="")),
                lty=1:2,
                col=1:2,
                lwd=c(1,2),
@@ -189,10 +201,10 @@ ylim <- c(min(c(model$h.deriv-1.96*model$h.deriv.asy.se,
 
 plot(X.eval,model$h.deriv,type="l",
      ylim=ylim,
-     sub=paste("W.degree = ",model$W.degree,
-               ", W.knots = ",model$W.segments+1,
-               ", X.degree = ", model$X.degree,
-               ", X.knots = ",model$X.segments+1, sep=""),
+     sub=paste("K.w.degree = ",model$K.w.degree,
+               ", W.knots = ",model$K.w.segments+1,
+               ", J.x.degree = ", model$J.x.degree,
+               ", X.knots = ",model$J.x.segments+1, sep=""),
      xlab="X",
      ylab=paste("Order",model$deriv.order,"Derivative"),
      lty=2,

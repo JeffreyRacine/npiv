@@ -9,10 +9,10 @@ npiv <- function(Y,
                  X.eval=NULL,
                  deriv.index=1,
                  deriv.order=1,
-                 W.degree=3,
-                 W.segments=1,
-                 X.degree=3,
-                 X.segments=1,
+                 K.w.degree=3,
+                 K.w.segments=1,
+                 J.x.degree=3,
+                 J.x.segments=1,
                  knots=c("uniform","quantiles"),
                  basis=c("tensor","additive","glp"),
                  check.is.fullrank=FALSE,
@@ -29,10 +29,10 @@ npiv <- function(Y,
     if(missing(Y)) stop(" must provide Y")
     if(missing(X)) stop(" must provide X")
     if(missing(W)) stop(" must provide W")
-    if(W.degree < 0) stop("W.degree must be a non-negative integer")
-    if(X.degree < 0) stop("X.degree must be a non-negative integer")
-    if(W.segments <= 0) stop("W.segments must be a positive integer")
-    if(X.segments <= 0) stop("X.segments must be a positive integer")
+    if(K.w.degree < 0) stop("K.w.degree must be a non-negative integer")
+    if(J.x.degree < 0) stop("J.x.degree must be a non-negative integer")
+    if(K.w.segments <= 0) stop("K.w.segments must be a positive integer")
+    if(J.x.segments <= 0) stop("J.x.segments must be a positive integer")
 
     ## If specified, check that passed objects are of full rank
 
@@ -46,14 +46,14 @@ npiv <- function(Y,
     ## is the bases matrix for X, B for W. Note that I append .x to
     ## Psi and .w to B for clarity. Per Chen, Christensen and
     ## Kankanala (2021), notation-wise, Psi is of dimension J and B of
-    ## dimension K. For clarity I adopt W.degree/.segments
-    ## (corresponding to B hence "K") and X.degree/.segments
+    ## dimension K. For clarity I adopt K.w.degree/.segments
+    ## (corresponding to B hence "K") and J.x.degree/.segments
     ## (corresponding to Psi hence "J"). Note K >= J is necessary
     ## (number of columns of B.w must be greater than Psi.x, i.e.,
     ## there must be at least as many "instruments" as "endogenous"
     ## predictors).
 
-    if(W.degree+W.segments < X.degree+X.segments) stop("W.degree+W.segments must be >= X.degree+X.segments")
+    if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
 
     ## We allow for degree 0 (constant functions), and also allow for
     ## additive and generalized polynomial bases (when these are used
@@ -61,11 +61,11 @@ npiv <- function(Y,
 
     ## Generate basis functions for W
 
-    if(W.degree==0) {
+    if(K.w.degree==0) {
         B.w <- matrix(1,NROW(W),1)
     } else {
         B.w <- prod.spline(x=W,
-                           K=cbind(rep(W.degree,NCOL(W)),rep(W.segments,NCOL(W))),
+                           K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                            knots=knots,
                            basis=basis)
 
@@ -74,17 +74,17 @@ npiv <- function(Y,
 
     ## Generate basis functions for X and its derivative function
 
-    if(X.degree==0) {
+    if(J.x.degree==0) {
         Psi.x <- matrix(1,NROW(X),1)
         Psi.x.deriv <- matrix(0,NROW(X),1)
     } else {
         Psi.x <- prod.spline(x=X,
-                            K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                             knots=knots,
                             basis=basis)
 
         Psi.x.deriv <- prod.spline(x=X,
-                                  K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                  K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                   knots=knots,
                                   basis=basis,
                                   deriv.index=deriv.index,
@@ -105,17 +105,17 @@ npiv <- function(Y,
     ## Compute the IV function and its derivative. If evaluation data
     ## for X is provided, use it.
 
-    if(X.degree==0) {
+    if(J.x.degree==0) {
         Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
         Psi.x.deriv.eval <- Psi.x.deriv <- matrix(0,NROW(X),1)
     } else {
         Psi.x.eval <- Psi.x <- prod.spline(x=X,
-                                           K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                           K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                            knots=knots,
                                            basis=basis)
 
         Psi.x.deriv.eval <- Psi.x.deriv <- prod.spline(x=X,
-                                                       K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                                       K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                                        knots=knots,
                                                        basis=basis,
                                                        deriv.index=deriv.index,
@@ -123,13 +123,13 @@ npiv <- function(Y,
         if(!is.null(X.eval)) {
             Psi.x.eval <- prod.spline(x=X,
                                       xeval=X.eval,
-                                      K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                      K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                       knots=knots,
                                       basis=basis)
 
            Psi.x.deriv.eval <- prod.spline(x=X,
                                            xeval=X.eval,
-                                           K=cbind(rep(X.degree,NCOL(X)),rep(X.segments,NCOL(X))),
+                                           K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                            knots=knots,
                                            basis=basis,
                                            deriv.index=deriv.index,
@@ -169,10 +169,10 @@ npiv <- function(Y,
                 h.deriv.asy.se=asy.se.deriv,
                 deriv.index=deriv.index,
                 deriv.order=deriv.order,
-                W.degree=W.degree,
-                X.degree=X.degree,
-                W.segments=W.segments,
-                X.segments=X.segments,
+                K.w.degree=K.w.degree,
+                K.w.segments=K.w.segments,
+                J.x.degree=J.x.degree,
+                J.x.segments=J.x.segments,
                 beta=beta,
                 B.w=B.w,
                 Psi.x=Psi.x,
