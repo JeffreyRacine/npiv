@@ -95,9 +95,12 @@ npiv <- function(Y,
     }
 
     ## Generate the NPIV coefficient vector using Choleski
-    ## decomposition (computationally efficient). We first compute an
-    ## object that is reused twice to avoid unnecessary computation
-    ## (Psi.xTB.wB.wTB.w.invB.w, defined in Equation (3))
+    ## decomposition (computationally efficient) and call this
+    ## "beta". We first compute an object that is reused twice to
+    ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
+    ## in Equation (3)). Note that we use Psi.x and B.x naming
+    ## conventions for clarity, and the "T" and "inv" notation
+    ## connotes "Transpose" and "Inverse", respectively.
 
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
     beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
