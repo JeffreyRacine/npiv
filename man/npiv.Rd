@@ -93,6 +93,9 @@ This function returns a list with the following components:
 \item{B.w}{B.w returns the value of }
 \item{Psi.x}{Psi.x returns the value of }
 \item{Psi.x.deriv}{Psi.x.deriv returns the value of }
+\item{residuals.sample}{residuals.sample returns the residuals for the sample data}
+\item{residuals.eval}{residuals.eval returns the residuals for the evaluation X data}
+\item{AIC.c}{Hurvich, Siminoff and Tsai's (1998) corrected AIC criterion}
 }
 \references{
 

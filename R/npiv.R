@@ -100,10 +100,19 @@ npiv <- function(Y,
     ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
     ## in Equation (3)). Note that we use Psi.x and B.x naming
     ## conventions for clarity, and the "T" and "inv" notation
-    ## connotes "Transpose" and "Inverse", respectively.
+    ## connotes "Transpose" and "Inverse", respectively. Intermediate
+    ## results that are reused in some form are stored temporarily.
 
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
+    TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
+    beta <- TMP%*%Y
+    ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
+    H <- Psi.x%*%TMP
+    trH <- sum(diag(H))
+    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
+    aic.c <- ifelse(aic.penalty > 0,
+                    log(mean((Y-Psi.x%*%beta)^2)) + aic.penalty,
+                    .Machine$double.xmax)
 
     ## Compute the IV function and its derivative. If evaluation data
     ## for X is provided, use it.
@@ -145,7 +154,7 @@ npiv <- function(Y,
     }
 
     ## h and h.deriv are the IV function and its derivatives,
-    ## respectively.
+    ## respectively, computed on the evaluaton data.
 
     h <- Psi.x.eval%*%beta
     h.deriv <- Psi.x.deriv.eval%*%beta
@@ -179,6 +188,9 @@ npiv <- function(Y,
                 beta=beta,
                 B.w=B.w,
                 Psi.x=Psi.x,
-                Psi.x.deriv=Psi.x.deriv))
+                Psi.x.deriv=Psi.x.deriv,
+                residuals.sample=Y-Psi.x%*%beta,
+                residuals.eval=Y-Psi.x.eval%*%beta,
+                AIC.c=aic.c))
 
 }
