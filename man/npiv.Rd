@@ -55,7 +55,7 @@ B-spline number of segments for instrument matrix
 B-spline degree for endogenous predictor matrix
 }
   \item{J.x.segments}{
-B-spline number of segments for endogemous predictor matrix
+B-spline number of segments for endogenous predictor matrix
 }
   \item{knots}{
 Knot type

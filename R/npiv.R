@@ -154,7 +154,7 @@ npiv <- function(Y,
     }
 
     ## h and h.deriv are the IV function and its derivatives,
-    ## respectively, computed on the evaluaton data.
+    ## respectively, computed on the evaluation data.
 
     h <- Psi.x.eval%*%beta
     h.deriv <- Psi.x.deriv.eval%*%beta

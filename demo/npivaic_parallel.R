@@ -11,9 +11,9 @@ library(MASS)
 ## Setting parallel.cores to NULL and parallel to TRUE will use all
 ## physical (not logical) cores. On multi-core systems you can
 ## experiment by setting parallel to TRUE and change parallel.cores
-## from 1, 2, to the maximum number of cores. However, you can exhaust
-## memory fairly quickly as each instance will demand its own memory
-## resources.
+## from 1, 2, to the maximum number of cores. However, depending on
+## the sample size, you might exhaust memory fairly quickly as each
+## instance will demand its own memory resources.
 
 parallel <- TRUE # FALSE
 parallel.cores <- NULL
