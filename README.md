@@ -1,13 +1,13 @@
 # np
 
-This is the R package `npiv' (Nonparametric Instrumental Variable Estimation) written and maintained by Jeffrey S. Racine (racinej@mcmaster.ca) and co-authored by Timothy M. Christensen (timothy.christensen@nyu.edu)
+This is the R package `npiv' (Nonparametric Instrumental Variables Estimation) written and maintained by Jeffrey S. Racine (racinej@mcmaster.ca) and co-authored by Timothy M. Christensen (timothy.christensen@nyu.edu)
 
 ## Installation
 
 You can install by either downloading the [zip
  ball](https://github.com/JeffreyRacine/npiv/zipball/main)
  or [tar
- ball](https://github.com/JeffreyRacine/npiv/tarball/maing),
+ ball](https://github.com/JeffreyRacine/npiv/tarball/main),
  decompress and run `R CMD INSTALL` on it.
 
 Alternatively, you can install the development version but before
