@@ -216,6 +216,7 @@ plot(X.eval,model$h.deriv,type="l",
 
 lines(X.eval,model$h.deriv-1.96*model$h.deriv.asy.se,col=4,lty=4)
 lines(X.eval,model$h.deriv+1.96*model$h.deriv.asy.se,col=4,lty=4)
+abline(h=0,col="grey")
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
