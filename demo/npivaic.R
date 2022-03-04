@@ -6,7 +6,7 @@
 
 library(MASS)
 
-n <- 2500
+n <- 1000
 
 cov.uy2 <- 0.5
 var.u <- 0.1
@@ -27,22 +27,29 @@ W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
 U <- foo[,3]
 
 ## h0 is the instrumental DGP function - try changing from **1
-## (linear), **2 (quadratic), etc.
+## (linear), **2 (quadratic),cos(2*pi*X), sin(2*pi*X) etc.
 
-h0 <- X**4
+h0 <- sin(pi*X) # X**4
 Y <- h0 + sqrt(var.u)*U
 
 AIC <- numeric()
 model <- list()
 
-for(S in 1:5) {
-    model[[S]] <- npiv(Y,
-                       X,
-                       W,
-                       K.w.degree=S,   
-                       K.w.segments=S,
-                       J.x.degree=S,
-                       J.x.segments=S)
+## Note K >= J is necessary (tested for, i.e. K.w.degree+K.w.segments >=
+## J.x.degree+J.x.segments). You could loop over either spline degree or number
+## of knots (#knots = #segments+1) for either the W basis or X basis or both,
+## _providing_ you ensure that J >= K is met (otherwise the function will test
+## for this condition and halt)
+
+S.max <- 10
+for(S in S.max:1) {
+    model[[S]] <- npivaic(Y,
+                          X,
+                          W,
+                          K.w.degree=3,   
+                          K.w.segments=S,
+                          J.x.degree=3,
+                          J.x.segments=S)
     AIC[S] <- model[[S]]$AIC.c
 }
 
@@ -55,14 +62,16 @@ model <- model[[which.min(AIC)]]
 
 plot(X,Y,cex=0.25,
      col="lightgrey",
-     sub=paste("n = ",format(n,format="d", big.mark=','),sep=""),
+     sub=paste("n = ",format(n,format="d", big.mark=','),
+               " (knots searched over: 1,2,...,",S.max,")",sep=""),
+     main="Data-Driven Knot Selection (AIC, Hurvich et al (1998))",
      xlab="X",
      ylab="Y")
 
 lines(X[order(X)],h0[order(X)],lty=1,col=1,lwd=1)
 lines(X[order(X)],model$h[order(X)],lty=2,col=2,lwd=2)
 
-legend("topleft",c("DGP",paste("NPIV (K.w.degree = ",model$K.w.degree,
+legend("topleft",c("DGP (IV Function h0)",paste("NPIV (K.w.degree = ",model$K.w.degree,
                                ", W.knots = ",model$K.w.segments+1,
                                ", J.x.degree = ", model$J.x.degree,
                                ", X.knots = ",model$J.x.segments+1,")",sep="")),

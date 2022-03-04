@@ -15,3 +15,14 @@ is.fullrank <- function(x)
   e[1] > 0 && abs(e[length(e)]/e[1]) > max(dim(as.matrix(x)))*max(sqrt(abs(e)))*.Machine$double.eps
 }
 
+
+## statistical functions
+
+RSQfunc <- function(y,y.pred,weights=NULL) {
+  if(!is.null(weights)) {
+    y <- y*sqrt(weights)
+    y.pred <- y.pred*sqrt(weights)
+  }
+  y.mean <- mean(y)
+  return((sum((y-y.mean)*(y.pred-y.mean))^2)/(sum((y-y.mean)^2)*sum((y.pred-y.mean)^2)))
+}
