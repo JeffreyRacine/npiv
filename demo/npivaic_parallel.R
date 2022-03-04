@@ -55,27 +55,46 @@ AIC <- numeric()
 t0 <- Sys.time()
 
 S.max <- 10
+
+## Create cluster
+
 cl<-makeCluster(if(is.null(parallel.cores)){detectCores(logical=FALSE)}else{parallel.cores})
 registerDoParallel(cl)
-output <- foreach(S=1:S.max,.verbose=FALSE) %dopar% {
-    model <- npiv::npivaic(Y,
-                     X,
-                     W,
-                     K.w.degree=3,   
-                     K.w.segments=S,
-                     J.x.degree=3,
-                     J.x.segments=S)
-    list(model)
+
+## Run multiple models in parallel
+
+model.list <- foreach(S=1:S.max,.verbose=FALSE) %dopar% {
+
+    ## Need to invoke library call on each core, or use
+    ## npiv::npivaic()
+
+    library(npiv)
+
+    ## Return the model, will be stored in a list
+
+    return(npivaic(Y,
+                   X,
+                   W,
+                   K.w.degree=3,   
+                   K.w.segments=S,
+                   J.x.degree=3,
+                   J.x.segments=S))
+
 }
+
+## Gracefully close the cluster, has returned a _list_ of S.max models
+
 stopCluster(cl)
-## Elapsed time
+
+## compute the elapsed time
+
 Sys.time()-t0
 
 ## Select the model that minimizes AIC (model index will also be the
 ## value of S used above)
 
-for(S in 1:S.max) AIC[S] <- output[[S]][[1]]$AIC.c
-model <- output[[which.min(AIC)]][[1]]
+for(S in 1:S.max) AIC[S] <- model.list[[S]]$AIC.c
+model <- model.list[[which.min(AIC)]]
 
 ## Create a plot of the instrumental regression function, data, and DGP
 
