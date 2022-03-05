@@ -35,11 +35,11 @@ Y <- h0 + sqrt(var.u)*U
 AIC <- numeric()
 model <- list()
 
-## Note K >= J is necessary (tested for, i.e. K.w.degree+K.w.segments >=
-## J.x.degree+J.x.segments). You could loop over either spline degree or number
-## of knots (#knots = #segments+1) for either the W basis or X basis or both,
-## _providing_ you ensure that J >= K is met (otherwise the function will test
-## for this condition and halt)
+## Note K >= J is necessary (tested for, i.e. K.w.degree+K.w.segments
+## >= J.x.degree+J.x.segments). You could loop over either spline
+## degree or number of knots (#knots = #segments+1) for either the W
+## basis or X basis or both, _providing_ you ensure that K >= J is met
+## (otherwise the function will test for this condition and halt)
 
 S.max <- 10
 for(S in S.max:1) {
@@ -52,6 +52,26 @@ for(S in S.max:1) {
                           J.x.segments=S)
     AIC[S] <- model[[S]]$AIC.c
 }
+
+## In this illustration degree is set to 3 for Psi and B and we
+## consider knots J, K with K >= J from 1,2,...,10 (here S.max is only
+## used in the plot legend)
+
+## J.max <- K.max <- S.max <- 10
+## S <- 1
+## for(J in 1:J.max) {
+##   for(K in J:K.max) {
+##     model[[S]] <- npivaic(Y,
+##                           X,
+##                           W,
+##                           K.w.degree=3,   
+##                           K.w.segments=K,
+##                           J.x.degree=3,
+##                           J.x.segments=J)
+##     AIC[S] <- model[[S]]$AIC.c
+##     S <- S+1
+##   }
+## }
 
 ## Select the model that minimizes AIC (model index will also be the
 ## value of S used above)
