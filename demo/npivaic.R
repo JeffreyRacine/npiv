@@ -26,8 +26,8 @@ X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
 W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
 U <- foo[,3]
 
-## h0 is the instrumental DGP function - try changing from **1
-## (linear), **2 (quadratic),cos(2*pi*X), sin(2*pi*X) etc.
+## h0 is the instrumental DGP function - try changing from X**1
+## (linear), X**2 (quadratic), cos(2*pi*X), sin(2*pi*X) etc.
 
 h0 <- sin(pi*X) # X**4
 Y <- h0 + sqrt(var.u)*U

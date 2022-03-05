@@ -201,10 +201,8 @@ npiv <- function(Y,
 ## compute the AIC.c function of Hurvich et al (1998). It returns the
 ## AIC criterion and estimated IV function h only for the sample
 ## realizations (the latter for, say, Monte Carlo simulations
-## etc.). It takes less than 1/3 of the time to compute this function
-## versus npiv() above for moderate sample sizes (say 10K or
-## thereabouts) and is useful for simulations etc. You can pass any
-## combination of spline degrees and knots (#knots=#segments+1).
+## etc.). You can pass any combination of spline degrees and knots
+## (#knots=#segments+1).
 
 npivaic <- function(Y,
                     X,
@@ -294,22 +292,8 @@ npivaic <- function(Y,
     ## connotes "Transpose" and "Inverse", respectively. Intermediate
     ## results that are reused in some form are stored temporarily.
 
-#    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-#    ## Compute the IV "hat" matrix
-#    ## H <- Psi.x%*%chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
-#    ## We require the trace thereof
-#    trH <- dim(Psi.x)[2] # sum(diag(H))
-#    ## We require the residuals (thus fitted values)
-#    h <- H%*%Y
-#    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
-#    aic.c <- ifelse(aic.penalty > 0,
-#                    log(mean((Y-h)^2)) + aic.penalty,
-#                    .Machine$double.xmax)
-
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
-    beta <- TMP%*%Y
-    h <- Psi.x%*%beta
+    h <- Psi.x%*%(chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y)
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
     ## H <- Psi.x%*%TMP
     ## trH <- sum(diag(H))
@@ -318,7 +302,6 @@ npivaic <- function(Y,
     aic.c <- ifelse(aic.penalty > 0,
                     log(mean((Y-h)^2)) + aic.penalty,
                     .Machine$double.xmax)
-
 
     return(list(h=h,
                 K.w.degree=K.w.degree,
