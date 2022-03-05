@@ -107,8 +107,9 @@ npiv <- function(Y,
     TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
     beta <- TMP%*%Y
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    H <- Psi.x%*%TMP
-    trH <- sum(diag(H))
+    ## H <- Psi.x%*%TMP
+    ## trH <- sum(diag(H))
+    trH <- dim(Psi.x)[2]
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
     aic.c <- ifelse(aic.penalty > 0,
                     log(mean((Y-Psi.x%*%beta)^2)) + aic.penalty,
@@ -293,17 +294,31 @@ npivaic <- function(Y,
     ## connotes "Transpose" and "Inverse", respectively. Intermediate
     ## results that are reused in some form are stored temporarily.
 
+#    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
+#    ## Compute the IV "hat" matrix
+#    ## H <- Psi.x%*%chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
+#    ## We require the trace thereof
+#    trH <- dim(Psi.x)[2] # sum(diag(H))
+#    ## We require the residuals (thus fitted values)
+#    h <- H%*%Y
+#    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
+#    aic.c <- ifelse(aic.penalty > 0,
+#                    log(mean((Y-h)^2)) + aic.penalty,
+#                    .Machine$double.xmax)
+
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    ## Compute the IV "hat" matrix
-    H <- Psi.x%*%chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
-    ## We require the trace thereof
-    trH <- sum(diag(H))
-    ## We require the residuals (thus fitted values)
-    h <- H%*%Y
+    TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
+    beta <- TMP%*%Y
+    h <- Psi.x%*%beta
+    ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
+    ## H <- Psi.x%*%TMP
+    ## trH <- sum(diag(H))
+    trH <- dim(Psi.x)[2]
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
     aic.c <- ifelse(aic.penalty > 0,
                     log(mean((Y-h)^2)) + aic.penalty,
                     .Machine$double.xmax)
+
 
     return(list(h=h,
                 K.w.degree=K.w.degree,
