@@ -116,7 +116,7 @@ npiv <- function(Y,
                     .Machine$double.xmax)
 
     ## Compute the IV function and its derivative. If evaluation data
-    ## for X is provided, use it.
+    ## for X is provided, use it. XXX clean up, may be redundant calls?
 
     if(J.x.degree==0) {
         Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
@@ -165,10 +165,10 @@ npiv <- function(Y,
 
     U.hat <- Y-Psi.x%*%beta
     C <- (t(Psi.x)%*%B.w)
-    PP.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
+    BTB.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
     P.U <- B.w*as.numeric(U.hat)
-    mho <- C%*%PP.inv%*%t(P.U)%*%(P.U)%*%PP.inv%*%t(C)
-    D.inv <- chol2inv(chol(C%*%PP.inv%*%t(C),pivot=chol.pivot))
+    mho <- C%*%BTB.inv%*%t(P.U)%*%(P.U)%*%BTB.inv%*%t(C)
+    D.inv <- chol2inv(chol(C%*%BTB.inv%*%t(C),pivot=chol.pivot))
     D.inv.mho.D.inv <- D.inv%*%mho%*%D.inv
     asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.mho.D.inv%*%t(Psi.x.eval)))
     asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.mho.D.inv%*%t(Psi.x.deriv.eval)))

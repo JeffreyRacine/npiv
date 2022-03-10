@@ -2,7 +2,7 @@ Package: npiv
 Type: Package
 Title: Nonparametric Instrumental Variables Estimation
 Version: 0.10-01
-Date: 2022-03-05
+Date: 2022-03-10
 Author:  Jeffrey S. Racine, Timothy M. Christensen
 Maintainer:  Jeffrey S. Racine <racinej@mcmaster.ca> 
 Description: This package provides a function with a simple interface for conducting nonparametric instrumental variables (IV) estimation, given a dependent variable vector Y, matrix of endogenous predictors X, and matrix of instruments W.
