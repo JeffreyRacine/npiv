@@ -1,22 +1,23 @@
-## Nonparametric IV estimation per Chen, Christensen and Kankanala
-## (2021), notation-wise, I try to follow their notation closely, and
+## Function for determining optimal spline complexity for the
+## nonparametric IV estimation of Chen, Christensen and Kankanala
+## (2021). Notation-wise, I try to follow their notation closely, and
 ## append .x and .w where needed for clarity (described further
 ## below).
 
 npivJ <- function(Y,
-                 X,
-                 W,
-                 X.eval=NULL,
-                 K.w.degree=3,
-                 K.w.segments=1,
-                 J.x.degree=3,
-                 J.x.segments=1,
-                 J.x.segments.set=c(2,4,8,16,32)-1,
-                 knots=c("uniform","quantiles"),
-                 basis=c("tensor","additive","glp"),
-                 check.is.fullrank=FALSE,
-                 chol.pivot=FALSE,
-                 lambda=sqrt(.Machine$double.eps)) {
+                  X,
+                  W,
+                  X.eval=NULL,
+                  K.w.degree=3,
+                  K.w.segments=1,
+                  J.x.degree=3,
+                  J.x.segments=1,
+                  J.x.segments.set=c(2,4,8,16,32)-1,
+                  knots=c("uniform","quantiles"),
+                  basis=c("tensor","additive","glp"),
+                  check.is.fullrank=FALSE,
+                  chol.pivot=FALSE,
+                  lambda=sqrt(.Machine$double.eps)) {
 
     ## Match variable arguments to ensure they are valid
 
@@ -57,6 +58,9 @@ npivJ <- function(Y,
     ## Tim precomputes and reuses basis functions... these are
     ## computationally efficient so might not save much time, morover
     ## if parallelized could be a waste and even add overhead
+
+    ## This line needs to be reworked/removed once I hear back from
+    ## Tim about setting K for B during the search for J for Psi
 
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
 
@@ -112,11 +116,15 @@ npivJ <- function(Y,
       
     }
 
+    ## Code re-use/storage where possible... generate all objects
+    ## needed to compute the t-stat vector
+
     B.w.TB.w.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
 
     Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w%*%B.w.TB.w.inv%*%t(B.w)
     tmp.J1 <- chol2inv(chol(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1+diag(lambda,NCOL(Psi.x.J1)),pivot=chol.pivot))%*%Psi.xJ1TB.wB.wTB.w.invB.w
     beta.J1 <- tmp.J1%*%Y
+    
     U.J1 <- Y-Psi.x.J1%*%beta.J1
     err.J1 <- Psi.x.J1.eval%*%tmp.J1%*%U.J1
 
@@ -146,15 +154,20 @@ npivJ <- function(Y,
     rho <- CJ2%*%B.w.TB.w.inv%*%t(B.wUJ2)%*%(B.wUJ2)%*%B.w.TB.w.inv%*%t(CJ2)
     D.J2.inv <- chol2inv(chol(CJ2%*%B.w.TB.w.inv%*%t(CJ2),pivot=chol.pivot))
     D.J2.inv.rho.D.J2.inv <- D.J2.inv%*%rho%*%D.J2.inv
+    
     asy.var.J2 <- diag(Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv%*%t(Psi.x.J2.eval))
 
     ## Compute the covariance
 
-    cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.TB.w.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.TB.w.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
+    asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.TB.w.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.TB.w.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
 
-    ## Finally, compute the denominator of the t-stat
+    ## Compute the denominator of the t-stat (the numerator is the
+    ## difference between err.J1 and err.J2)
 
-    asy.se <- sqrt(asy.var.J1+asy.var.J2-2*cov.J1.J2)
+    asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
+
+    ## The t-stat vector - we take the sup (max) of this to determine
+    ## the optimal value of J (segments/knots of the Psi.x basis)
 
     Z <- (err.J1-err.J2)/asy.se
 
