@@ -125,6 +125,22 @@ npiv <- function(Y,
 
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
     beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
+
+    ## Some ideas for potential computational efficiency.
+    ## Note we can also compute beta via lm.fit
+    ## beta <- coef(lm.fit(fitted(lm.fit(B.w,Psi.x)),Y))
+
+    ## To render as matrix equivalent to the above wrap in as.matrix
+    ## and as.numeric
+    ## b2sls <- as.matrix(as.numeric(coef(lm.fit(fitted(lm.fit(B.w,Psi.x)),Y))))
+
+    ## We can get the covariance matrix via a call to lm() (the -1
+    ## removes as added intercept which we don't want)
+    ## vcov(lm(Y~fitted(lm.fit(B.w,Psi.x))-1))
+    ## The question I need to answer is whether this renders the code
+    ## more efficient or can be leveraged to get the correct standard
+    ## errors, perhaps with some coaxing needed...
+
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
     trH <- dim(Psi.x)[2]
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
