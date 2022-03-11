@@ -75,6 +75,9 @@ Argument fed to chol()
 }
 \details{
 This function...
+
+Note - the asymptotic covariance matrix is computed for all \eqn{n} sample realizations  by default, unless an evaluation matrix for \code{X} is provided. This matrix will be \eqn{n\times n} which can quickly exhaust memory in a system. To avoid this simply provide an evaluation matrix for X (\code{X.eval}) that contains, say, a grid of \eqn{100} points (one typically only wants the asymptotic variance for plotting confidence intervals). The covariance matrix will now be of dimension \eqn{100\times 100} thereby allowing one to run the function with a large number of sample realizations.
+
 }
 \value{
 This function returns a list with the following components:
@@ -93,8 +96,7 @@ This function returns a list with the following components:
 \item{B.w}{B.w returns the value of }
 \item{Psi.x}{Psi.x returns the value of }
 \item{Psi.x.deriv}{Psi.x.deriv returns the value of }
-\item{residuals.sample}{residuals.sample returns the residuals for the sample data}
-\item{residuals.eval}{residuals.eval returns the residuals for the evaluation X data}
+\item{residuals}{residuals returns the residuals for the sample data}
 \item{AIC.c}{Hurvich, Siminoff and Tsai's (1998) corrected AIC criterion}
 }
 \references{
@@ -149,7 +151,7 @@ Y <- h0 + sqrt(var.u)*U
 ## Create evaluation data and instrumental regression function for the
 ## endogenous predictor (for plotting with lines as this is sorted)
 
-X.eval <- X[order(X)]
+X.eval <- seq(min(X),max(X),length=100)
 h0 <- sin(pi*X.eval)
 
 ## Call the npiv() function with specific arguments

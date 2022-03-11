@@ -189,8 +189,7 @@ npiv <- function(Y,
                 B.w=B.w,
                 Psi.x=Psi.x,
                 Psi.x.deriv=Psi.x.deriv,
-                residuals.sample=Y-Psi.x%*%beta,
-                residuals.eval=Y-Psi.x.eval%*%beta,
+                residuals=Y-Psi.x%*%beta,
                 AIC.c=aic.c,
                 R2=RSQfunc(Y, Psi.x%*%beta)))
 
