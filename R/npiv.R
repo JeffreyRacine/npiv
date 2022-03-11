@@ -72,51 +72,9 @@ npiv <- function(Y,
         if(basis!="tensor") B.w <- cbind(1,B.w)
     }
 
-    ## Generate basis functions for X and its derivative function
-
-    if(J.x.degree==0) {
-        Psi.x <- matrix(1,NROW(X),1)
-        Psi.x.deriv <- matrix(0,NROW(X),1)
-    } else {
-        Psi.x <- prod.spline(x=X,
-                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
-                            knots=knots,
-                            basis=basis)
-
-        Psi.x.deriv <- prod.spline(x=X,
-                                  K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
-                                  knots=knots,
-                                  basis=basis,
-                                  deriv.index=deriv.index,
-                                  deriv=deriv.order)
-
-        if(basis!="tensor") Psi.x <- cbind(1,Psi.x)
-        if(basis!="tensor") Psi.x.deriv <- cbind(0,Psi.x.deriv)
-    }
-
-    ## Generate the NPIV coefficient vector using Choleski
-    ## decomposition (computationally efficient) and call this
-    ## "beta". We first compute an object that is reused twice to
-    ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
-    ## in Equation (3)). Note that we use Psi.x and B.x naming
-    ## conventions for clarity, and the "T" and "inv" notation
-    ## connotes "Transpose" and "Inverse", respectively. Intermediate
-    ## results that are reused in some form are stored temporarily.
-
-    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
-    beta <- TMP%*%Y
-    ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    ## H <- Psi.x%*%TMP
-    ## trH <- sum(diag(H))
-    trH <- dim(Psi.x)[2]
-    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
-    aic.c <- ifelse(aic.penalty > 0,
-                    log(mean((Y-Psi.x%*%beta)^2)) + aic.penalty,
-                    .Machine$double.xmax)
-
-    ## Compute the IV function and its derivative. If evaluation data
-    ## for X is provided, use it. XXX clean up, may be redundant calls?
+    ## Generate basis functions for X and its derivative function, and
+    ## if passed evaluation data for X, basis functions for those as
+    ## well
 
     if(J.x.degree==0) {
         Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
@@ -148,30 +106,58 @@ npiv <- function(Y,
                                            deriv.index=deriv.index,
                                            deriv=deriv.order)
         }
-        if(basis!="tensor") Psi.x <- cbind(1,Psi.x)
-        if(basis!="tensor") Psi.x.eval <- cbind(1,Psi.x.eval)
-        if(basis!="tensor") Psi.x.deriv <- cbind(0,Psi.x.deriv)
-        if(basis!="tensor") Psi.x.deriv.eval <- cbind(0,Psi.x.deriv.eval)
+        if(basis!="tensor") {
+          Psi.x <- cbind(1,Psi.x)
+          Psi.x.eval <- cbind(1,Psi.x.eval)
+          Psi.x.deriv <- cbind(0,Psi.x.deriv)
+          Psi.x.deriv.eval <- cbind(0,Psi.x.deriv.eval)
+        }
     }
 
-    ## h and h.deriv are the IV function and its derivatives,
-    ## respectively, computed on the evaluation data.
+    ## Generate the NPIV coefficient vector using Choleski
+    ## decomposition (computationally efficient) and call this
+    ## "beta". We first compute an object that is reused twice to
+    ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
+    ## in Equation (3)). Note that we use Psi.x and B.x naming
+    ## conventions for clarity, and the "T" and "inv" notation
+    ## connotes "Transpose" and "Inverse", respectively. Intermediate
+    ## results that are reused in some form are stored temporarily.
+
+    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
+    TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
+    beta <- TMP%*%Y
+    ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
+    ## H <- Psi.x%*%TMP
+    ## trH <- sum(diag(H))
+    trH <- dim(Psi.x)[2]
+    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
+    aic.c <- ifelse(aic.penalty > 0,
+                    log(mean((Y-Psi.x%*%beta)^2)) + aic.penalty,
+                    .Machine$double.xmax)
+
+    ## Compute the IV function and its derivative, denoted h and
+    ## h.deriv, respectively, computed on the evaluation data, if
+    ## provided, otherwise Psi.x.eval is simply Psi.x by default.
 
     h <- Psi.x.eval%*%beta
     h.deriv <- Psi.x.deriv.eval%*%beta
 
     ## Compute asymptotic standard errors for the IV function and its
-    ## derivatives (Chen and Pouzo 2012?) This will change.
+    ## derivatives (formulae of Chen and Pouzo 2012)
 
     U.hat <- Y-Psi.x%*%beta
     C <- (t(Psi.x)%*%B.w)
-    BTB.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
+    B.w.TB.w.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
     P.U <- B.w*as.numeric(U.hat)
-    mho <- C%*%BTB.inv%*%t(P.U)%*%(P.U)%*%BTB.inv%*%t(C)
-    D.inv <- chol2inv(chol(C%*%BTB.inv%*%t(C),pivot=chol.pivot))
-    D.inv.mho.D.inv <- D.inv%*%mho%*%D.inv
-    asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.mho.D.inv%*%t(Psi.x.eval)))
-    asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.mho.D.inv%*%t(Psi.x.deriv.eval)))
+    rho <- C%*%B.w.TB.w.inv%*%t(P.U)%*%(P.U)%*%B.w.TB.w.inv%*%t(C)
+    D.inv <- chol2inv(chol(C%*%B.w.TB.w.inv%*%t(C),pivot=chol.pivot))
+    D.inv.rho.D.inv <- D.inv%*%rho%*%D.inv
+
+    ## These are the n x n memory hogs... must be a more efficient
+    ## method for their computation, leave for now
+
+    asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.rho.D.inv%*%t(Psi.x.eval)))
+    asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.rho.D.inv%*%t(Psi.x.deriv.eval)))
 
     ## Return a list with various objects that might be of interest to
     ## the user

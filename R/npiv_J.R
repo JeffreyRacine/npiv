@@ -164,4 +164,3 @@ npivJ <- function(Y,
     return(list(Z=Z))
 
 }
-
