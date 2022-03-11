@@ -63,10 +63,7 @@ npivJ <- function(Y,
     ## In what follows we loop over _rows_ of J1.J2 (makes for easy
     ##  parallelization if needed)
 
-    ## Number of bootstrap reps, can be passed
-
-    boot.num <- 99
-
+    Z.sup <- numeric()
     Z.sup.boot <- matrix(NA,boot.num,NROW(J1.J2))
 
     for(ii in 1:NROW(J1.J2)) {
@@ -75,8 +72,8 @@ npivJ <- function(Y,
 
         print(paste("Row ",ii," of ",NROW(J1.J2)))
 
-        J.x.J1.segments <- J1.J2[1,1]
-        J.x.J2.segments <- J1.J2[1,2]
+        J.x.J1.segments <- J1.J2[ii,1]
+        J.x.J2.segments <- J1.J2[ii,2]
 
         ## Tim precomputes and reuses basis functions... these are
         ## computationally efficient so might not save much time, morover
@@ -201,7 +198,7 @@ npivJ <- function(Y,
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
 
-        Z.sup <- max((err.J1-err.J2)/asy.se)
+        Z.sup[ii] <- max((err.J1-err.J2)/asy.se)
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
