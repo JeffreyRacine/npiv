@@ -166,8 +166,10 @@ npiv <- function(Y,
     D.inv <- chol2inv(chol(C%*%B.w.TB.w.inv%*%t(C),pivot=chol.pivot))
     D.inv.rho.D.inv <- D.inv%*%rho%*%D.inv
 
-    ## These are the n x n memory hogs... must be a more efficient
-    ## method for their computation, leave for now
+    ## These are the n x n memory hogs... the workaround is to provide
+    ## X.eval with a reasonable number of grid points, say 100, then
+    ## one can handle huge datasets without encountering this issue -
+    ## this is noted in "Details" in npiv.Rd.
 
     asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.rho.D.inv%*%t(Psi.x.eval)))
     asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.rho.D.inv%*%t(Psi.x.deriv.eval)))
