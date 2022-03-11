@@ -124,11 +124,8 @@ npiv <- function(Y,
     ## results that are reused in some form are stored temporarily.
 
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    TMP <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w
-    beta <- TMP%*%Y
+    beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    ## H <- Psi.x%*%TMP
-    ## trH <- sum(diag(H))
     trH <- dim(Psi.x)[2]
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
     aic.c <- ifelse(aic.penalty > 0,
@@ -146,7 +143,7 @@ npiv <- function(Y,
     ## derivatives (formulae of Chen and Pouzo 2012)
 
     U.hat <- Y-Psi.x%*%beta
-    C <- (t(Psi.x)%*%B.w)
+    C <- t(Psi.x)%*%B.w
     B.w.TB.w.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
     P.U <- B.w*as.numeric(U.hat)
     rho <- C%*%B.w.TB.w.inv%*%t(P.U)%*%(P.U)%*%B.w.TB.w.inv%*%t(C)
@@ -281,8 +278,6 @@ npivaic <- function(Y,
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
     h <- Psi.x%*%(chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y)
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    ## H <- Psi.x%*%TMP
-    ## trH <- sum(diag(H))
     trH <- dim(Psi.x)[2]
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
     aic.c <- ifelse(aic.penalty > 0,
