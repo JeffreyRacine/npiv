@@ -1,0 +1,73 @@
+---
+documentclass: jss
+author:
+  - name: Jeffrey S. Racine
+    orcid: 0000-0002-5680-3705
+    affiliation: McMaster University
+    # use this syntax to add text on several lines
+    address: |
+      | Department of Economics & Graduate Program in Statistics
+      | McMaster University
+    email: \email{racinej@mcmaster.ca}
+    url: https://socialsciences.mcmaster.ca/people/racinej
+  - name: Timothy M. Christensen
+    orcid: 0000-0000-0000-0000
+    affiliation: 'New York University \AND'
+    # To add another line, use \AND at the end of the previous one as above
+  - name: Xiaohong Chen
+    orcid: 0000-0000-0000-0000
+    address: |
+      | Department of Economics
+      | Yale University
+    affiliation: |
+      | Department of Economics
+      | Yale University
+title:
+  formatted: "Nonparametric Instrumental Variables Estimation: The R Package \\pkg{npiv}"
+  # If you use tex in the formatted title, also supply version without
+  plain:     "Nonparametric Instrumental Variables Estimation: The R Package \\pkg{npiv}"
+  # For running headers, if needed
+  short:     "\\pkg{npiv}: Nonparametric Instrumental Variables Estimation"
+abstract: >
+  The abstract of the article.
+keywords:
+  # at least one keyword must be supplied
+  formatted: [keywords, not capitalized, "\\proglang{Java}"]
+  plain:     [keywords, not capitalized, Java]
+preamble: >
+  \usepackage{amsmath}
+output: rticles::jss_article
+---
+
+```{r, setup, include=FALSE}
+options(prompt = 'R> ', continue = '+ ')
+```
+
+# Introduction
+
+This template demonstrates some of the basic LaTeX that you need to know to create a JSS article.
+
+## Code formatting
+
+In general, don't use Markdown, but use the more precise LaTeX commands instead:
+
+* \proglang{Java}
+* \pkg{plyr}
+
+One exception is inline code, which can be written inside a pair of backticks (i.e., using the Markdown syntax).
+
+If you want to use LaTeX commands in headers, you need to provide a `short-title` attribute. You can also provide a custom identifier if necessary. See the header of Section \ref{r-code} for example.
+
+# \proglang{R} code {short-title="R code" #r-code}
+
+Can be inserted in regular R markdown blocks.
+
+```{r}
+x <- 1:10
+x
+```
+
+## Features specific to \pkg{rticles} {short-title="Features specific to rticles"}
+
+* Adding short titles to section headers is a feature specific to \pkg{rticles} (implemented via a Pandoc Lua filter). This feature is currently not supported by Pandoc and we will update this template if [it is officially supported in the future](https://github.com/jgm/pandoc/issues/4409).
+* Using the `\AND` syntax in the `author` field to add authors on a new line. This is a specific to the `rticles::jss_article` format.
