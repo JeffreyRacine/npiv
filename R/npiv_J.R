@@ -118,14 +118,14 @@ npivJ <- function(Y,
     tmp.J1 <- chol2inv(chol(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1+diag(lambda,NCOL(Psi.x.J1)),pivot=chol.pivot))%*%Psi.xJ1TB.wB.wTB.w.invB.w
     beta.J1 <- tmp.J1%*%Y
     U.J1 <- Y-Psi.x.J1%*%beta.J1
-    err.J1 <- Psi.x.J1%*%tmp.J1%*%U.J1
+    err.J1 <- Psi.x.J1.eval%*%tmp.J1%*%U.J1
 
     Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w%*%B.w.TB.w.inv%*%t(B.w)
     tmp.J2 <- chol2inv(chol(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2+diag(lambda,NCOL(Psi.x.J2)),pivot=chol.pivot))%*%Psi.xJ2TB.wB.wTB.w.invB.w
     beta.J2 <- tmp.J2%*%Y
 
     U.J2 <- Y-Psi.x.J2%*%beta.J2
-    err.J2 <- Psi.x.J2%*%tmp.J2%*%U.J2
+    err.J2 <- Psi.x.J2.eval%*%tmp.J2%*%U.J2
 
     ## Compute asymptotic variances and covariances for the IV
     ## functions - these will be memory intensive for large n as they
@@ -151,6 +151,9 @@ npivJ <- function(Y,
     ## Compute the covariance
 
     cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.TB.w.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.TB.w.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
+
+    ## Finally, compute the denominator of the t-stat
+
     asy.se <- sqrt(asy.var.J1+asy.var.J2-2*cov.J1.J2)
 
     Z <- (err.J1-err.J2)/asy.se
