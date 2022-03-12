@@ -6,3 +6,4 @@ export(npiv,
        gsl.bs)
 S3method(fitted, npiv)       
 S3method(residuals, npiv)
+S3method(summary, npiv)
