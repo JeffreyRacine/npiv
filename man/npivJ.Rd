@@ -27,49 +27,49 @@ npivJ(Y,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Y}{
-%%     ~~Describe \code{Y} here~~
+  Dependent variable vector 
 }
   \item{X}{
-%%     ~~Describe \code{X} here~~
+Endogenous predictor matrix
 }
   \item{W}{
-%%     ~~Describe \code{W} here~~
+Instrument matrix
 }
   \item{X.eval}{
-%%     ~~Describe \code{X.eval} here~~
+Evaluation points for endogenous predictor matrix
 }
   \item{K.w.degree}{
-%%     ~~Describe \code{K.w.degree} here~~
+B-spline degree for instrument matrix
 }
   \item{J.x.degree}{
-%%     ~~Describe \code{J.x.degree} here~~
+B-spline degree for endogenous predictor matrix
 }
   \item{J.x.segments.set}{
-%%     ~~Describe \code{J.x.segments.set} here~~
+TBD  
 }
   \item{knots}{
-%%     ~~Describe \code{knots} here~~
+Knot type
 }
   \item{basis}{
-%%     ~~Describe \code{basis} here~~
+Basis type
 }
   \item{eval.num}{
-%%     ~~Describe \code{eval.num} here~~
+Number of evaluation points for grid for \code{X}
 }
   \item{boot.num}{
-%%     ~~Describe \code{boot.num} here~~
+Number of bootstrap replications
 }
   \item{alpha}{
-%%     ~~Describe \code{alpha} here~~
+TBD
 }
   \item{check.is.fullrank}{
-%%     ~~Describe \code{check.is.fullrank} here~~
+Check for full rank input matrices
 }
   \item{chol.pivot}{
-%%     ~~Describe \code{chol.pivot} here~~
+Argument fed to chol()
 }
   \item{lambda}{
-%%     ~~Describe \code{lambda} here~~
+Argument fed to chol()
 }
 }
 \details{
@@ -83,10 +83,10 @@ npivJ(Y,
 %% ...
 }
 \references{
-%% ~put references to the literature/web site here ~
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
 }
 \author{
-%%  ~~who you are~~
+Jeffrey S. Racine <racinej@mcmaster.ca>
 }
 \note{
 %%  ~~further notes~~
