@@ -210,7 +210,8 @@ npivJ <- function(Y,
 
     }
 
-    ## Compute maximum over J set for each bootstrap draw (should produce a boot.num x 1 vector)
+    ## Compute maximum over J set for each bootstrap draw (should
+    ## produce a boot.num x 1 vector)
 
     Z.boot <- apply(Z.sup.boot, 1, max)
     
@@ -243,7 +244,8 @@ npivJ <- function(Y,
       J.hat <- min(J.x.segments.set)
     }
     
-    ## Compute truncated value (second-largest element of J.x.segments.set)
+    ## Compute truncated value (second-largest element of
+    ## J.x.segments.set)
     
     J.hat.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])
     
@@ -254,7 +256,8 @@ npivJ <- function(Y,
     ## Return a list with various objects that might be of interest to
     ## the user
 
-    return(list(J.hat=J.hat,
+    return(list(J.tilde=J.tilde,
+                J.hat=J.hat,
                 J.hat.n=J.hat.n,
                 theta.star=theta.star))
 
