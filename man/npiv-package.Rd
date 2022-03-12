@@ -14,7 +14,7 @@ The procedures contained in this package constitute a computationally simple, da
 
 }
 \author{
-Jeffrey S. Racine <racinej@mcmaster.ca>
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M Christensen <timothy.christensen@nyu.edu>
 
 Maintainer: Jeffrey S. Racine <racinej@mcmaster.ca>
 }

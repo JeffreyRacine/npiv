@@ -4,6 +4,8 @@ Title: Nonparametric Instrumental Variables Estimation
 Version: 0.10-01
 Date: 2022-03-12
 Author:  Jeffrey S. Racine, Timothy M. Christensen
+Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c("aut","cre"), email = "racinej@mcmaster.ca"),
+             person(given = "Timothy M.", family = "Christensen", role = c("aut"), email = "timothy.christensen@nyu.edu"))
 Maintainer:  Jeffrey S. Racine <racinej@mcmaster.ca> 
 Description: This package provides a function with a simple interface for conducting nonparametric instrumental variables (IV) estimation, given a dependent variable vector Y, matrix of endogenous predictors X, and matrix of instruments W.
 License: GPL (>=3)
