@@ -15,6 +15,7 @@ npivJ <- function(Y,
                   basis=c("tensor","additive","glp"),
                   eval.num=50,
                   boot.num=99,
+                  alpha=0.5,
                   check.is.fullrank=FALSE,
                   chol.pivot=FALSE,
                   lambda=sqrt(.Machine$double.eps)) {
@@ -31,6 +32,7 @@ npivJ <- function(Y,
     if(missing(W)) stop(" must provide W")
     if(K.w.degree < 0) stop("K.w.degree must be a non-negative integer")
     if(J.x.degree < 0) stop("J.x.degree must be a non-negative integer")
+    if(alpha <=0 || alpha >=1) stop("alpha must lie in (0,1)")
 
     ## If specified, check that passed objects are of full rank
 
@@ -208,13 +210,52 @@ npivJ <- function(Y,
 
     }
 
-    ## Here I need your help Tim... what to do with these results
-    ## (Z.sup scalar, Z.sup.boot matrix) to compute J?
+    ## Compute maximum over J set for each bootstrap draw (should produce a boot.num x 1 vector)
+
+    Z.boot <- apply(Z.sup.boot, 1, max)
+    
+    theta.star <- quantile(Z.boot, 1 - alpha, names = FALSE)
+    
+    ## NOTE: the J.x.segments.set and alpha will be data-determined.
+    ## For now just take J.x.segments.set as given.
+    
+    ## Compute Lepski choice
+    
+    num.J <- length(J.x.segments.set)
+    
+    test.mat <- matrix(NA, nrow = num.J, ncol = num.J)
+    
+    for(ii in 1:nrow(J1.J2)){
+      row.index = which(J.x.segments.set == J1.J2[ii, 1])
+      col.index = which(J.x.segments.set == J1.J2[ii, 2])
+      test.mat[row.index, col.index] <- (Z.sup[ii] <= 1.1 * theta.star)
+    }
+    
+    test.vec <- array(NA, dim = num.J)
+    
+    for(ii in 1:(num.J - 1)){
+      test.vec[ii] <- prod(test.mat[ii, (ii + 1):num.J])
+    }
+    
+    if(any(test.vec == 1)){
+      J.hat <- J.x.segments.set[min(which(test.vec == 1))]
+    }else{
+      J.hat <- min(J.x.segments.set)
+    }
+    
+    ## Compute truncated value (second-largest element of J.x.segments.set)
+    
+    J.hat.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])
+    
+    ## Take the minimum
+    
+    J.tilde <- min(J.hat, J.hat.n)
 
     ## Return a list with various objects that might be of interest to
     ## the user
 
-    return(list(Z.sup=Z.sup,
-                Z.sup.boot=Z.sup.boot))
+    return(list(J.hat=J.hat,
+                J.hat.n=J.hat.n,
+                theta.star=theta.star))
 
 }
