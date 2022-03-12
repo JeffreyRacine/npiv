@@ -80,23 +80,26 @@ Note - the asymptotic covariance matrix is computed for all \eqn{n} sample reali
 
 }
 \value{
-This function returns a list with the following components:
 
-\item{h}{h returns the estimated instrumental regression function}
-\item{h.deriv}{h.deriv returns the estimated derivative of the instrumental regression function }
-\item{h.asy.se}{asy.se returns the value of }
-\item{h.deriv.asy.se}{asy.se.deriv returns the value of }
+ \code{npiv} returns a \code{npiv} object. The generic function \code{\link{fitted}} extracts the estimated values for the sample (or evaluation data, if provided), while the generic function \code{\link{residuals}} extracts the sample residuals.
+
+The function \code{npiv} returns a list with the following components:
+
+\item{fitted}{fitted returns the estimated instrumental regression function for the sample data (or evaluation data, if provided) }
+\item{residuals}{residuals returns the residuals for the sample data}
+\item{deriv}{deriv returns the estimated derivative of the instrumental regression function for the sample data (or evaluation data, if provided) }
+\item{asy.se}{asy.se returns the value of asymptotic standard errors for the sample data (or evaluation data, if provided) }
+\item{deriv.asy.se}{asy.se.deriv returns the derivative asymptotic standard errorsfor the sample data (or evaluation data, if provided)  }
 \item{deriv.index}{deriv.index returns the index provided and used for computing the derivative}
 \item{deriv.order}{deriv.order returns the order of the estimated derivative }
 \item{K.w.degree}{K.w.degree returns the value of }
 \item{K.w.segments}{K.w.segments returns the value of }
 \item{J.x.degree}{J.x.degree returns the value of }
 \item{J.x.segments}{J.x.segments returns the value of }
-\item{beta}{beta returns the value of }
-\item{B.w}{B.w returns the value of }
-\item{Psi.x}{Psi.x returns the value of }
-\item{Psi.x.deriv}{Psi.x.deriv returns the value of }
-\item{residuals}{residuals returns the residuals for the sample data}
+\item{beta}{beta returns the value of the spline coefficients}
+\item{B.w}{B.w returns the value of the spline bases for W}
+\item{Psi.x}{Psi.x returns the value of the splie bases for X}
+\item{Psi.x.deriv}{Psi.x.deriv returns the value of the spline bases for the derivatives}
 \item{AIC.c}{Hurvich, Siminoff and Tsai's (1998) corrected AIC criterion}
 }
 \references{
@@ -170,8 +173,8 @@ model <- npiv(Y,
 ## Create a plot of the instrumental regression function and its
 ## asymptotic standard error bounds
 
-ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
-          max(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se))
+ylim <- c(min(Y,model$fitted-1.96*model$fitted.asy.se,model$fitted+1.96*model$fitted.asy.se),
+          max(Y,model$fitted-1.96*model$fitted.asy.se,model$fitted+1.96*model$fitted.asy.se))
 
 plot(X,Y,cex=0.25,
      col="lightgrey",
@@ -181,10 +184,10 @@ plot(X,Y,cex=0.25,
      ylab="Y")
 
 lines(X.eval,h0,lty=1,col=1,lwd=1)
-lines(X.eval,model$h,lty=2,col=2,lwd=2)
+lines(X.eval,model$fitted,lty=2,col=2,lwd=2)
 
-lines(X.eval,model$h-1.96*model$h.asy.se,col=4,lty=4,lwd=1)
-lines(X.eval,model$h+1.96*model$h.asy.se,col=4,lty=4,lwd=1)
+lines(X.eval,model$fitted-1.96*model$asy.se,col=4,lty=4,lwd=1)
+lines(X.eval,model$fitted+1.96*model$asy.se,col=4,lty=4,lwd=1)
 
 legend("topleft",c("DGP",paste("NPIV (K.w.degree = ",model$K.w.degree,
                                ", W.knots = ",model$K.w.segments+1,
@@ -199,12 +202,12 @@ legend("topleft",c("DGP",paste("NPIV (K.w.degree = ",model$K.w.degree,
 ## Create a plot of the instrumental regression function's first
 ## partial derivative and its asymptotic standard error bounds
 
-ylim <- c(min(c(model$h.deriv-1.96*model$h.deriv.asy.se,
-                model$h.deriv+1.96*model$h.deriv.asy.se)),
-          max(c(model$h.deriv-1.96*model$h.deriv.asy.se,
-                model$h.deriv+1.96*model$h.deriv.asy.se)))
+ylim <- c(min(c(model$deriv-1.96*model$deriv.asy.se,
+                model$deriv+1.96*model$deriv.asy.se)),
+          max(c(model$deriv-1.96*model$deriv.asy.se,
+                model$deriv+1.96*model$deriv.asy.se)))
 
-plot(X.eval,model$h.deriv,type="l",
+plot(X.eval,model$deriv,type="l",
      ylim=ylim,
      sub=paste("K.w.degree = ",model$K.w.degree,
                ", W.knots = ",model$K.w.segments+1,
@@ -216,8 +219,8 @@ plot(X.eval,model$h.deriv,type="l",
      lwd=2,
      col=2)
 
-lines(X.eval,model$h.deriv-1.96*model$h.deriv.asy.se,col=4,lty=4)
-lines(X.eval,model$h.deriv+1.96*model$h.deriv.asy.se,col=4,lty=4)
+lines(X.eval,model$deriv-1.96*model$deriv.asy.se,col=4,lty=4)
+lines(X.eval,model$deriv+1.96*model$deriv.asy.se,col=4,lty=4)
 abline(h=0,col="grey")
 
 }

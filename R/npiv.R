@@ -177,10 +177,11 @@ npiv <- function(Y,
     ## Return a list with various objects that might be of interest to
     ## the user
 
-    return(list(h=h,
-                h.deriv=h.deriv,
-                h.asy.se=asy.se,
-                h.deriv.asy.se=asy.se.deriv,
+    return(list(fitted=h,
+                residuals=Y-Psi.x%*%beta,
+                deriv=h.deriv,
+                asy.se=asy.se,
+                deriv.asy.se=asy.se.deriv,
                 deriv.index=deriv.index,
                 deriv.order=deriv.order,
                 K.w.degree=K.w.degree,
@@ -191,10 +192,16 @@ npiv <- function(Y,
                 B.w=B.w,
                 Psi.x=Psi.x,
                 Psi.x.deriv=Psi.x.deriv,
-                residuals=Y-Psi.x%*%beta,
-                AIC.c=aic.c,
-                R2=RSQfunc(Y, Psi.x%*%beta)))
+                AIC.c=aic.c))
 
+}
+
+fitted.npiv <- function(object, ...){
+   object$fitted 
+}
+
+residuals.npiv <- function(object, ...) {
+   object$residuals
 }
 
 ## Stripped down version that computes the bare minimum necessary to
@@ -301,7 +308,7 @@ npivaic <- function(Y,
                     log(mean((Y-h)^2)) + aic.penalty,
                     .Machine$double.xmax)
 
-    return(list(h=h,
+    return(list(fitted=h,
                 K.w.degree=K.w.degree,
                 K.w.segments=K.w.segments,
                 J.x.degree=J.x.degree,

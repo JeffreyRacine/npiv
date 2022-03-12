@@ -107,7 +107,7 @@ plot(X,Y,cex=0.25,
      ylab="Y")
 
 lines(X[order(X)],h0[order(X)],lty=1,col=1,lwd=1)
-lines(X[order(X)],model$h[order(X)],lty=2,col=2,lwd=2)
+lines(X[order(X)],model$fitted[order(X)],lty=2,col=2,lwd=2)
 
 legend("topleft",c("DGP (IV Function h0)",paste("NPIV (K.w.degree = ",model$K.w.degree,
                                ", W.knots = ",model$K.w.segments+1,

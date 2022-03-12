@@ -64,9 +64,9 @@ plot(logexp,food,
      cex=.5,
      col="lightgrey")
 
-lines(logexp,model.iv$h,col="blue",lwd=2,lty=2)
+lines(logexp,model.iv$fitted,col="blue",lwd=2,lty=2)
 
-lines(logexp,model.niv$h,col="red",lwd=2,lty=4)
+lines(logexp,model.niv$fitted,col="red",lwd=2,lty=4)
 
 legend("topright",
        c("Nonparametric IV","Nonparametric Regression"),
