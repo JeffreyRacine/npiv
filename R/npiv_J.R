@@ -15,7 +15,7 @@ npivJ <- function(Y,
                   basis=c("tensor","additive","glp"),
                   eval.num=50,
                   boot.num=99,
-                  alpha=0.5,
+                  alpha=0.05,
                   check.is.fullrank=FALSE,
                   chol.pivot=FALSE,
                   lambda=sqrt(.Machine$double.eps)) {
