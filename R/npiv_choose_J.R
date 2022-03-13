@@ -57,6 +57,8 @@ npiv_choose_J <- function(Y,
               J.hat.n=tmp2$J.hat.n,
               J.hat=tmp2$J.hat,
               J.tilde=tmp2$J.tilde,
+              J.x.seg=tmp2$J.x.seg,
+              J.w.seg=tmp2$J.w.seg,
               theta.star=tmp2$theta.star))
   
   

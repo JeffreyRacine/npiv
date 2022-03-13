@@ -251,19 +251,26 @@ npivJ <- function(Y,
     ## Add 1 to segments to get dimension
     
     if(any(test.vec == 1)){
-      J.hat <- J.x.segments.set[min(which(test.vec == 1))]+1
+      J.seg <- J.x.segments.set[min(which(test.vec == 1))]
     }else{
-      J.hat <- min(J.x.segments.set)+1
+      J.seg <- min(J.x.segments.set)
     }
     
     ## Compute truncated value (second-largest element of
     ## J.x.segments.set)
     
-    J.hat.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])+1
+    J.seg.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])
     
     ## Take the minimum
     
-    J.tilde <- min(J.hat, J.hat.n)
+    J.x.seg <- min(J.seg, J.seg.n)
+    J.w.seg <- J.w.segments.set[which(J.x.segments.set == J.x.seg)]
+    
+    ## Convert from segments to J values
+    
+    J.hat <- J.seg + 1
+    J.hat.n <- J.seg.n + 1
+    J.tilde <- J.x.seg + 1
 
     ## Return a list with various objects that might be of interest to
     ## the user
@@ -271,6 +278,8 @@ npivJ <- function(Y,
     return(list(J.tilde=J.tilde,
                 J.hat=J.hat,
                 J.hat.n=J.hat.n,
+                J.x.seg=J.x.seg,
+                J.w.seg=J.w.seg,
                 theta.star=theta.star))
 
 }
