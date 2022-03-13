@@ -8,9 +8,10 @@ npivJ <- function(Y,
                   X,
                   W,
                   X.eval=NULL,
-                  K.w.degree=3,
                   J.x.degree=3,
+                  K.w.degree=3,
                   J.x.segments.set=c(2,4,8,16,32,64)-1,
+                  J.w.segments.set=c(2,4,8,16,32,64)-1,
                   knots=c("uniform","quantiles"),
                   basis=c("tensor","additive","glp"),
                   eval.num=50,
@@ -59,24 +60,33 @@ npivJ <- function(Y,
     ## combinations, then we select those with J2 > J1 (remove
     ## symmetric computations and those with J2=J1)
 
-    J1.J2 <- expand.grid(J.x.segments.set,J.x.segments.set)
-    J1.J2 <- subset(J1.J2,Var2 > Var1)
+    J1.J2.x <- expand.grid(J.x.segments.set,J.x.segments.set)
+    J1.J2.x <- subset(J1.J2.x,Var2 > Var1)
+    
+    J1.J2.w <- apply(J1.J2.x, c(1,2), function(u) J.w.segments.set[which(J.x.segments.set == u)])
 
     ## In what follows we loop over _rows_ of J1.J2 (makes for easy
     ##  parallelization if needed)
 
     Z.sup <- numeric()
-    Z.sup.boot <- matrix(NA,boot.num,NROW(J1.J2))
+    Z.sup.boot <- matrix(NA,boot.num,NROW(J1.J2.x))
+    
+    ## Temporary indication of where we are in the process
+    
+    print("Determining bootstrap critical value")
 
-    for(ii in 1:NROW(J1.J2)) {
+    for(ii in 1:NROW(J1.J2.x)) {
 
         ## Temporary indication of where we are in the process
 
-        print(paste("Row ",ii," of ",NROW(J1.J2)))
+        print(paste("Row ",ii," of ",NROW(J1.J2.x)))
 
-        J.x.J1.segments <- J1.J2[ii,1]
-        J.x.J2.segments <- J1.J2[ii,2]
-
+        J.x.J1.segments <- J1.J2.x[ii,1]
+        J.x.J2.segments <- J1.J2.x[ii,2]
+        
+        J.w.J1.segments <- J1.J2.w[ii,1]
+        J.w.J2.segments <- J1.J2.w[ii,2]
+        
         ## Tim precomputes and reuses basis functions... these are
         ## computationally efficient so might not save much time, morover
         ## if parallelized could be a waste and even add overhead
@@ -90,12 +100,12 @@ npivJ <- function(Y,
             B.w.J1 <- B.w.J2 <- matrix(1,NROW(W),1)
         } else {
             B.w.J1 <- prod.spline(x=W,
-                               K=cbind(rep(K.w.degree,NCOL(W)),rep(J.x.J1.segments,NCOL(W))),
+                               K=cbind(rep(K.w.degree,NCOL(W)),rep(J.w.J1.segments,NCOL(W))),
                                knots=knots,
                                basis=basis)
 
             B.w.J2 <- prod.spline(x=W,
-                               K=cbind(rep(K.w.degree,NCOL(W)),rep(J.x.J2.segments,NCOL(W))),
+                               K=cbind(rep(K.w.degree,NCOL(W)),rep(J.w.J2.segments,NCOL(W))),
                                knots=knots,
                                basis=basis)
 
@@ -226,9 +236,9 @@ npivJ <- function(Y,
     
     test.mat <- matrix(NA, nrow = num.J, ncol = num.J)
     
-    for(ii in 1:nrow(J1.J2)){
-      row.index = which(J.x.segments.set == J1.J2[ii, 1])
-      col.index = which(J.x.segments.set == J1.J2[ii, 2])
+    for(ii in 1:nrow(J1.J2.x)){
+      row.index = which(J.x.segments.set == J1.J2.x[ii, 1])
+      col.index = which(J.x.segments.set == J1.J2.x[ii, 2])
       test.mat[row.index, col.index] <- (Z.sup[ii] <= 1.1 * theta.star)
     }
     
@@ -238,16 +248,18 @@ npivJ <- function(Y,
       test.vec[ii] <- prod(test.mat[ii, (ii + 1):num.J])
     }
     
+    ## Add 1 to segments to get dimension
+    
     if(any(test.vec == 1)){
-      J.hat <- J.x.segments.set[min(which(test.vec == 1))]
+      J.hat <- J.x.segments.set[min(which(test.vec == 1))]+1
     }else{
-      J.hat <- min(J.x.segments.set)
+      J.hat <- min(J.x.segments.set)+1
     }
     
     ## Compute truncated value (second-largest element of
     ## J.x.segments.set)
     
-    J.hat.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])
+    J.hat.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])+1
     
     ## Take the minimum
     
