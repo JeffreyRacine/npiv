@@ -247,9 +247,9 @@ npivJ <- function(Y,
       test.vec[ii] <- prod(test.mat[ii, (ii + 1):num.J])
     }
     
-    ## Add 1 to segments to get dimension
+    ## Add degree to segments to get dimension
     
-    if(all(test.vec == 0 || is.na(test.vec))){
+    if(all((test.vec == 0) | is.na(test.vec))){
       J.seg <- max(J.x.segments.set)
     } else {
       if(any(test.vec == 1)){
