@@ -249,10 +249,14 @@ npivJ <- function(Y,
     
     ## Add 1 to segments to get dimension
     
-    if(any(test.vec == 1)){
-      J.seg <- J.x.segments.set[min(which(test.vec == 1))]
-    }else{
-      J.seg <- min(J.x.segments.set)
+    if(all(test.vec == 0 || is.na(test.vec))){
+      J.seg <- max(J.x.segments.set)
+    } else {
+      if(any(test.vec == 1)){
+        J.seg <- J.x.segments.set[min(which(test.vec == 1))]
+      }else{
+        J.seg <- min(J.x.segments.set)
+      }
     }
     J.hat <- (J.seg + J.x.degree)^NCOL(X)
     
