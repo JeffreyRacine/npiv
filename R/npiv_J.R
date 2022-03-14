@@ -165,14 +165,16 @@ npivJ <- function(Y,
 
         U.J1 <- Y-Psi.x.J1%*%beta.J1
         err.J1 <- Psi.x.J1.eval%*%tmp.J1%*%U.J1
-
+        hhat.J1 <- Psi.x.J1.eval%*%beta.J1
+        
         Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
         tmp.J2 <- chol2inv(chol(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2+diag(lambda,NCOL(Psi.x.J2)),pivot=chol.pivot))%*%Psi.xJ2TB.wB.wTB.w.invB.w
         beta.J2 <- tmp.J2%*%Y
 
         U.J2 <- Y-Psi.x.J2%*%beta.J2
         err.J2 <- Psi.x.J2.eval%*%tmp.J2%*%U.J2
-
+        hhat.J2 <- Psi.x.J2.eval%*%beta.J2
+        
         ## Compute asymptotic variances and covariances for the IV
         ## functions - these will be memory intensive for large n as
         ## they require taking the diagonal of an n.eval x n.eval
@@ -210,7 +212,7 @@ npivJ <- function(Y,
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
 
-        Z.sup[ii] <- max((err.J1-err.J2)/asy.se)
+        Z.sup[ii] <- max((hhat.J1-hhat.J2)/asy.se)
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
@@ -226,9 +228,6 @@ npivJ <- function(Y,
     Z.boot <- apply(Z.sup.boot, 1, max)
     
     theta.star <- quantile(Z.boot, 1 - alpha, names = FALSE)
-    
-    ## NOTE: the J.x.segments.set and alpha will be data-determined.
-    ## For now just take J.x.segments.set as given.
     
     ## Compute Lepski choice
     
@@ -255,23 +254,20 @@ npivJ <- function(Y,
     }else{
       J.seg <- min(J.x.segments.set)
     }
+    J.hat <- (J.seg + J.x.degree)^NCOL(X)
     
     ## Compute truncated value (second-largest element of
     ## J.x.segments.set)
     
     J.seg.n <- max(J.x.segments.set[-which.max(J.x.segments.set)])
+    J.hat.n <- (J.seg.n + J.x.degree)^NCOL(X)
     
     ## Take the minimum
     
     J.x.seg <- min(J.seg, J.seg.n)
+    J.tilde <- min(J.hat, J.hat.n)
     J.w.seg <- J.w.segments.set[which(J.x.segments.set == J.x.seg)]
     
-    ## Convert from segments to J values
-    
-    J.hat <- J.seg + 1
-    J.hat.n <- J.seg.n + 1
-    J.tilde <- J.x.seg + 1
-
     ## Return a list with various objects that might be of interest to
     ## the user
 

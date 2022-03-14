@@ -39,13 +39,13 @@ npiv_Jhat_max <- function(X,
   ## denominator matrix because 
   
   L.max <- max(floor(log(NROW(X), base = 2 * NCOL(X))), 3)
-  J.x.segments.set <- (2^(0:L.max) + J.x.degree)^NCOL(X) - 1
-  J.w.segments.set <- (2^(0:L.max+K.w.smooth) + K.w.degree)^NCOL(W) - 1
+  J.x.segments.set <- (2^(1:L.max))-1
+  J.w.segments.set <- (2^(1:L.max+K.w.smooth))-1
 
   ## In what follows we loop over _rows_  (makes for easy
   ##  parallelization if needed)
   
-  test.val <- numeric()
+  test.val <- array(NA, dim = L.max)
   
   ## Temporary indication of where we are in the process
   
@@ -57,78 +57,85 @@ npiv_Jhat_max <- function(X,
     
     print(paste("Row ",ii," of ",L.max))
     
-    J.x.segments <- J.x.segments.set[ii]
-    J.w.segments <- J.w.segments.set[ii]
-
-    ## Segments are set deterministically during search so makes
-    ## sense to ensure degrees are set appropriately
-    
-    ## Generate basis functions for W for J
-    
-    if(K.w.degree < J.x.degree) stop("K.w.degree must be >= J.x.degree")
-    
-    ## Estimate measure of ill-posedness if IV model; if regression set to 1 by default
-    
-    if(all(X == W)){
+    if((ii <= 2) || ((ii > 2) & (test.val[ii-2] <= 10*sqrt(NROW(X))))){
       
-      s.hat.J <- 1
-      
-    } else {
+      J.x.segments <- J.x.segments.set[ii]
+      J.w.segments <- J.w.segments.set[ii]
       
       ## Generate basis functions for W for J
       
-      if(K.w.degree==0) {
-        B.w.J <- matrix(1,NROW(W),1)
-      } else {
-        B.w.J <- prod.spline(x=W,
-                             K=cbind(rep(K.w.degree,NCOL(W)),rep(J.w.segments,NCOL(W))),
-                             knots=knots,
-                             basis=basis)
+      if(K.w.degree < J.x.degree) stop("K.w.degree must be >= J.x.degree")
+      
+      ## Estimate measure of ill-posedness if IV model; if regression set to 1 by default
+      
+      if(all(X == W)){
         
-        if(basis!="tensor") {
-          B.w.J <- cbind(1,B.w.J)
-        }
-      }
-      
-      ## Generate basis functions for X for J
-      
-      if(J.x.degree==0) {
-        Psi.x.J <- matrix(1,NROW(X),1)
+        s.hat.J <- 1
+        
       } else {
-        Psi.x.J <- prod.spline(x=X,
-                               K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+        
+        ## Generate basis functions for W for J
+        
+        if(K.w.degree==0) {
+          B.w.J <- matrix(1,NROW(W),1)
+        } else {
+          B.w.J <- prod.spline(x=W,
+                               K=cbind(rep(K.w.degree,NCOL(W)),rep(J.w.segments,NCOL(W))),
                                knots=knots,
                                basis=basis)
-        
-        if(basis!="tensor") {
-          Psi.x.J <- cbind(1,Psi.x.J)
+          
+          if(basis!="tensor") {
+            B.w.J <- cbind(1,B.w.J)
+          }
         }
+        
+        ## Generate basis functions for X for J
+        
+        if(J.x.degree==0) {
+          Psi.x.J <- matrix(1,NROW(X),1)
+        } else {
+          Psi.x.J <- prod.spline(x=X,
+                                 K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                                 knots=knots,
+                                 basis=basis)
+          
+          if(basis!="tensor") {
+            Psi.x.J <- cbind(1,Psi.x.J)
+          }
+        }
+        
+        ## Compute \hat{s}_J
+        
+        G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
+        G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
+        S.J <- t(Psi.x.J)%*%B.w.J
+        tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
+        
+        s.hat.J <- min(svd(tmp)$d)
+        
       }
       
-      ## Compute \hat{s}_J
+      ## Compute test value
       
-      G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
-      G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
-      S.J <- t(Psi.x.J)%*%B.w.J
-      tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
+      J.x.dim <- (J.x.segments + J.x.degree)^NCOL(X)
       
-      s.hat.J <- min(svd(tmp)$d)
+      test.val[ii] <- J.x.dim*sqrt(log(J.x.dim))*max((0.1*log(NROW(X)))^4,1/s.hat.J)
+      
+    } else {
+      
+      test.val[ii] <- test.val[ii - 1]
       
     }
-    
-    ## Compute test value
-    
-    test.val[ii] <- (J.x.segments+1)*sqrt(log((J.x.segments+1)))*max((0.1*log(NROW(X)))^4,1/s.hat.J)
     
   }
   
   ## Find appropriate value
   
-  L.hat.max <- which((test.val[-length(test.val)] <= 10*sqrt(NROW(X))) & (10*sqrt(NROW(X)) < test.val[-1]))
+  L.hat.max <- which((test.val[-length(test.val)] <= 10*sqrt(NROW(X))) & (10*sqrt(NROW(X)) < test.val[-1]))[1]
   
   ## Return largest feasible grid in case empty
   
-  if(length(L.hat.max) == 0){
+  if(is.na(L.hat.max)){
     L.hat.max <- L.max
   }
   
@@ -137,7 +144,7 @@ npiv_Jhat_max <- function(X,
   J.x.segments.set <- J.x.segments.set[1:L.hat.max]
   J.w.segments.set <- J.w.segments.set[1:L.hat.max]
   
-  J.hat.max <- max(J.x.segments.set) + 1
+  J.hat.max <- (max(J.x.segments.set) + J.x.degree)^NCOL(X)
   
   alpha.hat <- min(0.5, 1/J.hat.max)
   
