@@ -27,50 +27,62 @@ npivJ(Y,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Y}{
-  Dependent variable vector 
+Dependent variable vector \code{Y}
 }
   \item{X}{
-Endogenous predictor matrix
+Endogenous predictor matrix \code{X}
 }
   \item{W}{
-Instrument matrix
+Instrument matrix \code{W}
 }
   \item{X.eval}{
-Evaluation points for endogenous predictor matrix
-}
-  \item{K.w.degree}{
-B-spline degree for instrument matrix
+Evaluation points for endogenous predictor matrix \code{X}
 }
   \item{J.x.degree}{
-B-spline degree for endogenous predictor matrix
+B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
+}
+  \item{K.w.degree}{
+B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{J.x.segments.set}{
-TBD  
+B-spline segments set for endogenous predictor matrix, i.e., , i.e., integer/vector specifying the number of segments of the B-spline basis for the the matrix \code{X}(i.e. number of knots minus one) (default \code{segments=1}, i.e. Bezier curve)
 }
-  \item{knots}{
-Knot type
-}
-  \item{basis}{
-Basis type
-}
-  \item{eval.num}{
-Number of evaluation points for grid for \code{X}
+  \item{K.w.segments.set}{
+B-spline segments set for instrument matrix, i.e., integer/vector specifying the number of segments of the B-spline basis for the the matrix \code{W}(i.e. number of knots minus one) (default \code{segments=1}, i.e. Bezier curve)
 }
   \item{boot.num}{
-Number of bootstrap replications
+Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+}
+  \item{eval.num}{
+Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+}
+
+  \item{basis}{
+Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
+}
+  \item{knots}{
+Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
+}
+  \item{eval.num}{
+Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+}
+
+  \item{boot.num}{
+Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
 }
   \item{alpha}{
 TBD
 }
   \item{check.is.fullrank}{
-Check for full rank input matrices
+Check for full rank input matrices for \code{X} and \code{W}
 }
   \item{chol.pivot}{
-Argument fed to chol()
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
   \item{lambda}{
-Argument fed to chol()
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
+
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
@@ -86,7 +98,7 @@ Argument fed to chol()
 Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
 }
 \author{
-Jeffrey S. Racine <racinej@mcmaster.ca>
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
 }
 \note{
 %%  ~~further notes~~

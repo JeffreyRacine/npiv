@@ -82,7 +82,7 @@ npiv_choose_J(Y,
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
 }
 \note{
 %%  ~~further notes~~

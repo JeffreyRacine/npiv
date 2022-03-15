@@ -118,7 +118,7 @@ Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation
 
 }
 \author{
-Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen [timothy.christensen@nyu.edu>]
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
 }
 \note{
 Memory/usage warning - note that the asymptotic covariance matrix is computed for all \eqn{n} sample realizations  by default, unless an evaluation matrix for \code{X} is provided. This matrix will be \eqn{n\times n} which can quickly exhaust memory in a system. To avoid this simply provide an evaluation matrix for X (\code{X.eval}) that contains, say, a grid of \eqn{100} points (one typically only wants the asymptotic variance for plotting confidence intervals). The covariance matrix will now be of dimension \eqn{100\times 100} thereby allowing one to run the function with a large number of sample realizations.
