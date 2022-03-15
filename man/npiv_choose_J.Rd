@@ -98,13 +98,13 @@ library(MASS)
 
 n <- 1000
 
-cov.uy2 <- 0.5
+cov.ux <- 0.5
 var.u <- 0.1
 mu <- c(1,1,0)
 
-Sigma <- matrix(c(1.0,0.85,cov.uy2,
+Sigma <- matrix(c(1.0,0.85,cov.ux,
                   0.85,1.0,0.0,
-                  cov.uy2,0.0,1.0),
+                  cov.ux,0.0,1.0),
                 3,3,
                 byrow=TRUE)
 
