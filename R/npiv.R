@@ -626,21 +626,13 @@ npiv_Jhat_max <- function(X,
 
         ## Compute \hat{s}_J
         
-        if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
+        G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
+        G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
+        S.J <- t(Psi.x.J)%*%B.w.J
+        tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
           
-          s.hat.J <- 0
-          
-        } else {
-          
-          G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
-          G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
-          S.J <- t(Psi.x.J)%*%B.w.J
-          tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
-          
-          s.hat.J <- min(svd(tmp)$d)
-          
-        }
-
+        s.hat.J <- min(svd(tmp)$d)
+        
       }
 
       ## Compute test value
