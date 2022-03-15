@@ -2,7 +2,7 @@
 \alias{npiv_choose_J}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Nonparametric Instrumental Variables Estimation Model Complexity
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~

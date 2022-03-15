@@ -1,14 +1,25 @@
 \name{npivaic}
 \alias{npivaic}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
-%%  ~~function to do ... ~~
+Nonparametric Instrumental Variables Estimation Model Complexity via AIC.c 
 }
 \description{
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-npivaic(Y, X, W, K.w.degree = 3, K.w.segments = 1, J.x.degree = 3, J.x.segments = 1, knots = c("uniform", "quantiles"), basis = c("tensor", "additive", "glp"), check.is.fullrank = FALSE, chol.pivot = FALSE, lambda = sqrt(.Machine$double.eps))
+npivaic(Y,
+        X,
+        W,
+        K.w.degree = 3,
+        K.w.segments = 1,
+        J.x.degree = 3,
+        J.x.segments = 1,
+        knots = c("uniform", "quantiles"),
+        basis = c("tensor", "additive", "glp"),
+        check.is.fullrank = FALSE,
+        chol.pivot = FALSE,
+        lambda = sqrt(.Machine$double.eps))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
