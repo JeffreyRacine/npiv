@@ -244,7 +244,7 @@ npivJ <- function(Y,
                   basis=c("tensor","additive","glp"),
                   eval.num=50,
                   boot.num=99,
-                  alpha=0.05,
+                  alpha,
                   check.is.fullrank=FALSE,
                   chol.pivot=FALSE,
                   lambda=sqrt(.Machine$double.eps)) {
@@ -482,7 +482,7 @@ npivJ <- function(Y,
       test.vec[ii] <- prod(test.mat[ii, (ii + 1):num.J])
     }
 
-    ## Add 1 to segments to get dimension
+    ## Convert segments to dimension
 
     if(all(test.vec == 0 || is.na(test.vec))){
       J.seg <- max(J.x.segments.set)
@@ -625,13 +625,21 @@ npiv_Jhat_max <- function(X,
         }
 
         ## Compute \hat{s}_J
-
-        G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
-        G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
-        S.J <- t(Psi.x.J)%*%B.w.J
-        tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
-
-        s.hat.J <- min(svd(tmp)$d)
+        
+        if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
+          
+          s.hat.J <- 0
+          
+        } else {
+          
+          G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
+          G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
+          S.J <- t(Psi.x.J)%*%B.w.J
+          tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
+          
+          s.hat.J <- min(svd(tmp)$d)
+          
+        }
 
       }
 
