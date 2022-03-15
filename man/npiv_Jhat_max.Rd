@@ -74,7 +74,40 @@ npiv_Jhat_max(X,
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-## TBD
+## Simulate data using the mvrnorm() function in the MASS package
+
+library(MASS)
+
+set.seed(42)
+n <- 1000
+
+cov.uy2 <- 0.5
+var.u <- 0.1
+mu <- c(1,1,0)
+
+Sigma <- matrix(c(1.0,0.85,cov.uy2,
+                  0.85,1.0,0.0,
+                  cov.uy2,0.0,1.0),
+                3,3,
+                byrow=TRUE)
+
+foo <- mvrnorm(n = n,
+               mu,
+               Sigma)
+
+X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
+W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
+
+out <- npiv_Jhat_max(X,
+                     W,
+                     J.x.degree,
+                     K.w.degree,
+                     K.w.smooth,
+                     knots,
+                     basis,
+                     check.is.fullrank,
+                     chol.pivot)
+out                     
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):

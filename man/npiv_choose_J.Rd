@@ -94,7 +94,48 @@ npiv_choose_J(Y,
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-## TBD
+library(MASS)
+
+n <- 1000
+
+cov.uy2 <- 0.5
+var.u <- 0.1
+mu <- c(1,1,0)
+
+Sigma <- matrix(c(1.0,0.85,cov.uy2,
+                  0.85,1.0,0.0,
+                  cov.uy2,0.0,1.0),
+                3,3,
+                byrow=TRUE)
+
+foo <- mvrnorm(n = n,
+               mu,
+               Sigma)
+
+X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
+W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
+U <- foo[,3]
+
+## h0 is the instrumental DGP function
+
+h0 <- sin(pi*X)
+Y <- h0 + sqrt(var.u)*U
+
+out <- npiv_choose_J(Y,
+                     X,
+                     W,
+                     X.eval=X.eval,
+                     J.x.degree=J.x.degree,
+                     K.w.degree=K.w.degree,
+                     K.w.smooth=K.w.smooth,
+                     knots=knots,
+                     basis=basis,
+                     eval.num=eval.num,
+                     boot.num=boot.num,
+                     check.is.fullrank=check.is.fullrank,
+                     chol.pivot=chol.pivot,
+                     lambda=lambda)
+out                     
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):

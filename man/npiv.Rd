@@ -71,7 +71,7 @@ Number of evaluation observations (for complexity routines where X.eval necessar
 }
 
   \item{knots}{
-Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observationslie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
+Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
   \item{basis}{
 Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
@@ -99,7 +99,7 @@ The function \code{npiv} returns a list with the following components:
 \item{residuals}{residuals returns the residuals for the sample data}
 \item{deriv}{deriv returns the estimated derivative of the instrumental regression function for the sample data (or evaluation data, if provided) }
 \item{asy.se}{asy.se returns the value of asymptotic standard errors for the sample data (or evaluation data, if provided) }
-\item{deriv.asy.se}{asy.se.deriv returns the derivative asymptotic standard errorsfor the sample data (or evaluation data, if provided)  }
+\item{deriv.asy.se}{asy.se.deriv returns the derivative asymptotic standard errors for the sample data (or evaluation data, if provided)  }
 \item{deriv.index}{deriv.index returns the index provided and used for computing the derivative}
 \item{deriv.order}{deriv.order returns the order of the estimated derivative }
 \item{K.w.degree}{K.w.degree returns the value used }
@@ -108,7 +108,7 @@ The function \code{npiv} returns a list with the following components:
 \item{J.x.segments}{J.x.segments returns the value used }
 \item{beta}{beta returns the value of the spline coefficients}
 \item{B.w}{B.w returns the value of the spline bases for \code{W}}
-\item{Psi.x}{Psi.x returns the value of the splie bases for \code{X}}
+\item{Psi.x}{Psi.x returns the value of the spline bases for \code{X}}
 \item{Psi.x.deriv}{Psi.x.deriv returns the value of the spline bases for the derivatives}
 \item{AIC.c}{Hurvich, Siminoff and Tsai's (1998) corrected AIC criterion}
 }
