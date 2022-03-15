@@ -1,5 +1,5 @@
 useDynLib(npiv, .registration = TRUE)
-import(stats,expm)
+import(stats,expm,progress)
 export(npiv,
        npiv_Jhat_max,
        npiv_choose_J,

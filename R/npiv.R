@@ -279,9 +279,14 @@ npivJ <- function(Y,
 
     ## Temporary indication of where we are in the process
 
-#    print("Determining bootstrap critical value")
+    pb <- progress_bar$new(format = " complexity determination [:bar] :percent eta: :eta",
+                           clear = TRUE,
+                           width= 60,
+                           total = NROW(J1.J2.x))
 
     for(ii in 1:NROW(J1.J2.x)) {
+
+        pb$tick()
 
         ## Temporary indication of where we are in the process
 
@@ -423,8 +428,16 @@ npivJ <- function(Y,
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
 
-        for(b in 1:boot.num) Z.sup.boot[b,ii] <- max((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
-                                                      Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)
+        pbb <- progress_bar$new(format = " bootstrapping [:bar] :percent eta: :eta",
+                               clear = TRUE,
+                               width= 60,
+                               total = boot.num)
+
+        for(b in 1:boot.num) {
+            pbb$tick()
+            Z.sup.boot[b,ii] <- max((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
+                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)
+        }
 
     }
 
@@ -541,9 +554,16 @@ npiv_Jhat_max <- function(X,
 
   ## Temporary indication of where we are in the process
 
+  pb <- progress_bar$new(format = " grid determination [:bar] :percent eta: :eta",
+                         clear = TRUE,
+                         width= 60,
+                         total = L.max)
+
 #  print("Determining grid")
 
   for(ii in 1:L.max) {
+
+    pb$tick()
 
     ## Temporary indication of where we are in the process
 
