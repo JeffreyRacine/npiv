@@ -86,74 +86,108 @@ npivaic(Y,
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+## Model selection via Hurvich, Siminoff and Tsai's AIC.c
+## criterion. Note we set the degree and number of knots/segments to
+## be equal for both the Psi.x and B.w bases. You could, naturally,
+## explore more possibilities, perhaps exploiting multiple cores to do
+## this simultaneously.
 
-## The function is currently defined as
-function (Y, X, W, K.w.degree = 3, K.w.segments = 1, J.x.degree = 3, 
-    J.x.segments = 1, knots = c("uniform", "quantiles"), basis = c("tensor", 
-        "additive", "glp"), check.is.fullrank = FALSE, chol.pivot = FALSE, 
-    lambda = sqrt(.Machine$double.eps)) 
-{
-    basis <- match.arg(basis)
-    knots <- match.arg(knots)
-    if (missing(Y)) 
-        stop(" must provide Y")
-    if (missing(X)) 
-        stop(" must provide X")
-    if (missing(W)) 
-        stop(" must provide W")
-    if (K.w.degree < 0) 
-        stop("K.w.degree must be a non-negative integer")
-    if (J.x.degree < 0) 
-        stop("J.x.degree must be a non-negative integer")
-    if (K.w.segments <= 0) 
-        stop("K.w.segments must be a positive integer")
-    if (J.x.segments <= 0) 
-        stop("J.x.segments must be a positive integer")
-    if (check.is.fullrank) {
-        if (!is.fullrank(Y)) 
-            stop("Y is not of full column rank")
-        if (!is.fullrank(X)) 
-            stop("X is not of full column rank")
-        if (!is.fullrank(W)) 
-            stop("W is not of full column rank")
-    }
-    if (K.w.degree + K.w.segments < J.x.degree + J.x.segments) 
-        stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
-    if (K.w.degree == 0) {
-        B.w <- matrix(1, NROW(W), 1)
-    }
-    else {
-        B.w <- prod.spline(x = W, K = cbind(rep(K.w.degree, NCOL(W)), 
-            rep(K.w.segments, NCOL(W))), knots = knots, basis = basis)
-        if (basis != "tensor") 
-            B.w <- cbind(1, B.w)
-    }
-    if (J.x.degree == 0) {
-        Psi.x <- matrix(1, NROW(X), 1)
-    }
-    else {
-        Psi.x <- prod.spline(x = X, K = cbind(rep(J.x.degree, 
-            NCOL(X)), rep(J.x.segments, NCOL(X))), knots = knots, 
-            basis = basis)
-        if (basis != "tensor") 
-            Psi.x <- cbind(1, Psi.x)
-    }
-    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x) \%*\% B.w \%*\% chol2inv(chol(t(B.w) \%*\% 
-        B.w, pivot = chol.pivot)) \%*\% t(B.w)
-    h <- Psi.x \%*\% (chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w \%*\% 
-        Psi.x + diag(lambda, NCOL(Psi.x)), pivot = chol.pivot)) \%*\% 
-        Psi.xTB.wB.wTB.w.invB.w \%*\% Y)
-    trH <- dim(Psi.x)[2]
-    aic.penalty <- (1 + trH/length(Y))/(1 - (trH + 2)/length(Y))
-    aic.c <- ifelse(aic.penalty > 0, log(mean((Y - h)^2)) + aic.penalty, 
-        .Machine$double.xmax)
-    return(list(fitted = h, K.w.degree = K.w.degree, K.w.segments = K.w.segments, 
-        J.x.degree = J.x.degree, J.x.segments = J.x.segments, 
-        AIC.c = aic.c))
-  }
+library(MASS)
+
+n <- 1000
+
+cov.uy2 <- 0.5
+var.u <- 0.1
+mu <- c(1,1,0)
+
+Sigma <- matrix(c(1.0,0.85,cov.uy2,
+                  0.85,1.0,0.0,
+                  cov.uy2,0.0,1.0),
+                3,3,
+                byrow=TRUE)
+
+foo <- mvrnorm(n = n,
+               mu,
+               Sigma)
+
+X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
+W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
+U <- foo[,3]
+
+## h0 is the instrumental DGP function - try changing from X**1
+## (linear), X**2 (quadratic), cos(2*pi*X), sin(2*pi*X) etc.
+
+h0 <- sin(pi*X) # X**4
+Y <- h0 + sqrt(var.u)*U
+
+AIC <- numeric()
+model <- list()
+
+## Note K >= J is necessary (tested for, i.e. K.w.degree+K.w.segments
+## >= J.x.degree+J.x.segments). You could loop over either spline
+## degree or number of knots (#knots = #segments+1) for either the W
+## basis or X basis or both, _providing_ you ensure that K >= J is met
+## (otherwise the function will test for this condition and halt)
+
+S.max <- 10
+for(S in S.max:1) {
+    model[[S]] <- npivaic(Y,
+                          X,
+                          W,
+                          K.w.degree=3,   
+                          K.w.segments=S,
+                          J.x.degree=3,
+                          J.x.segments=S)
+    AIC[S] <- model[[S]]$AIC.c
+}
+
+## In this illustration degree is set to 3 for Psi and B and we
+## consider knots J, K with K >= J from 1,2,...,10 (here S.max is only
+## used in the plot legend)
+
+## J.max <- K.max <- S.max <- 10
+## S <- 1
+## for(J in 1:J.max) {
+##   for(K in J:K.max) {
+##     model[[S]] <- npivaic(Y,
+##                           X,
+##                           W,
+##                           K.w.degree=3,   
+##                           K.w.segments=K,
+##                           J.x.degree=3,
+##                           J.x.segments=J)
+##     AIC[S] <- model[[S]]$AIC.c
+##     S <- S+1
+##   }
+## }
+
+## Select the model that minimizes AIC (model index will also be the
+## value of S used above)
+
+model <- model[[which.min(AIC)]]
+
+## Create a plot of the instrumental regression function, data, and DGP
+
+plot(X,Y,cex=0.25,
+     col="lightgrey",
+     sub=paste("n = ",format(n,format="d", big.mark=','),
+               " (knots searched over: 1,2,...,",S.max,")",sep=""),
+     main="Data-Driven Knot Selection (AIC, Hurvich et al (1998))",
+     xlab="X",
+     ylab="Y")
+
+lines(X[order(X)],h0[order(X)],lty=1,col=1,lwd=1)
+lines(X[order(X)],model$fitted[order(X)],lty=2,col=2,lwd=2)
+
+legend("topleft",c("DGP (IV Function h0)",paste("NPIV (K.w.degree = ",model$K.w.degree,
+                               ", W.knots = ",model$K.w.segments+1,
+                               ", J.x.degree = ", model$J.x.degree,
+                               ", X.knots = ",model$J.x.segments+1,")",sep="")),
+       lty=1:2,
+       col=1:2,
+       lwd=c(1,2),
+       bty="n",
+       cex=0.75)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
