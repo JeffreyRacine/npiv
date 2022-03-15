@@ -5,7 +5,7 @@ Nonparametric Instrumental Variable Estimation
 }
 \description{
 
-This function implements a computationally simple, data-driven procedures for estimation and inference on a structural function \code{h0} and its derivatives in nonparametric models using instrumental variables. The first procedure is a bootstrap-based, data-driven choice of sieve dimension for sieve nonparametric instrumental variables (NPIV) estimators. When implemented with this data-driven choice, sieve NPIV estimators of \code{h0} and its derivatives are adaptive: they converge at the best possible (i.e., minimax) sup-norm rate, without having to know the smoothness of \code{h0}, degree of endogeneity of the regressors, or instrument strength. The second procedure is a data-driven approach for constructing honest and adaptive uniform confidence bands (UCBs) for \code{h0} and its derivatives. The data-driven UCBs guarantee coverage for \code{h0} and its derivatives uniformly over a generic class of data-generating processes (honesty) and contract at, or within a logarithmic factor of, the minimax sup-norm rate (adaptivity). As such, these data-driven UCBs deliver asymptotic efficiency gains relative to UCBs constructed via the usual approach of undersmoothing. In addition, both procedures apply to nonparametric regression as a special case. 
+This function implements computationally simple, data-driven procedures for estimation and inference on a structural function \code{h0()} and its derivatives in nonparametric models using instrumental variables. The first procedure is a bootstrap-based, data-driven choice of sieve dimension for sieve nonparametric instrumental variables (NPIV) estimators (\code{\link{npiv_choose_J}}). When implemented with this data-driven choice, sieve NPIV estimators of \code{h0()} and its derivatives are adaptive: they converge at the best possible (i.e., minimax) sup-norm rate, without having to know the smoothness of \code{h0()}, degree of endogeneity of the regressors, or instrument strength. The second procedure is a data-driven approach for constructing honest and adaptive uniform confidence bands (UCBs) for \code{h0()} and its derivatives. The data-driven UCBs guarantee coverage for \code{h0()} and its derivatives uniformly over a generic class of data-generating processes (honesty) and contract at, or within a logarithmic factor of, the minimax sup-norm rate (adaptivity). As such, these data-driven UCBs deliver asymptotic efficiency gains relative to UCBs constructed via the usual approach of undersmoothing. In addition, both procedures apply to nonparametric regression as a special case. 
 
 }
 \usage{
@@ -31,37 +31,37 @@ npiv(Y,
 
 \arguments{
   \item{Y}{
-Dependent variable vector 
+Dependent variable vector \code{Y}
 }
   \item{X}{
-Endogenous predictor matrix
+Endogenous predictor matrix \code{X}
 }
   \item{W}{
-Instrument matrix
+Instrument matrix \code{W}
 }
   \item{X.eval}{
-Evaluation points for endogenous predictor matrix
+Evaluation points for endogenous predictor matrix \code{X}
 }
   \item{deriv.index}{
-Column of endogenous predictor matrix for which to compute derivative
+Column of endogenous predictor matrix \code{X} for which to compute derivative (scalar)
 }
   \item{deriv.order}{
-Order of derivative to be computed
+Order of derivative to be computed (scalar)
 }
   \item{K.w.degree}{
-B-spline degree for instrument matrix
+B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{K.w.segments}{
-B-spline number of segments for instrument matrix
+B-spline number of segments for instrument matrix, i.e., integer/vector specifying the number of segments of the B-spline basis for the the matrix \code{W}(i.e. number of knots minus one) (default \code{segments=1}, i.e. Bezier curve)
 }
   \item{K.w.smooth}{
 B-spline smoothness parameter (for complexity routines where X.eval necessary but not provided)
 }
   \item{J.x.degree}{
-B-spline degree for endogenous predictor matrix
+B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{J.x.segments}{
-B-spline number of segments for endogenous predictor matrix
+B-spline number of segments for endogenous predictor matrix, i.e., , i.e., integer/vector specifying the number of segments of the B-spline basis for the the matrix \code{X}(i.e. number of knots minus one) (default \code{segments=1}, i.e. Bezier curve)
 }
   \item{boot.num}{
 Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
@@ -71,26 +71,23 @@ Number of evaluation observations (for complexity routines where X.eval necessar
 }
 
   \item{knots}{
-Knot type
+Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observationslie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
   \item{basis}{
-Basis type
+Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
   \item{check.is.fullrank}{
-Check for full rank input matrices
+Check for full rank input matrices for \code{X} and \code{W}
 }
   \item{chol.pivot}{
-Argument fed to chol()
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
   \item{lambda}{
-Argument fed to chol()
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
 }
 \details{
-This function...
-
-Note - the asymptotic covariance matrix is computed for all \eqn{n} sample realizations  by default, unless an evaluation matrix for \code{X} is provided. This matrix will be \eqn{n\times n} which can quickly exhaust memory in a system. To avoid this simply provide an evaluation matrix for X (\code{X.eval}) that contains, say, a grid of \eqn{100} points (one typically only wants the asymptotic variance for plotting confidence intervals). The covariance matrix will now be of dimension \eqn{100\times 100} thereby allowing one to run the function with a large number of sample realizations.
-
+This function can be used in two ways, i) manually where one specifies the number of segments (i.e., number of knots-1) by specifying particular values for \code{K.w.segments} and \code{J.x.segments}, or ii) using the data-driven procedure for selecting model complexity (which will be invoked if either or both \code{K.w.segments} and \code{J.x.segments} are unspecified or set explicitly to NULL (default)).
 }
 \value{
 
@@ -105,13 +102,13 @@ The function \code{npiv} returns a list with the following components:
 \item{deriv.asy.se}{asy.se.deriv returns the derivative asymptotic standard errorsfor the sample data (or evaluation data, if provided)  }
 \item{deriv.index}{deriv.index returns the index provided and used for computing the derivative}
 \item{deriv.order}{deriv.order returns the order of the estimated derivative }
-\item{K.w.degree}{K.w.degree returns the value of }
-\item{K.w.segments}{K.w.segments returns the value of }
-\item{J.x.degree}{J.x.degree returns the value of }
-\item{J.x.segments}{J.x.segments returns the value of }
+\item{K.w.degree}{K.w.degree returns the value used }
+\item{K.w.segments}{K.w.segments returns the value used }
+\item{J.x.degree}{J.x.degree returns the value used }
+\item{J.x.segments}{J.x.segments returns the value used }
 \item{beta}{beta returns the value of the spline coefficients}
-\item{B.w}{B.w returns the value of the spline bases for W}
-\item{Psi.x}{Psi.x returns the value of the splie bases for X}
+\item{B.w}{B.w returns the value of the spline bases for \code{W}}
+\item{Psi.x}{Psi.x returns the value of the splie bases for \code{X}}
 \item{Psi.x.deriv}{Psi.x.deriv returns the value of the spline bases for the derivatives}
 \item{AIC.c}{Hurvich, Siminoff and Tsai's (1998) corrected AIC criterion}
 }
@@ -121,19 +118,18 @@ Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation
 
 }
 \author{
-Jeffrey S. Racine <racinej@mcmaster.ca>
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen [timothy.christensen@nyu.edu>]
 }
 \note{
-%%  ~~further notes~~
+Memory/usage warning - note that the asymptotic covariance matrix is computed for all \eqn{n} sample realizations  by default, unless an evaluation matrix for \code{X} is provided. This matrix will be \eqn{n\times n} which can quickly exhaust memory in a system. To avoid this simply provide an evaluation matrix for X (\code{X.eval}) that contains, say, a grid of \eqn{100} points (one typically only wants the asymptotic variance for plotting confidence intervals). The covariance matrix will now be of dimension \eqn{100\times 100} thereby allowing one to run the function with a large number of sample realizations.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+See also \code{\link{npiv_choose_J}},  \code{\link{npiv_Jhat_max}},  \code{\link{npivJ}}
 }
 \examples{
-
 ## Simulate data using the mvrnorm() function in the MASS package
 
 library(MASS)
