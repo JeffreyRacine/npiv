@@ -103,5 +103,5 @@ B <- gsl.bs(x,degree=5,intercept=FALSE)
 plot(x,y,cex=.5,col="grey")
 lines(x,fitted(lm(y~B)))
 }
-\keyword{nonparametric}
+\keyword{B-spline}
 
