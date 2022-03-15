@@ -1,7 +1,8 @@
 useDynLib(npiv, .registration = TRUE)
-import(stats)
+import(stats,expm)
 export(npiv,
-       npivJ,
+       npiv_Jhat_max,
+       npiv_choose_J,
        npivaic,
        gsl.bs)
 S3method(fitted, npiv)       
