@@ -17,8 +17,11 @@ npiv(Y,
      deriv.order = 1,
      K.w.degree = 3,
      K.w.segments = 1,
+     K.w.smooth = 1,
      J.x.degree = 3,
      J.x.segments = 1,
+     boot.num = 99,
+     eval.num = 100,
      knots = c("uniform", "quantiles"),
      basis = c("tensor", "additive", "glp"),
      check.is.fullrank = FALSE,
@@ -51,12 +54,22 @@ B-spline degree for instrument matrix
   \item{K.w.segments}{
 B-spline number of segments for instrument matrix
 }
+  \item{K.w.smooth}{
+B-spline smoothness parameter (for complexity routines where X.eval necessary but not provided)
+}
   \item{J.x.degree}{
 B-spline degree for endogenous predictor matrix
 }
   \item{J.x.segments}{
 B-spline number of segments for endogenous predictor matrix
 }
+  \item{boot.num}{
+Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+}
+  \item{eval.num}{
+Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+}
+
   \item{knots}{
 Knot type
 }

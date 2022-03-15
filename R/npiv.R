@@ -10,9 +10,12 @@ npiv <- function(Y,
                  deriv.index=1,
                  deriv.order=1,
                  K.w.degree=3,
-                 K.w.segments=1,
+                 K.w.segments=NULL,
+                 K.w.smooth=1,
                  J.x.degree=3,
-                 J.x.segments=1,
+                 J.x.segments=NULL,
+                 boot.num=99,
+                 eval.num=100,
                  knots=c("uniform","quantiles"),
                  basis=c("tensor","additive","glp"),
                  check.is.fullrank=FALSE,
@@ -31,8 +34,8 @@ npiv <- function(Y,
     if(missing(W)) stop(" must provide W")
     if(K.w.degree < 0) stop("K.w.degree must be a non-negative integer")
     if(J.x.degree < 0) stop("J.x.degree must be a non-negative integer")
-    if(K.w.segments <= 0) stop("K.w.segments must be a positive integer")
-    if(J.x.segments <= 0) stop("J.x.segments must be a positive integer")
+    if(!is.null(K.w.segments) && K.w.segments <= 0) stop("K.w.segments must be a positive integer")
+    if(!is.null(J.x.segments) && J.x.segments <= 0) stop("J.x.segments must be a positive integer")
 
     ## If specified, check that passed objects are of full rank
 
@@ -52,6 +55,25 @@ npiv <- function(Y,
     ## (number of columns of B.w must be greater than Psi.x, i.e.,
     ## there must be at least as many "instruments" as "endogenous"
     ## predictors).
+
+    if(is.null(K.w.segments) || is.null(J.x.segments)) {
+        test1 <- npiv_choose_J(Y,
+                               X,
+                               W,
+                               X.eval=X.eval,
+                               J.x.degree=J.x.degree,
+                               K.w.degree=K.w.degree,
+                               K.w.smooth=K.w.smooth,
+                               knots=knots,
+                               basis=basis,
+                               eval.num=eval.num,
+                               boot.num=boot.num,
+                               check.is.fullrank=check.is.fullrank,
+                               chol.pivot=chol.pivot,
+                               lambda=lambda)
+        K.w.segments <- test1$K.w.seg
+        J.x.segments <- test1$J.x.seg
+    }
 
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
 
@@ -277,9 +299,7 @@ npivJ <- function(Y,
     Z.sup <- numeric()
     Z.sup.boot <- matrix(NA,boot.num,NROW(J1.J2.x))
 
-    ## Temporary indication of where we are in the process
-
-    pb <- progress_bar$new(format = " complexity determination [:bar] :percent eta: :eta",
+    pb <- progress_bar$new(format = "  complexity determination [:bar] :percent eta: :eta",
                            clear = TRUE,
                            width= 60,
                            total = NROW(J1.J2.x))
@@ -287,10 +307,6 @@ npivJ <- function(Y,
     for(ii in 1:NROW(J1.J2.x)) {
 
         pb$tick()
-
-        ## Temporary indication of where we are in the process
-
-#        print(paste("Row ",ii," of ",NROW(J1.J2.x)))
 
         J.x.J1.segments <- J1.J2.x[ii,1]
         J.x.J2.segments <- J1.J2.x[ii,2]
@@ -428,7 +444,7 @@ npivJ <- function(Y,
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
 
-        pbb <- progress_bar$new(format = " bootstrapping [:bar] :percent eta: :eta",
+        pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
                                clear = TRUE,
                                width= 60,
                                total = boot.num)
@@ -552,22 +568,14 @@ npiv_Jhat_max <- function(X,
 
   test.val <- array(NA, dim = L.max)
 
-  ## Temporary indication of where we are in the process
-
-  pb <- progress_bar$new(format = " grid determination [:bar] :percent eta: :eta",
+  pb <- progress_bar$new(format = "  grid determination [:bar] :percent eta: :eta",
                          clear = TRUE,
                          width= 60,
                          total = L.max)
 
-#  print("Determining grid")
-
   for(ii in 1:L.max) {
 
     pb$tick()
-
-    ## Temporary indication of where we are in the process
-
-#    print(paste("Row ",ii," of ",L.max))
 
     if((ii <= 2) || ((ii > 2) & (test.val[ii-2] <= 10*sqrt(NROW(X))))){
 
