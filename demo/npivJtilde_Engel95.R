@@ -26,7 +26,7 @@ model.niv <- npiv(food,
 ## (i.e. for the plotting area trim out 1/4 of one percent from each
 ## tail of Y and X)
 
-trim <- 0.0025
+trim <- 0.025
 
 plot(logexp,food,
      ylab="Food Budget Share",

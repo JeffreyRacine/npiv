@@ -99,14 +99,7 @@ X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
 W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
 
 out <- npiv_Jhat_max(X,
-                     W,
-                     J.x.degree,
-                     K.w.degree,
-                     K.w.smooth,
-                     knots,
-                     basis,
-                     check.is.fullrank,
-                     chol.pivot)
+                     W)
 out                     
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -123,18 +123,7 @@ Y <- h0 + sqrt(var.u)*U
 
 out <- npiv_choose_J(Y,
                      X,
-                     W,
-                     X.eval=X.eval,
-                     J.x.degree=J.x.degree,
-                     K.w.degree=K.w.degree,
-                     K.w.smooth=K.w.smooth,
-                     knots=knots,
-                     basis=basis,
-                     eval.num=eval.num,
-                     boot.num=boot.num,
-                     check.is.fullrank=check.is.fullrank,
-                     chol.pivot=chol.pivot,
-                     lambda=lambda)
+                     W)
 out                     
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
