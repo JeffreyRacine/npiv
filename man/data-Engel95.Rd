@@ -46,12 +46,18 @@ Engel95 <- Engel95[order(Engel95$logexp),]
 
 attach(Engel95)
 
-model.iv <- npiv(Y=food,X=logexp,W=logwages)
+model.iv <- npiv(Y=food,
+                 X=logexp,
+                 W=logwages)
 
 ## Compute the non-IV regression (i.e. regress Y on X, simply use
 ## logexp for W)
 
-model.niv <- npiv(Y=food,X=logexp,W=logexp)
+model.niv <- npiv(Y=food,
+                  X=logexp,
+                  W=logexp,
+                  K.w.segments=model.iv$K.w.segments,
+                  J.x.segments=model.iv$J.x.segments)
 
 ## For the plots, restrict focal attention to the bulk of the data
 ## (i.e. for the plotting area trim out 1/4 of one percent from each
