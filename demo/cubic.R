@@ -8,7 +8,7 @@ library(MASS)
 
 ## Simulate data using the mvrnorm() function in the MASS package
 
-n <- 1000
+n <- 10000
 
 cov.ux <- 0.5
 var.u <- 0.1
