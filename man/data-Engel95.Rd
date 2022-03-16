@@ -55,9 +55,7 @@ model.iv <- npiv(Y=food,
 
 model.niv <- npiv(Y=food,
                   X=logexp,
-                  W=logexp,
-                  K.w.segments=model.iv$K.w.segments,
-                  J.x.segments=model.iv$J.x.segments)
+                  W=logexp)
 
 ## For the plots, restrict focal attention to the bulk of the data
 ## (i.e. for the plotting area trim out 1/4 of one percent from each

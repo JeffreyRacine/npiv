@@ -20,7 +20,8 @@ npiv <- function(Y,
                  basis=c("tensor","additive","glp"),
                  check.is.fullrank=FALSE,
                  chol.pivot=FALSE,
-                 lambda=sqrt(.Machine$double.eps)) {
+                 lambda=sqrt(.Machine$double.eps),
+                 AIC.segments.max=64) {
 
     ## Match variable arguments to ensure they are valid
 
@@ -57,22 +58,52 @@ npiv <- function(Y,
     ## predictors).
 
     if(is.null(K.w.segments) || is.null(J.x.segments)) {
-        test1 <- npiv_choose_J(Y,
-                               X,
-                               W,
-                               X.eval=X.eval,
-                               J.x.degree=J.x.degree,
-                               K.w.degree=K.w.degree,
-                               K.w.smooth=K.w.smooth,
-                               knots=knots,
-                               basis=basis,
-                               eval.num=eval.num,
-                               boot.num=boot.num,
-                               check.is.fullrank=check.is.fullrank,
-                               chol.pivot=chol.pivot,
-                               lambda=lambda)
-        K.w.segments <- test1$K.w.seg
-        J.x.segments <- test1$J.x.seg
+        if(all(X == W)) {
+            ## Not IV, simple efficient AIC.c allowing for singularity
+            AIC.segments <- 1:AIC.segments.max
+            AIC.vector <- numeric()
+            pb <- progress_bar$new(format = "  complexity determination [:bar] :percent eta: :eta",
+                                   clear = TRUE,
+                                   width= 60,
+                                   total = AIC.segments.max)
+            for(j in AIC.segments) {
+                pb$tick()
+                if(K.w.degree==0) {
+                    B.w <- matrix(1,NROW(W),1)
+                } else {
+                    B.w <- prod.spline(x=W,
+                                       K=cbind(rep(K.w.degree,NCOL(W)),rep(j,NCOL(W))),
+                                       knots=knots,
+                                       basis=basis)
+            
+                    if(basis!="tensor") B.w <- cbind(1,B.w)
+                }
+                trH <- dim(B.w)[2]
+                aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
+                AIC.vector[j] <- ifelse(aic.penalty > 0,
+                                        log(mean((Y-fitted(lm.fit(B.w,Y)))^2)) + aic.penalty,
+                                        .Machine$double.xmax)
+            }
+            K.w.segments <- J.x.segments <- AIC.segments[which.min(AIC.vector)]
+        } else {
+            ## IV
+            test1 <- npiv_choose_J(Y,
+                                   X,
+                                   W,
+                                   X.eval=X.eval,
+                                   J.x.degree=J.x.degree,
+                                   K.w.degree=K.w.degree,
+                                   K.w.smooth=K.w.smooth,
+                                   knots=knots,
+                                   basis=basis,
+                                   eval.num=eval.num,
+                                   boot.num=boot.num,
+                                   check.is.fullrank=check.is.fullrank,
+                                   chol.pivot=chol.pivot,
+                                   lambda=lambda)
+            K.w.segments <- test1$K.w.seg
+            J.x.segments <- test1$J.x.seg
+        }
     }
 
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")

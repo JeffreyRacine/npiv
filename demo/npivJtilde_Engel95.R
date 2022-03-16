@@ -6,21 +6,13 @@ Engel95 <- Engel95[order(Engel95$logexp),]
 
 attach(Engel95)
 
-out.choose.J <- npiv_choose_J(food,
-                              logexp,
-                              logwages)
-    
 model.iv <- npiv(food,
                  logexp,
-                 logwages,
-                 K.w.segments=out.choose.J$K.w.seg,
-                 J.x.segments=out.choose.J$J.x.seg)
+                 logwages)
 
 model.niv <- npiv(food,
                   logexp,
-                  logexp,
-                  K.w.segments=out.choose.J$K.w.seg,
-                  J.x.segments=out.choose.J$J.x.seg)
+                  logexp)
 
 ## For the plots, restrict focal attention to the bulk of the data
 ## (i.e. for the plotting area trim out 1/4 of one percent from each
