@@ -78,7 +78,7 @@ npiv <- function(Y,
             
                     if(basis!="tensor") B.w <- cbind(1,B.w)
                 }
-                trH <- dim(B.w)[2]
+                trH <- NCOL(B.w)
                 aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
                 AIC.vector[j] <- ifelse(aic.penalty > 0,
                                         log(mean((Y-fitted(lm.fit(B.w,Y)))^2)) + aic.penalty,
@@ -195,7 +195,7 @@ npiv <- function(Y,
     ## errors, perhaps with some coaxing needed...
 
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    trH <- dim(Psi.x)[2]
+    trH <- NCOL(Psi.x)
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
     aic.c <- ifelse(aic.penalty > 0,
                     log(mean((Y-Psi.x%*%beta)^2)) + aic.penalty,
@@ -663,12 +663,15 @@ npiv_Jhat_max <- function(X,
           
         } else {
           
-          G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
-          G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
-          S.J <- t(Psi.x.J)%*%B.w.J
-          tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
+          #G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
+          #G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
+          #S.J <- t(Psi.x.J)%*%B.w.J
+          #tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
+          #s.hat.J <- min(svd(tmp)$d)
+
+          ## Not efficient to make copies and then pass in general...
           
-          s.hat.J <- min(svd(tmp)$d)
+          s.hat.J <- min(svd(sqrtm(chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot)))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))))$d)
           
         }
 
@@ -880,7 +883,7 @@ npivaic <- function(Y,
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
     h <- Psi.x%*%(chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y)
     ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    trH <- dim(Psi.x)[2]
+    trH <- NCOL(Psi.x)
     aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
     aic.c <- ifelse(aic.penalty > 0,
                     log(mean((Y-h)^2)) + aic.penalty,
