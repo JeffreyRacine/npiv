@@ -463,7 +463,7 @@ npivJ <- function(Y,
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
 
-        Z.sup[ii] <- max(((hhat.J1-hhat.J2)/asy.se)[(hhat.J1!=hhat.J2)])
+        Z.sup[ii] <- max(abs(((hhat.J1-hhat.J2)/asy.se)[(hhat.J1!=hhat.J2)]))
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
@@ -475,8 +475,8 @@ npivJ <- function(Y,
 
         for(b in 1:boot.num) {
             pbb$tick()
-            Z.sup.boot[b,ii] <- max(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
-                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)[(hhat.J1!=hhat.J2)])
+            Z.sup.boot[b,ii] <- max(abs(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
+                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)[(hhat.J1!=hhat.J2)]))
         }
 
     }
@@ -497,7 +497,8 @@ npivJ <- function(Y,
     for(ii in 1:nrow(J1.J2.x)){
       row.index = which(J.x.segments.set == J1.J2.x[ii, 1])
       col.index = which(J.x.segments.set == J1.J2.x[ii, 2])
-      test.mat[row.index, col.index] <- (Z.sup[ii] <= 1.1 * theta.star)
+      # test.mat[row.index, col.index] <- (Z.sup[ii] <= 1.1 * theta.star)
+      test.mat[row.index, col.index] <- Z.sup[ii]
     }
 
     test.vec <- array(NA, dim = num.J)
