@@ -582,8 +582,8 @@ npiv_Jhat_max <- function(X,
   ## denominator matrix because
 
   L.max <- max(floor(log(NROW(X), base = 2 * NCOL(X))), 3)
-  J.x.segments.set <- (2^(1:L.max))-1
-  K.w.segments.set <- (2^(1:L.max+K.w.smooth))-1
+  J.x.segments.set <- (2^(0:L.max))
+  K.w.segments.set <- (2^(0:L.max+K.w.smooth))
 
   ## In what follows we loop over _rows_  (makes for easy
   ##  parallelization if needed)
