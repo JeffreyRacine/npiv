@@ -44,6 +44,7 @@ npiv_choose_J(Y,
 %%     ~~Describe \code{K.w.degree} here~~
 }
   \item{K.w.smooth}{
+  Non-negative integer, such that \eqn{2^{\text{K.w.smooth}}}{2^Kw.smooth} is how many times larger the bases for the instruments are than the bases for the endogenous variables (i.e., \code{K.w.smooth=0} uses the same bases for \code{X} and \code{W})
 %%     ~~Describe \code{K.w.smooth} here~~
 }
   \item{knots}{
