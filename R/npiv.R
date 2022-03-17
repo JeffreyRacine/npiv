@@ -447,17 +447,14 @@ npivJ <- function(Y,
         ## force needs to be addressed). Here n.eval is the number of
         ## rows in X.eval, and X.eval _must_ be supplied since X is
         ## allowed to be multivariate.
-        
-        D.J1.inv.rho.D.J1.inv <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
-        asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
 
-        # CJ1 <- t(Psi.x.J1)%*%B.w.J1
-        # B.wUJ1 <- B.w.J1*as.numeric(U.J1)
-        # rho <- CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ1)%*%B.w.J1.TB.w.J1.inv%*%t(CJ1)
-        # D.J1.inv <- ginv(CJ1%*%B.w.J1.TB.w.J1.inv%*%t(CJ1))
-        # D.J1.inv.rho.D.J1.inv <- D.J1.inv%*%rho%*%D.J1.inv
-        # 
-        # asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
+        CJ1 <- t(Psi.x.J1)%*%B.w.J1
+        B.wUJ1 <- B.w.J1*as.numeric(U.J1)
+        rho <- CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ1)%*%B.w.J1.TB.w.J1.inv%*%t(CJ1)
+        D.J1.inv <- ginv(CJ1%*%B.w.J1.TB.w.J1.inv%*%t(CJ1))
+        D.J1.inv.rho.D.J1.inv <- D.J1.inv%*%rho%*%D.J1.inv
+
+        asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
 
         CJ2 <- t(Psi.x.J2)%*%B.w.J2
         B.wUJ2 <- B.w.J2*as.numeric(U.J2)
