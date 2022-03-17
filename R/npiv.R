@@ -430,7 +430,6 @@ npivJ <- function(Y,
         beta.J1 <- tmp.J1%*%Y
 
         U.J1 <- Y-Psi.x.J1%*%beta.J1
-        err.J1 <- Psi.x.J1.eval%*%tmp.J1%*%U.J1
         hhat.J1 <- Psi.x.J1.eval%*%beta.J1
 
         Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
@@ -438,7 +437,6 @@ npivJ <- function(Y,
         beta.J2 <- tmp.J2%*%Y
 
         U.J2 <- Y-Psi.x.J2%*%beta.J2
-        err.J2 <- Psi.x.J2.eval%*%tmp.J2%*%U.J2
         hhat.J2 <- Psi.x.J2.eval%*%beta.J2
 
         ## Compute asymptotic variances and covariances for the IV
@@ -470,8 +468,7 @@ npivJ <- function(Y,
 
         asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
 
-        ## Compute the denominator of the t-stat (the numerator is the
-        ## difference between err.J1 and err.J2)
+        ## Compute the denominator of the t-stat
 
         asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
 
