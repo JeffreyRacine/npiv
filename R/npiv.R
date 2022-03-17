@@ -18,6 +18,7 @@ npiv <- function(Y,
                  eval.num=100,
                  knots=c("uniform","quantiles"),
                  basis=c("tensor","additive","glp"),
+                 random.seed=42,
                  check.is.fullrank=FALSE,
                  chol.pivot=FALSE,
                  lambda=sqrt(.Machine$double.eps),
@@ -269,6 +270,7 @@ npivJ <- function(Y,
                   eval.num=50,
                   boot.num=99,
                   alpha,
+                  random.seed=42,
                   check.is.fullrank=FALSE,
                   chol.pivot=FALSE,
                   lambda=sqrt(.Machine$double.eps)) {
@@ -317,6 +319,19 @@ npivJ <- function(Y,
 
     J1.J2.w <- apply(J1.J2.x, c(1,2), function(u) K.w.segments.set[which(J.x.segments.set == u)])
 
+    ## Save seed prior to setting for bootstrap
+    
+    if(exists(".Random.seed", .GlobalEnv)) {
+      
+      save.seed <- get(".Random.seed", .GlobalEnv)
+      exists.seed = TRUE
+      
+    } else {
+      
+      exists.seed = FALSE
+      
+    }
+    
     ## In what follows we loop over _rows_ of J1.J2 (makes for easy
     ##  parallelization if needed)
 
@@ -327,7 +342,7 @@ npivJ <- function(Y,
                            clear = TRUE,
                            width= 60,
                            total = NROW(J1.J2.x))
-
+    
     for(ii in 1:NROW(J1.J2.x)) {
 
         pb$tick()
@@ -472,6 +487,10 @@ npivJ <- function(Y,
                                clear = TRUE,
                                width= 60,
                                total = boot.num)
+        
+        ## Set seed to ensure same bootstrap draws across rows of J1.J2 
+        
+        set.seed(random.seed)
 
         for(b in 1:boot.num) {
             pbb$tick()
@@ -480,7 +499,11 @@ npivJ <- function(Y,
         }
 
     }
-
+    
+    ## Restore seed
+    
+    if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
+    
     ## Compute maximum over J set for each bootstrap draw (should
     ## produce a boot.num x 1 vector)
 
@@ -714,6 +737,7 @@ npiv_choose_J <- function(Y,
                           basis=c("tensor","additive","glp"),
                           eval.num=50,
                           boot.num=99,
+                          random.seed=42,
                           check.is.fullrank=FALSE,
                           chol.pivot=FALSE,
                           lambda=sqrt(.Machine$double.eps)) {
@@ -745,6 +769,7 @@ npiv_choose_J <- function(Y,
                 eval.num,
                 boot.num,
                 alpha=tmp1$alpha.hat,
+                random.seed,
                 check.is.fullrank,
                 chol.pivot,
                 lambda)
