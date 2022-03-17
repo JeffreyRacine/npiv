@@ -58,54 +58,45 @@ npiv <- function(Y,
     ## predictors).
 
     if(is.null(K.w.segments) || is.null(J.x.segments)) {
-        if(all(X == W)) {
-            ## Not IV, simple efficient AIC.c allowing for singularity
-            AIC.segments <- 1:AIC.segments.max
-            AIC.vector <- numeric()
-            pb <- progress_bar$new(format = "  complexity determination [:bar] :percent eta: :eta",
-                                   clear = TRUE,
-                                   width= 60,
-                                   total = AIC.segments.max)
-            for(j in AIC.segments) {
-                pb$tick()
-                if(K.w.degree==0) {
-                    B.w <- matrix(1,NROW(W),1)
-                } else {
-                    B.w <- prod.spline(x=W,
-                                       K=cbind(rep(K.w.degree,NCOL(W)),rep(j,NCOL(W))),
-                                       knots=knots,
-                                       basis=basis)
-            
-                    if(basis!="tensor") B.w <- cbind(1,B.w)
-                }
-                trH <- NCOL(B.w)
-                aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
-                AIC.vector[j] <- ifelse(aic.penalty > 0,
-                                        log(mean((Y-fitted(lm.fit(B.w,Y)))^2)) + aic.penalty,
-                                        .Machine$double.xmax)
-            }
-            K.w.segments <- J.x.segments <- AIC.segments[which.min(AIC.vector)]
-        } else {
-            ## IV
-            test1 <- npiv_choose_J(Y,
-                                   X,
-                                   W,
-                                   X.eval=X.eval,
-                                   J.x.degree=J.x.degree,
-                                   K.w.degree=K.w.degree,
-                                   K.w.smooth=K.w.smooth,
-                                   knots=knots,
-                                   basis=basis,
-                                   eval.num=eval.num,
-                                   boot.num=boot.num,
-                                   check.is.fullrank=check.is.fullrank,
-                                   chol.pivot=chol.pivot,
-                                   lambda=lambda)
-            K.w.segments <- test1$K.w.seg
-            J.x.segments <- test1$J.x.seg
-        }
+      if(all(X == W)) {
+        ## IV
+        test1 <- npiv_choose_J(Y,
+                               X,
+                               W,
+                               X.eval=X.eval,
+                               J.x.degree=J.x.degree,
+                               K.w.degree=J.x.degree,
+                               K.w.smooth=0,
+                               knots=knots,
+                               basis=basis,
+                               eval.num=eval.num,
+                               boot.num=boot.num,
+                               check.is.fullrank=check.is.fullrank,
+                               chol.pivot=chol.pivot,
+                               lambda=lambda)
+        K.w.segments <- test1$K.w.seg
+        J.x.segments <- test1$J.x.seg
+      } else {
+        ## IV
+        test1 <- npiv_choose_J(Y,
+                               X,
+                               W,
+                               X.eval=X.eval,
+                               J.x.degree=J.x.degree,
+                               K.w.degree=K.w.degree,
+                               K.w.smooth=K.w.smooth,
+                               knots=knots,
+                               basis=basis,
+                               eval.num=eval.num,
+                               boot.num=boot.num,
+                               check.is.fullrank=check.is.fullrank,
+                               chol.pivot=chol.pivot,
+                               lambda=lambda)
+        K.w.segments <- test1$K.w.seg
+        J.x.segments <- test1$J.x.seg
+      }
     }
-
+    
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
 
     ## We allow for degree 0 (constant functions), and also allow for
@@ -167,8 +158,8 @@ npiv <- function(Y,
         }
     }
 
-    ## Generate the NPIV coefficient vector using Choleski
-    ## decomposition (computationally efficient) and call this
+    ## Generate the NPIV coefficient vector using generalized
+    ## inverse (for robustness when bases are large) and call this
     ## "beta". We first compute an object that is reused twice to
     ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
     ## in Equation (3)). Note that we use Psi.x and B.x naming
@@ -176,8 +167,8 @@ npiv <- function(Y,
     ## connotes "Transpose" and "Inverse", respectively. Intermediate
     ## results that are reused in some form are stored temporarily.
 
-    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
+    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%ginv(t(B.w)%*%B.w)%*%t(B.w)
+    beta <- ginv(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x)%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
 
     ## Some ideas for potential computational efficiency.
     ## Note we can also compute beta via lm.fit
@@ -213,10 +204,10 @@ npiv <- function(Y,
 
     U.hat <- Y-Psi.x%*%beta
     C <- t(Psi.x)%*%B.w
-    B.w.TB.w.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
+    B.w.TB.w.inv <- ginv(t(B.w)%*%B.w)
     P.U <- B.w*as.numeric(U.hat)
     rho <- C%*%B.w.TB.w.inv%*%t(P.U)%*%(P.U)%*%B.w.TB.w.inv%*%t(C)
-    D.inv <- chol2inv(chol(C%*%B.w.TB.w.inv%*%t(C),pivot=chol.pivot))
+    D.inv <- ginv(C%*%B.w.TB.w.inv%*%t(C))
     D.inv.rho.D.inv <- D.inv%*%rho%*%D.inv
 
     ## These are the n x n memory hogs... the workaround is to provide
@@ -414,11 +405,11 @@ npivJ <- function(Y,
         ## Code re-use/storage where possible... generate all objects
         ## needed to compute the t-stat vector
 
-        B.w.J1.TB.w.J1.inv <- chol2inv(chol(t(B.w.J1)%*%B.w.J1,pivot=chol.pivot))
-        B.w.J2.TB.w.J2.inv <- chol2inv(chol(t(B.w.J2)%*%B.w.J2,pivot=chol.pivot))
+        B.w.J1.TB.w.J1.inv <- ginv(t(B.w.J1)%*%B.w.J1)
+        B.w.J2.TB.w.J2.inv <- ginv(t(B.w.J2)%*%B.w.J2)
 
         Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w.J1%*%B.w.J1.TB.w.J1.inv%*%t(B.w.J1)
-        tmp.J1 <- chol2inv(chol(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1+diag(lambda,NCOL(Psi.x.J1)),pivot=chol.pivot))%*%Psi.xJ1TB.wB.wTB.w.invB.w
+        tmp.J1 <- ginv(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1)%*%Psi.xJ1TB.wB.wTB.w.invB.w
         beta.J1 <- tmp.J1%*%Y
 
         U.J1 <- Y-Psi.x.J1%*%beta.J1
@@ -426,7 +417,7 @@ npivJ <- function(Y,
         hhat.J1 <- Psi.x.J1.eval%*%beta.J1
 
         Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
-        tmp.J2 <- chol2inv(chol(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2+diag(lambda,NCOL(Psi.x.J2)),pivot=chol.pivot))%*%Psi.xJ2TB.wB.wTB.w.invB.w
+        tmp.J2 <- ginv(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2)%*%Psi.xJ2TB.wB.wTB.w.invB.w
         beta.J2 <- tmp.J2%*%Y
 
         U.J2 <- Y-Psi.x.J2%*%beta.J2
@@ -445,7 +436,7 @@ npivJ <- function(Y,
         CJ1 <- t(Psi.x.J1)%*%B.w.J1
         B.wUJ1 <- B.w.J1*as.numeric(U.J1)
         rho <- CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ1)%*%B.w.J1.TB.w.J1.inv%*%t(CJ1)
-        D.J1.inv <- chol2inv(chol(CJ1%*%B.w.J1.TB.w.J1.inv%*%t(CJ1),pivot=chol.pivot))
+        D.J1.inv <- ginv(CJ1%*%B.w.J1.TB.w.J1.inv%*%t(CJ1))
         D.J1.inv.rho.D.J1.inv <- D.J1.inv%*%rho%*%D.J1.inv
 
         asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
@@ -453,7 +444,7 @@ npivJ <- function(Y,
         CJ2 <- t(Psi.x.J2)%*%B.w.J2
         B.wUJ2 <- B.w.J2*as.numeric(U.J2)
         rho <- CJ2%*%B.w.J2.TB.w.J2.inv%*%t(B.wUJ2)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)
-        D.J2.inv <- chol2inv(chol(CJ2%*%B.w.J2.TB.w.J2.inv%*%t(CJ2),pivot=chol.pivot))
+        D.J2.inv <- ginv(CJ2%*%B.w.J2.TB.w.J2.inv%*%t(CJ2))
         D.J2.inv.rho.D.J2.inv <- D.J2.inv%*%rho%*%D.J2.inv
 
         asy.var.J2 <- diag(Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv%*%t(Psi.x.J2.eval))
@@ -657,11 +648,11 @@ npiv_Jhat_max <- function(X,
 
         ## Compute \hat{s}_J
         
-        if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
-          
-          s.hat.J <- 0
-          
-        } else {
+        # if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
+        #   
+        #   s.hat.J <- 0
+        #   
+        # } else {
           
           #G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
           #G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
@@ -671,9 +662,9 @@ npiv_Jhat_max <- function(X,
 
           ## Not efficient to make copies and then pass in general...
           
-          s.hat.J <- min(svd(sqrtm(chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot)))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))))$d)
+          s.hat.J <- min(svd(sqrtm(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(ginv(t(B.w.J)%*%B.w.J)))$d)
           
-        }
+        # }
 
       }
 
