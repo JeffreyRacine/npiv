@@ -60,8 +60,6 @@ npiv <- function(Y,
     if(is.null(K.w.segments) || is.null(J.x.segments)) {
       if(all(X == W)) {
         ## IV
-        K.w.degree <- J.x.degree
-        K.w.smooth <- 0
         test1 <- npiv_choose_J(Y,
                                X,
                                W,
@@ -584,8 +582,8 @@ npiv_Jhat_max <- function(X,
   ## denominator matrix because
 
   L.max <- max(floor(log(NROW(X), base = 2 * NCOL(X))), 3)
-  J.x.segments.set <- (2^(0:L.max))
-  K.w.segments.set <- (2^(0:L.max+K.w.smooth))
+  J.x.segments.set <- (2^(1:L.max))-1
+  K.w.segments.set <- (2^(1:L.max+K.w.smooth))-1
 
   ## In what follows we loop over _rows_  (makes for easy
   ##  parallelization if needed)
@@ -650,8 +648,24 @@ npiv_Jhat_max <- function(X,
 
         ## Compute \hat{s}_J
         
-        s.hat.J <- min(svd(sqrtm(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(ginv(t(B.w.J)%*%B.w.J)))$d)
-        
+        # if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
+        #   
+        #   s.hat.J <- 0
+        #   
+        # } else {
+          
+          #G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
+          #G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
+          #S.J <- t(Psi.x.J)%*%B.w.J
+          #tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
+          #s.hat.J <- min(svd(tmp)$d)
+
+          ## Not efficient to make copies and then pass in general...
+          
+          s.hat.J <- min(svd(sqrtm(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(ginv(t(B.w.J)%*%B.w.J)))$d)
+          
+        # }
+
       }
 
       ## Compute test value
