@@ -497,8 +497,7 @@ npivJ <- function(Y,
     for(ii in 1:nrow(J1.J2.x)){
       row.index = which(J.x.segments.set == J1.J2.x[ii, 1])
       col.index = which(J.x.segments.set == J1.J2.x[ii, 2])
-      # test.mat[row.index, col.index] <- (Z.sup[ii] <= 1.1 * theta.star)
-      test.mat[row.index, col.index] <- Z.sup[ii]
+      test.mat[row.index, col.index] <- (Z.sup[ii] <= 1.1 * theta.star)
     }
 
     test.vec <- array(NA, dim = num.J)
