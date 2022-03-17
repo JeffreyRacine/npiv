@@ -353,10 +353,6 @@ npivJ <- function(Y,
         K.w.J1.segments <- J1.J2.w[ii,1]
         K.w.J2.segments <- J1.J2.w[ii,2]
 
-        ## Tim precomputes and reuses basis functions... these are
-        ## computationally efficient so might not save much time, morover
-        ## if parallelized could be a waste and even add overhead
-
         ## Segments are set deterministically during search so makes
         ## sense to ensure degrees are set appropriately
 
@@ -419,25 +415,34 @@ npivJ <- function(Y,
 
         }
 
-        ## Code re-use/storage where possible... generate all objects
-        ## needed to compute the t-stat vector
-
-        B.w.J1.TB.w.J1.inv <- ginv(t(B.w.J1)%*%B.w.J1)
-        B.w.J2.TB.w.J2.inv <- ginv(t(B.w.J2)%*%B.w.J2)
-
-        Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w.J1%*%B.w.J1.TB.w.J1.inv%*%t(B.w.J1)
-        tmp.J1 <- ginv(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1)%*%Psi.xJ1TB.wB.wTB.w.invB.w
-        beta.J1 <- tmp.J1%*%Y
-
-        U.J1 <- Y-Psi.x.J1%*%beta.J1
+        ## Generate all objects needed to compute the t-stat vector
+        
+        Q.J1 <- ginv(t(Psi.x.J1)%*%B.w.J1%*%ginv(t(B.w.J1)%*%B.w.J1)%*%t(B.w.J1)%*%Psi.x.J1)%*%t(Psi.x.J1)%*%B.w.J1%*%ginv(t(B.w.J1)%*%B.w.J1)
+        beta.J1 <- Q.J1%*%t(B.w.J1)%*%Y
         hhat.J1 <- Psi.x.J1.eval%*%beta.J1
-
-        Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
-        tmp.J2 <- ginv(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2)%*%Psi.xJ2TB.wB.wTB.w.invB.w
-        beta.J2 <- tmp.J2%*%Y
-
-        U.J2 <- Y-Psi.x.J2%*%beta.J2
+        U.J1 <- Y - Psi.x.J1%*%beta.J1
+        
+        Q.J2 <- ginv(t(Psi.x.J2)%*%B.w.J2%*%ginv(t(B.w.J2)%*%B.w.J2)%*%t(B.w.J2)%*%Psi.x.J2)%*%t(Psi.x.J2)%*%B.w.J2%*%ginv(t(B.w.J2)%*%B.w.J2)
+        beta.J2 <- Q.J2%*%t(B.w.J2)%*%Y
         hhat.J2 <- Psi.x.J2.eval%*%beta.J2
+        U.J2 <- Y - Psi.x.J2%*%beta.J2
+        
+        # B.w.J1.TB.w.J1.inv <- ginv(t(B.w.J1)%*%B.w.J1)
+        # B.w.J2.TB.w.J2.inv <- ginv(t(B.w.J2)%*%B.w.J2)
+        # 
+        # Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w.J1%*%B.w.J1.TB.w.J1.inv%*%t(B.w.J1)
+        # tmp.J1 <- ginv(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1)%*%Psi.xJ1TB.wB.wTB.w.invB.w
+        # beta.J1 <- tmp.J1%*%Y
+        # 
+        # U.J1 <- Y-Psi.x.J1%*%beta.J1
+        # hhat.J1 <- Psi.x.J1.eval%*%beta.J1
+        # 
+        # Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
+        # tmp.J2 <- ginv(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2)%*%Psi.xJ2TB.wB.wTB.w.invB.w
+        # beta.J2 <- tmp.J2%*%Y
+        # 
+        # U.J2 <- Y-Psi.x.J2%*%beta.J2
+        # hhat.J2 <- Psi.x.J2.eval%*%beta.J2
 
         ## Compute asymptotic variances and covariances for the IV
         ## functions - these will be memory intensive for large n as
@@ -448,9 +453,25 @@ npivJ <- function(Y,
         ## rows in X.eval, and X.eval _must_ be supplied since X is
         ## allowed to be multivariate.
         
-        D1 <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
-        asy.var.J1 <- diag(Psi.x.J1.eval%*%D1%*%t(Psi.x.J1.eval))
-
+        BU.J1 <- B.w.J1 * as.numeric(U.J1)
+        BU.J2 <- B.w.J2 * as.numeric(U.J2)
+        
+        Mho.J1 <- t(BU.J1)%*%(BU.J1)
+        Mho.J2 <- t(BU.J2)%*%(BU.J2)
+        Mho.J12 <- t(BU.J1)%*%(BU.J2)
+        
+        Om.J1 <- Q.J1%*%Mho.J1%*%t(Q.J1)
+        Om.J2 <- Q.J2%*%Mho.J2%*%t(Q.J2)
+        Om.J12 <- Q.J1%*%Mho.J12%*%t(Q.J2)
+        
+        asy.se <- numeric()
+        for(jj in 1:NROW(X.eval)){
+          s1 <- t(Psi.x.J1.eval[jj, ])%*%Om.J1%*%Psi.x.J1.eval[jj, ]
+          s2 <- t(Psi.x.J2.eval[jj, ])%*%Om.J1%*%Psi.x.J2.eval[jj, ]
+          s12 <- t(Psi.x.J1.eval[jj, ])%*%Om.J12%*%Psi.x.J2.eval[jj, ]
+          asy.se[jj] <- sqrt(s1 + s2 - s12)
+        }
+        
         # CJ1 <- t(Psi.x.J1)%*%B.w.J1
         # B.wUJ1 <- B.w.J1*as.numeric(U.J1)
         # rho <- CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ1)%*%B.w.J1.TB.w.J1.inv%*%t(CJ1)
@@ -459,9 +480,6 @@ npivJ <- function(Y,
         # 
         # asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
         
-        D2 <- t(t(tmp.J2) * as.numeric(U.J2))%*%(t(tmp.J2) * as.numeric(U.J2))
-        asy.var.J2 <- diag(Psi.x.J2.eval%*%D2%*%t(Psi.x.J2.eval))
-
         # CJ2 <- t(Psi.x.J2)%*%B.w.J2
         # B.wUJ2 <- B.w.J2*as.numeric(U.J2)
         # rho <- CJ2%*%B.w.J2.TB.w.J2.inv%*%t(B.wUJ2)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)
@@ -472,14 +490,11 @@ npivJ <- function(Y,
 
         ## Compute the covariance
         
-        D12 <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J2) * as.numeric(U.J2))
-        asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%D12%*%t(Psi.x.J2.eval))
-
         # asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
 
         ## Compute the denominator of the t-stat
 
-        asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
+        # asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
 
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
@@ -501,7 +516,8 @@ npivJ <- function(Y,
         for(b in 1:boot.num) {
             pbb$tick()
             boot.draws <- rnorm(length(Y))
-            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se))
+            Z.sup.boot[b, ii] <- max(abs((Psi.x.J1.eval%*%Q.J1%*%t(BU.J1*boot.draws)-Psi.x.J2.eval%*%Q.J2%*%t(BU.J2*boot.draws)) / asy.se))
+            # Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se))
         }
 
     }
