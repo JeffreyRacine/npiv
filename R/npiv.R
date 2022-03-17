@@ -467,7 +467,7 @@ npivJ <- function(Y,
         asy.se <- numeric()
         for(jj in 1:NROW(X.eval)){
           s1 <- t(Psi.x.J1.eval[jj, ])%*%Om.J1%*%Psi.x.J1.eval[jj, ]
-          s2 <- t(Psi.x.J2.eval[jj, ])%*%Om.J2%*%Psi.x.J2.eval[jj, ]
+          s2 <- t(Psi.x.J2.eval[jj, ])%*%Om.J1%*%Psi.x.J2.eval[jj, ]
           s12 <- t(Psi.x.J1.eval[jj, ])%*%Om.J12%*%Psi.x.J2.eval[jj, ]
           asy.se[jj] <- sqrt(s1 + s2 - s12)
         }
