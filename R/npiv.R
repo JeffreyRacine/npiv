@@ -463,7 +463,7 @@ npivJ <- function(Y,
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
 
-        Z.sup[ii] <- max(abs(((hhat.J1-hhat.J2)/asy.se)[(hhat.J1!=hhat.J2)]))
+        Z.sup[ii] <- max(abs((hhat.J1-hhat.J2)/asy.se))
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
@@ -476,8 +476,7 @@ npivJ <- function(Y,
         for(b in 1:boot.num) {
             pbb$tick()
             boot.draws <- rnorm(length(Y))
-            Z.sup.boot[b,ii] <- max(abs(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws)-
-                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))/asy.se)[(hhat.J1!=hhat.J2)]))
+            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se))
         }
 
     }
@@ -651,24 +650,8 @@ npiv_Jhat_max <- function(X,
 
         ## Compute \hat{s}_J
         
-        # if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
-        #   
-        #   s.hat.J <- 0
-        #   
-        # } else {
-          
-          #G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
-          #G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
-          #S.J <- t(Psi.x.J)%*%B.w.J
-          #tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
-          #s.hat.J <- min(svd(tmp)$d)
-
-          ## Not efficient to make copies and then pass in general...
-          
-          s.hat.J <- min(svd(sqrtm(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(ginv(t(B.w.J)%*%B.w.J)))$d)
-          
-        # }
-
+        s.hat.J <- min(svd(sqrtm(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(ginv(t(B.w.J)%*%B.w.J)))$d)
+        
       }
 
       ## Compute test value
