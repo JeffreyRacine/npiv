@@ -5,7 +5,8 @@
 Nonparametric Instrumental Variables Estimation Maximum Model Complexity
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function computes the maximum size of the feasible set of seive dimension values \eqn{\hat J_{\max}}{J.max}, i.e., 
+\eqn{\mathcal{T} = \{2k + 3 : k = 0, 1, 2,\dots, \hat J_{\max}\}}{T={2k + 3 : k = 0, 1, 2,...,J.max}} for B-spline bases.
 }
 \usage{
 npiv_Jhat_max(X,
@@ -21,45 +22,45 @@ npiv_Jhat_max(X,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{
-%%     ~~Describe \code{X} here~~
+Endogenous predictor matrix \code{X}
 }
   \item{W}{
-%%     ~~Describe \code{W} here~~
-}
+Instrument matrix \code{W}
+} 
   \item{J.x.degree}{
-%%     ~~Describe \code{J.x.degree} here~~
+B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{K.w.degree}{
-%%     ~~Describe \code{K.w.degree} here~~
+B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{K.w.smooth}{
-%%     ~~Describe \code{K.w.smooth} here~~
+TBD
 }
   \item{knots}{
-%%     ~~Describe \code{knots} here~~
+Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
   \item{basis}{
-%%     ~~Describe \code{basis} here~~
+Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
-  \item{check.is.fullrank}{
-%%     ~~Describe \code{check.is.fullrank} here~~
+   \item{check.is.fullrank}{
+Check for full rank input matrices for \code{X} and \code{W}
 }
   \item{chol.pivot}{
-%%     ~~Describe \code{chol.pivot} here~~
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+Compute \eqn{\hat J_{\max}}{J.max} per Chen, Christensen and Kankanala (2021).
 }
 \value{
 %%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{J.x.segments.set}{Description TBD}
+\item{K.w.segments.set}{Description TBD}
+\item{J.hat.max}{Description TBD}
+\item{alpha.hat}{Description TBD}
 }
 \references{
-%% ~put references to the literature/web site here ~
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
 }
 \author{
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
