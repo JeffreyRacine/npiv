@@ -461,7 +461,7 @@ npivJ <- function(Y,
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
 
-        Z.sup[ii] <- max((hhat.J1-hhat.J2)/asy.se)
+        Z.sup[ii] <- max(((hhat.J1-hhat.J2)/asy.se)[(hhat.J1!=hhat.J2)])
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
@@ -473,8 +473,8 @@ npivJ <- function(Y,
 
         for(b in 1:boot.num) {
             pbb$tick()
-            Z.sup.boot[b,ii] <- max((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
-                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)
+            Z.sup.boot[b,ii] <- max(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
+                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)[(hhat.J1!=hhat.J2)])
         }
 
     }
@@ -733,7 +733,7 @@ npiv_choose_J <- function(Y,
                           lambda=sqrt(.Machine$double.eps)) {
 
   ## Compute \hat{J}_max and data-determined grid of J values for X and W
-
+  
   tmp1 <- npiv_Jhat_max(X,
                         W,
                         J.x.degree,
