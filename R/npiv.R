@@ -475,8 +475,9 @@ npivJ <- function(Y,
 
         for(b in 1:boot.num) {
             pbb$tick()
-            Z.sup.boot[b,ii] <- max(abs(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
-                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)[(hhat.J1!=hhat.J2)]))
+            boot.draws <- rnorm(length(Y))
+            Z.sup.boot[b,ii] <- max(abs(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws)-
+                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))/asy.se)[(hhat.J1!=hhat.J2)]))
         }
 
     }
