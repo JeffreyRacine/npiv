@@ -5,7 +5,7 @@
 Nonparametric Instrumental Variables Estimation Model Complexity
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function chooses the data-driven index set \eqn{\hat{\mathcal{J}} =\{J\in \mathcal{T} :0.1(\log\hat J_{\max}) \le J \le \hat J_{\max}}{J ={J∈T :0.1(log J.max) ≤J≤Jmax}} with \eqn{\mathcal{T} = \{2k + 3 : k = 0, 1, 2,\dots, \hat J_{\max}\}}{T={2k + 3 : k = 0, 1, 2,...,J.max}} obtained from \code{\link{npiv_Jhat_max}}
 }
 \usage{
 npiv_choose_J(Y, 
@@ -25,52 +25,51 @@ npiv_choose_J(Y,
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{Y}{
-%%     ~~Describe \code{Y} here~~
+ \item{Y}{
+Dependent variable vector \code{Y}
 }
   \item{X}{
-%%     ~~Describe \code{X} here~~
+Endogenous predictor matrix \code{X}
 }
   \item{W}{
-%%     ~~Describe \code{W} here~~
+Instrument matrix \code{W}
 }
   \item{X.eval}{
-%%     ~~Describe \code{X.eval} here~~
+Evaluation points for endogenous predictor matrix \code{X}
 }
   \item{J.x.degree}{
-%%     ~~Describe \code{J.x.degree} here~~
+B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{K.w.degree}{
-%%     ~~Describe \code{K.w.degree} here~~
+B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{K.w.smooth}{
-  Non-negative integer, such that \eqn{2^{\text{K.w.smooth}}}{2^Kw.smooth} is how many times larger the bases for the instruments are than the bases for the endogenous variables (i.e., \code{K.w.smooth=0} uses the same bases for \code{X} and \code{W})
-%%     ~~Describe \code{K.w.smooth} here~~
+  Non-negative integer, such that \eqn{2^{K.w.smooth}} is how many times larger the bases for the instruments are than the bases for the endogenous variables (i.e., \code{K.w.smooth=0} uses the same bases for \code{X} and \code{W})
 }
   \item{knots}{
-%%     ~~Describe \code{knots} here~~
+Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
   \item{basis}{
-%%     ~~Describe \code{basis} here~~
+Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
   \item{eval.num}{
-%%     ~~Describe \code{eval.num} here~~
+Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
 }
   \item{boot.num}{
-%%     ~~Describe \code{boot.num} here~~
+Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
 }
   \item{check.is.fullrank}{
-%%     ~~Describe \code{check.is.fullrank} here~~
+Check for full rank input matrices for \code{X} and \code{W}
 }
   \item{chol.pivot}{
-%%     ~~Describe \code{chol.pivot} here~~
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
   \item{lambda}{
-%%     ~~Describe \code{lambda} here~~
+Argument fed to \code{chol()} (see \code{\link{chol}})
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+TBD
 }
 \value{
 %%  ~Describe the value returned
@@ -78,9 +77,16 @@ npiv_choose_J(Y,
 %%  \item{comp1 }{Description of 'comp1'}
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
+\item{J.hat.max}{Description TBD}
+\item{J.hat.n}{Description TBD}
+\item{J.hat}{Description TBD}
+\item{J.tilde}{Description TBD}
+\item{J.x.seg}{Description TBD}
+\item{K.w.seg}{Description TBD}
+\item{theta.star}{Description TBD}
 }
 \references{
-%% ~put references to the literature/web site here ~
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
 }
 \author{
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
