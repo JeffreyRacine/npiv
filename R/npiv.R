@@ -216,13 +216,9 @@ npiv <- function(Y,
     D.inv <- ginv(C%*%B.w.TB.w.inv%*%t(C))
     D.inv.rho.D.inv <- D.inv%*%rho%*%D.inv
 
-    ## These are the n x n memory hogs... the workaround is to provide
-    ## X.eval with a reasonable number of grid points, say 100, then
-    ## one can handle huge datasets without encountering this issue -
-    ## this is noted in "Details" in npiv.Rd.
-
-    asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.rho.D.inv%*%t(Psi.x.eval)))
-    asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.rho.D.inv%*%t(Psi.x.deriv.eval)))
+    asy.se <- sqrt(rowSums((Psi.x.eval%*%D.inv.rho.D.inv)*Psi.x.eval))
+    
+    asy.se.deriv <- sqrt(rowSums((Psi.x.deriv.eval%*%D.inv.rho.D.inv)*Psi.x.deriv.eval))
 
     ## Return a list with various objects that might be of interest to
     ## the user
@@ -446,39 +442,18 @@ npivJ <- function(Y,
         U.J2 <- Y-Psi.x.J2%*%beta.J2
         hhat.J2 <- Psi.x.J2.eval%*%beta.J2
 
-        ## Compute asymptotic variances and covariances for the IV
-        ## functions - these will be memory intensive for large n as
-        ## they require taking the diagonal of an n.eval x n.eval
-        ## matrix (could be a way around but simply note that as it
-        ## stands the computation of the standard errors by brute
-        ## force needs to be addressed). Here n.eval is the number of
-        ## rows in X.eval, and X.eval _must_ be supplied since X is
-        ## allowed to be multivariate.
+        ## Compute asymptotic variances and covariances
 
-        # CJ1 <- t(Psi.x.J1)%*%B.w.J1
-        # B.wUJ1 <- B.w.J1*as.numeric(U.J1)
-        # rho <- CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ1)%*%B.w.J1.TB.w.J1.inv%*%t(CJ1)
-        # D.J1.inv <- ginv(CJ1%*%B.w.J1.TB.w.J1.inv%*%t(CJ1))
-        # D.J1.inv.rho.D.J1.inv <- D.J1.inv%*%rho%*%D.J1.inv
         D.J1.inv.rho.D.J1.inv <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
+        asy.var.J1 <- rowSums((Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv)*Psi.x.J1.eval)
 
-        asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
-
-        # CJ2 <- t(Psi.x.J2)%*%B.w.J2
-        # B.wUJ2 <- B.w.J2*as.numeric(U.J2)
-        # rho <- CJ2%*%B.w.J2.TB.w.J2.inv%*%t(B.wUJ2)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)
-        # D.J2.inv <- ginv(CJ2%*%B.w.J2.TB.w.J2.inv%*%t(CJ2))
-        # D.J2.inv.rho.D.J2.inv <- D.J2.inv%*%rho%*%D.J2.inv
         D.J2.inv.rho.D.J2.inv <- t(t(tmp.J2) * as.numeric(U.J2))%*%(t(tmp.J2) * as.numeric(U.J2))
-
-        asy.var.J2 <- diag(Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv%*%t(Psi.x.J2.eval))
+        asy.var.J2 <- rowSums((Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv)*Psi.x.J2.eval)
 
         ## Compute the covariance
-
         
-        asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J2) * as.numeric(U.J2))%*%t(Psi.x.J2.eval))
-        # asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
-
+        asy.cov.J1.J2 <- rowSums((Psi.x.J1.eval%*%t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J2) * as.numeric(U.J2)))*Psi.x.J2.eval)
+        
         ## Compute the denominator of the t-stat
 
         asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
