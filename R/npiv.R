@@ -674,7 +674,7 @@ npiv_Jhat_max <- function(X,
 
         ## Compute \hat{s}_J
         
-        s.hat.J <- min(svd(sqrtm(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(ginv(t(B.w.J)%*%B.w.J)))$d)
+        s.hat.J <- min(svd(sqrtm2(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm2(ginv(t(B.w.J)%*%B.w.J)))$d)
         
       }
 
