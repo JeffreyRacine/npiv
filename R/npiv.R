@@ -510,7 +510,7 @@ npivJ <- function(Y,
 
     Z.boot <- apply(Z.sup.boot, 1, max)
 
-    theta.star <- quantile(Z.boot, 1 - alpha, names = FALSE)
+    theta.star <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
 
     ## Compute Lepski choice
 
