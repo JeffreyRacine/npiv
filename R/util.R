@@ -26,3 +26,14 @@ RSQfunc <- function(y,y.pred,weights=NULL) {
   y.mean <- mean(y)
   return((sum((y-y.mean)*(y.pred-y.mean))^2)/(sum((y-y.mean)^2)*sum((y.pred-y.mean)^2)))
 }
+
+
+## numerically sound matrix positive definite square root
+
+sqrtm2 <- function(x) {
+  
+  x.eig <- eigen(x, symmetric = TRUE)
+  lambda <- apply(as.matrix(x.eig$values), 1, function(x) sqrt(max(x, 0)))
+  return(x.eig$vectors%*%diag(lambda)%*%t(x.eig$vectors))
+  
+}

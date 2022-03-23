@@ -18,6 +18,7 @@ npiv <- function(Y,
                  eval.num=100,
                  knots=c("uniform","quantiles"),
                  basis=c("tensor","additive","glp"),
+                 random.seed=42,
                  check.is.fullrank=FALSE,
                  chol.pivot=FALSE,
                  lambda=sqrt(.Machine$double.eps),
@@ -58,54 +59,47 @@ npiv <- function(Y,
     ## predictors).
 
     if(is.null(K.w.segments) || is.null(J.x.segments)) {
-        if(all(X == W)) {
-            ## Not IV, simple efficient AIC.c allowing for singularity
-            AIC.segments <- 1:AIC.segments.max
-            AIC.vector <- numeric()
-            pb <- progress_bar$new(format = "  complexity determination [:bar] :percent eta: :eta",
-                                   clear = TRUE,
-                                   width= 60,
-                                   total = AIC.segments.max)
-            for(j in AIC.segments) {
-                pb$tick()
-                if(K.w.degree==0) {
-                    B.w <- matrix(1,NROW(W),1)
-                } else {
-                    B.w <- prod.spline(x=W,
-                                       K=cbind(rep(K.w.degree,NCOL(W)),rep(j,NCOL(W))),
-                                       knots=knots,
-                                       basis=basis)
-            
-                    if(basis!="tensor") B.w <- cbind(1,B.w)
-                }
-                trH <- NCOL(B.w)
-                aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
-                AIC.vector[j] <- ifelse(aic.penalty > 0,
-                                        log(mean((Y-fitted(lm.fit(B.w,Y)))^2)) + aic.penalty,
-                                        .Machine$double.xmax)
-            }
-            K.w.segments <- J.x.segments <- AIC.segments[which.min(AIC.vector)]
-        } else {
-            ## IV
-            test1 <- npiv_choose_J(Y,
-                                   X,
-                                   W,
-                                   X.eval=X.eval,
-                                   J.x.degree=J.x.degree,
-                                   K.w.degree=K.w.degree,
-                                   K.w.smooth=K.w.smooth,
-                                   knots=knots,
-                                   basis=basis,
-                                   eval.num=eval.num,
-                                   boot.num=boot.num,
-                                   check.is.fullrank=check.is.fullrank,
-                                   chol.pivot=chol.pivot,
-                                   lambda=lambda)
-            K.w.segments <- test1$K.w.seg
-            J.x.segments <- test1$J.x.seg
-        }
+      if(all(X == W)) {
+        ## Regression
+        K.w.degree <- J.x.degree
+        K.w.smooth <- 0
+        test1 <- npiv_choose_J(Y,
+                               X,
+                               W,
+                               X.eval=X.eval,
+                               J.x.degree=J.x.degree,
+                               K.w.degree=J.x.degree,
+                               K.w.smooth=0,
+                               knots=knots,
+                               basis=basis,
+                               eval.num=eval.num,
+                               boot.num=boot.num,
+                               check.is.fullrank=check.is.fullrank,
+                               chol.pivot=chol.pivot,
+                               lambda=lambda)
+        K.w.segments <- test1$K.w.seg
+        J.x.segments <- test1$J.x.seg
+      } else {
+        ## IV
+        test1 <- npiv_choose_J(Y,
+                               X,
+                               W,
+                               X.eval=X.eval,
+                               J.x.degree=J.x.degree,
+                               K.w.degree=K.w.degree,
+                               K.w.smooth=K.w.smooth,
+                               knots=knots,
+                               basis=basis,
+                               eval.num=eval.num,
+                               boot.num=boot.num,
+                               check.is.fullrank=check.is.fullrank,
+                               chol.pivot=chol.pivot,
+                               lambda=lambda)
+        K.w.segments <- test1$K.w.seg
+        J.x.segments <- test1$J.x.seg
+      }
     }
-
+    
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
 
     ## We allow for degree 0 (constant functions), and also allow for
@@ -167,8 +161,8 @@ npiv <- function(Y,
         }
     }
 
-    ## Generate the NPIV coefficient vector using Choleski
-    ## decomposition (computationally efficient) and call this
+    ## Generate the NPIV coefficient vector using generalized
+    ## inverse (for robustness when bases are large) and call this
     ## "beta". We first compute an object that is reused twice to
     ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
     ## in Equation (3)). Note that we use Psi.x and B.x naming
@@ -176,8 +170,8 @@ npiv <- function(Y,
     ## connotes "Transpose" and "Inverse", respectively. Intermediate
     ## results that are reused in some form are stored temporarily.
 
-    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    beta <- chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
+    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%ginv(t(B.w)%*%B.w)%*%t(B.w)
+    beta <- ginv(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x)%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
 
     ## Some ideas for potential computational efficiency.
     ## Note we can also compute beta via lm.fit
@@ -213,19 +207,15 @@ npiv <- function(Y,
 
     U.hat <- Y-Psi.x%*%beta
     C <- t(Psi.x)%*%B.w
-    B.w.TB.w.inv <- chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))
+    B.w.TB.w.inv <- ginv(t(B.w)%*%B.w)
     P.U <- B.w*as.numeric(U.hat)
     rho <- C%*%B.w.TB.w.inv%*%t(P.U)%*%(P.U)%*%B.w.TB.w.inv%*%t(C)
-    D.inv <- chol2inv(chol(C%*%B.w.TB.w.inv%*%t(C),pivot=chol.pivot))
+    D.inv <- ginv(C%*%B.w.TB.w.inv%*%t(C))
     D.inv.rho.D.inv <- D.inv%*%rho%*%D.inv
 
-    ## These are the n x n memory hogs... the workaround is to provide
-    ## X.eval with a reasonable number of grid points, say 100, then
-    ## one can handle huge datasets without encountering this issue -
-    ## this is noted in "Details" in npiv.Rd.
-
-    asy.se <- sqrt(diag(Psi.x.eval%*%D.inv.rho.D.inv%*%t(Psi.x.eval)))
-    asy.se.deriv <- sqrt(diag(Psi.x.deriv.eval%*%D.inv.rho.D.inv%*%t(Psi.x.deriv.eval)))
+    asy.se <- sqrt(rowSums((Psi.x.eval%*%D.inv.rho.D.inv)*Psi.x.eval))
+    
+    asy.se.deriv <- sqrt(rowSums((Psi.x.deriv.eval%*%D.inv.rho.D.inv)*Psi.x.deriv.eval))
 
     ## Return a list with various objects that might be of interest to
     ## the user
@@ -276,6 +266,7 @@ npivJ <- function(Y,
                   eval.num=50,
                   boot.num=99,
                   alpha,
+                  random.seed=42,
                   check.is.fullrank=FALSE,
                   chol.pivot=FALSE,
                   lambda=sqrt(.Machine$double.eps)) {
@@ -324,6 +315,19 @@ npivJ <- function(Y,
 
     J1.J2.w <- apply(J1.J2.x, c(1,2), function(u) K.w.segments.set[which(J.x.segments.set == u)])
 
+    ## Save seed prior to setting for bootstrap
+    
+    if(exists(".Random.seed", .GlobalEnv)) {
+      
+      save.seed <- get(".Random.seed", .GlobalEnv)
+      exists.seed = TRUE
+      
+    } else {
+      
+      exists.seed = FALSE
+      
+    }
+    
     ## In what follows we loop over _rows_ of J1.J2 (makes for easy
     ##  parallelization if needed)
 
@@ -334,7 +338,7 @@ npivJ <- function(Y,
                            clear = TRUE,
                            width= 60,
                            total = NROW(J1.J2.x))
-
+    
     for(ii in 1:NROW(J1.J2.x)) {
 
         pb$tick()
@@ -414,63 +418,43 @@ npivJ <- function(Y,
         ## Code re-use/storage where possible... generate all objects
         ## needed to compute the t-stat vector
 
-        B.w.J1.TB.w.J1.inv <- chol2inv(chol(t(B.w.J1)%*%B.w.J1,pivot=chol.pivot))
-        B.w.J2.TB.w.J2.inv <- chol2inv(chol(t(B.w.J2)%*%B.w.J2,pivot=chol.pivot))
+        B.w.J1.TB.w.J1.inv <- ginv(t(B.w.J1)%*%B.w.J1)
+        B.w.J2.TB.w.J2.inv <- ginv(t(B.w.J2)%*%B.w.J2)
 
         Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w.J1%*%B.w.J1.TB.w.J1.inv%*%t(B.w.J1)
-        tmp.J1 <- chol2inv(chol(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1+diag(lambda,NCOL(Psi.x.J1)),pivot=chol.pivot))%*%Psi.xJ1TB.wB.wTB.w.invB.w
+        tmp.J1 <- ginv(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1)%*%Psi.xJ1TB.wB.wTB.w.invB.w
         beta.J1 <- tmp.J1%*%Y
 
         U.J1 <- Y-Psi.x.J1%*%beta.J1
-        err.J1 <- Psi.x.J1.eval%*%tmp.J1%*%U.J1
         hhat.J1 <- Psi.x.J1.eval%*%beta.J1
 
         Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
-        tmp.J2 <- chol2inv(chol(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2+diag(lambda,NCOL(Psi.x.J2)),pivot=chol.pivot))%*%Psi.xJ2TB.wB.wTB.w.invB.w
+        tmp.J2 <- ginv(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2)%*%Psi.xJ2TB.wB.wTB.w.invB.w
         beta.J2 <- tmp.J2%*%Y
 
         U.J2 <- Y-Psi.x.J2%*%beta.J2
-        err.J2 <- Psi.x.J2.eval%*%tmp.J2%*%U.J2
         hhat.J2 <- Psi.x.J2.eval%*%beta.J2
 
-        ## Compute asymptotic variances and covariances for the IV
-        ## functions - these will be memory intensive for large n as
-        ## they require taking the diagonal of an n.eval x n.eval
-        ## matrix (could be a way around but simply note that as it
-        ## stands the computation of the standard errors by brute
-        ## force needs to be addressed). Here n.eval is the number of
-        ## rows in X.eval, and X.eval _must_ be supplied since X is
-        ## allowed to be multivariate.
+        ## Compute asymptotic variances and covariances
 
-        CJ1 <- t(Psi.x.J1)%*%B.w.J1
-        B.wUJ1 <- B.w.J1*as.numeric(U.J1)
-        rho <- CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ1)%*%B.w.J1.TB.w.J1.inv%*%t(CJ1)
-        D.J1.inv <- chol2inv(chol(CJ1%*%B.w.J1.TB.w.J1.inv%*%t(CJ1),pivot=chol.pivot))
-        D.J1.inv.rho.D.J1.inv <- D.J1.inv%*%rho%*%D.J1.inv
+        D.J1.inv.rho.D.J1.inv <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
+        asy.var.J1 <- rowSums((Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv)*Psi.x.J1.eval)
 
-        asy.var.J1 <- diag(Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv%*%t(Psi.x.J1.eval))
-
-        CJ2 <- t(Psi.x.J2)%*%B.w.J2
-        B.wUJ2 <- B.w.J2*as.numeric(U.J2)
-        rho <- CJ2%*%B.w.J2.TB.w.J2.inv%*%t(B.wUJ2)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)
-        D.J2.inv <- chol2inv(chol(CJ2%*%B.w.J2.TB.w.J2.inv%*%t(CJ2),pivot=chol.pivot))
-        D.J2.inv.rho.D.J2.inv <- D.J2.inv%*%rho%*%D.J2.inv
-
-        asy.var.J2 <- diag(Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv%*%t(Psi.x.J2.eval))
+        D.J2.inv.rho.D.J2.inv <- t(t(tmp.J2) * as.numeric(U.J2))%*%(t(tmp.J2) * as.numeric(U.J2))
+        asy.var.J2 <- rowSums((Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv)*Psi.x.J2.eval)
 
         ## Compute the covariance
-
-        asy.cov.J1.J2 <- diag(Psi.x.J1.eval%*%D.J1.inv%*%CJ1%*%B.w.J1.TB.w.J1.inv%*%t(B.wUJ1)%*%(B.wUJ2)%*%B.w.J2.TB.w.J2.inv%*%t(CJ2)%*%t(D.J2.inv)%*%t(Psi.x.J2.eval))
-
-        ## Compute the denominator of the t-stat (the numerator is the
-        ## difference between err.J1 and err.J2)
+        
+        asy.cov.J1.J2 <- rowSums((Psi.x.J1.eval%*%t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J2) * as.numeric(U.J2)))*Psi.x.J2.eval)
+        
+        ## Compute the denominator of the t-stat
 
         asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
 
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
 
-        Z.sup[ii] <- max((hhat.J1-hhat.J2)/asy.se)
+        Z.sup[ii] <- max(abs((hhat.J1-hhat.J2)/asy.se))
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
@@ -479,21 +463,29 @@ npivJ <- function(Y,
                                clear = TRUE,
                                width= 60,
                                total = boot.num)
+        
+        ## Set seed to ensure same bootstrap draws across rows of J1.J2 
+        
+        set.seed(random.seed)
 
         for(b in 1:boot.num) {
             pbb$tick()
-            Z.sup.boot[b,ii] <- max((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*rnorm(length(Y)))-
-                                     Psi.x.J2.eval%*%tmp.J2%*%(U.J2*rnorm(length(Y))))/asy.se)
+            boot.draws <- rnorm(length(Y))
+            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se))
         }
 
     }
-
+    
+    ## Restore seed
+    
+    if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
+    
     ## Compute maximum over J set for each bootstrap draw (should
     ## produce a boot.num x 1 vector)
 
     Z.boot <- apply(Z.sup.boot, 1, max)
-
-    theta.star <- quantile(Z.boot, 1 - alpha, names = FALSE)
+    
+    theta.star <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
 
     ## Compute Lepski choice
 
@@ -515,7 +507,7 @@ npivJ <- function(Y,
 
     ## Convert segments to dimension
 
-    if(all(test.vec == 0 || is.na(test.vec))){
+    if(all(test.vec == 0 | is.na(test.vec))){
       J.seg <- max(J.x.segments.set)
     } else {
       if(any(test.vec == 1)){
@@ -591,8 +583,8 @@ npiv_Jhat_max <- function(X,
   ## denominator matrix because
 
   L.max <- max(floor(log(NROW(X), base = 2 * NCOL(X))), 3)
-  J.x.segments.set <- (2^(1:L.max))-1
-  K.w.segments.set <- (2^(1:L.max+K.w.smooth))-1
+  J.x.segments.set <- (2^(0:L.max))
+  K.w.segments.set <- (2^(0:L.max+K.w.smooth))
 
   ## In what follows we loop over _rows_  (makes for easy
   ##  parallelization if needed)
@@ -657,24 +649,8 @@ npiv_Jhat_max <- function(X,
 
         ## Compute \hat{s}_J
         
-        if(!is.fullrank(B.w.J) || !is.fullrank(Psi.x.J)){
-          
-          s.hat.J <- 0
-          
-        } else {
-          
-          #G.w.J.inv <- chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))
-          #G.x.J.inv <- chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot))
-          #S.J <- t(Psi.x.J)%*%B.w.J
-          #tmp <- sqrtm(G.x.J.inv)%*%S.J%*%sqrtm(G.w.J.inv)
-          #s.hat.J <- min(svd(tmp)$d)
-
-          ## Not efficient to make copies and then pass in general...
-          
-          s.hat.J <- min(svd(sqrtm(chol2inv(chol(t(Psi.x.J)%*%Psi.x.J,pivot=chol.pivot)))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm(chol2inv(chol(t(B.w.J)%*%B.w.J,pivot=chol.pivot))))$d)
-          
-        }
-
+        s.hat.J <- min(svd(sqrtm2(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm2(ginv(t(B.w.J)%*%B.w.J)))$d)
+        
       }
 
       ## Compute test value
@@ -737,12 +713,13 @@ npiv_choose_J <- function(Y,
                           basis=c("tensor","additive","glp"),
                           eval.num=50,
                           boot.num=99,
+                          random.seed=42,
                           check.is.fullrank=FALSE,
                           chol.pivot=FALSE,
                           lambda=sqrt(.Machine$double.eps)) {
 
   ## Compute \hat{J}_max and data-determined grid of J values for X and W
-
+  
   tmp1 <- npiv_Jhat_max(X,
                         W,
                         J.x.degree,
@@ -768,6 +745,7 @@ npiv_choose_J <- function(Y,
                 eval.num,
                 boot.num,
                 alpha=tmp1$alpha.hat,
+                random.seed,
                 check.is.fullrank,
                 chol.pivot,
                 lambda)
