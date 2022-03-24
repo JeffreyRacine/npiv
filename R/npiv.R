@@ -21,8 +21,7 @@ npiv <- function(Y,
                  random.seed=42,
                  check.is.fullrank=FALSE,
                  chol.pivot=FALSE,
-                 lambda=sqrt(.Machine$double.eps),
-                 AIC.segments.max=64) {
+                 lambda=sqrt(.Machine$double.eps)) {
 
     ## Match variable arguments to ensure they are valid
 
