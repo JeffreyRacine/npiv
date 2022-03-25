@@ -17,6 +17,10 @@ npivaic(Y,
         J.x.segments = 1,
         knots = c("uniform", "quantiles"),
         basis = c("tensor", "additive", "glp"),
+        X.min = NULL,
+        X.max = NULL,
+        W.min = NULL,
+        W.max = NULL,
         check.is.fullrank = FALSE,
         chol.pivot = FALSE,
         lambda = sqrt(.Machine$double.eps))
@@ -49,6 +53,18 @@ npivaic(Y,
 }
   \item{basis}{
 %%     ~~Describe \code{basis} here~~
+}
+  \item{X.min}{
+  the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
+}
+   \item{X.max}{
+   the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
+}
+  \item{W.min}{
+  the lower bound on which to construct the spline for predictors in \code{W} - defaults to \code{min(W)}
+}
+   \item{W.max}{
+   the upper bound on which to construct the spline for predictors in \code{W} - defaults to \code{max(W)}
 }
   \item{check.is.fullrank}{
 %%     ~~Describe \code{check.is.fullrank} here~~

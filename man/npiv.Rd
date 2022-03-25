@@ -24,9 +24,14 @@ npiv(Y,
      eval.num = 100,
      knots = c("uniform", "quantiles"),
      basis = c("tensor", "additive", "glp"),
+     X.min = NULL,
+     X.max = NULL,
+     W.min = NULL,
+     W.max = NULL,
      check.is.fullrank = FALSE,
      chol.pivot = FALSE,
-     lambda = sqrt(.Machine$double.eps))
+     lambda = sqrt(.Machine$double.eps),
+     progress = TRUE)
 }
 
 \arguments{
@@ -76,6 +81,18 @@ Knots type, i.e., a character string (default \code{knots="quantiles"}) specifyi
   \item{basis}{
 Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
+  \item{X.min}{
+  the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
+}
+   \item{X.max}{
+   the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
+}
+  \item{W.min}{
+  the lower bound on which to construct the spline for predictors in \code{W} - defaults to \code{min(W)}
+}
+   \item{W.max}{
+   the upper bound on which to construct the spline for predictors in \code{W} - defaults to \code{max(W)}
+}
   \item{check.is.fullrank}{
 Check for full rank input matrices for \code{X} and \code{W}
 }
@@ -85,6 +102,9 @@ Argument fed to \code{chol()} (see \code{\link{chol}})
   \item{lambda}{
 Argument fed to \code{chol()} (see \code{\link{chol}})
 }
+  \item{progress}{
+  logical indicating whether to display progress bar or not (defaults to \code{TRUE})
+}  
 }
 \details{
 This function can be used in two ways, i) manually where one specifies the number of segments (i.e., number of knots-1) by specifying particular values for \code{K.w.segments} and \code{J.x.segments}, or ii) using the data-driven procedure for selecting model complexity (which will be invoked if either or both \code{K.w.segments} and \code{J.x.segments} are unspecified or set explicitly to NULL (default)).

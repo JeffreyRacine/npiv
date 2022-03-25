@@ -1,4 +1,4 @@
-## Nonparametric IV estimation per Chen, Christensen and Kankanala
+# Nonparametric IV estimation per Chen, Christensen and Kankanala
 ## (2021), notation-wise, I try to follow their notation closely, and
 ## append .x and .w where needed for clarity (described further
 ## below).
@@ -18,10 +18,15 @@ npiv <- function(Y,
                  eval.num=100,
                  knots=c("uniform","quantiles"),
                  basis=c("tensor","additive","glp"),
+                 X.min=NULL,
+                 X.max=NULL,
+                 W.min=NULL,
+                 W.max=NULL,
                  random.seed=42,
                  check.is.fullrank=FALSE,
                  chol.pivot=FALSE,
-                 lambda=sqrt(.Machine$double.eps)) {
+                 lambda=sqrt(.Machine$double.eps),
+                 progress=TRUE) {
 
     ## Match variable arguments to ensure they are valid
 
@@ -71,11 +76,16 @@ npiv <- function(Y,
                                K.w.smooth=0,
                                knots=knots,
                                basis=basis,
+                               X.min=X.min,
+                               X.max=X.max,
+                               W.min=W.min,
+                               W.max=W.max,
                                eval.num=eval.num,
                                boot.num=boot.num,
                                check.is.fullrank=check.is.fullrank,
                                chol.pivot=chol.pivot,
-                               lambda=lambda)
+                               lambda=lambda,
+                               progress=progress)
         K.w.segments <- test1$K.w.seg
         J.x.segments <- test1$J.x.seg
       } else {
@@ -89,11 +99,16 @@ npiv <- function(Y,
                                K.w.smooth=K.w.smooth,
                                knots=knots,
                                basis=basis,
+                               X.min=X.min,
+                               X.max=X.max,
+                               W.min=W.min,
+                               W.max=W.max,
                                eval.num=eval.num,
                                boot.num=boot.num,
                                check.is.fullrank=check.is.fullrank,
                                chol.pivot=chol.pivot,
-                               lambda=lambda)
+                               lambda=lambda,
+                               progress=progress)
         K.w.segments <- test1$K.w.seg
         J.x.segments <- test1$J.x.seg
       }
@@ -113,7 +128,9 @@ npiv <- function(Y,
         B.w <- prod.spline(x=W,
                            K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                            knots=knots,
-                           basis=basis)
+                           basis=basis,
+                           x.min=W.min,
+                           x.max=W.max)
 
         if(basis!="tensor") B.w <- cbind(1,B.w)
     }
@@ -129,20 +146,26 @@ npiv <- function(Y,
         Psi.x.eval <- Psi.x <- prod.spline(x=X,
                                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                            knots=knots,
-                                           basis=basis)
+                                           basis=basis,
+                                           x.min=X.min,
+                                           x.max=X.max)
 
         Psi.x.deriv.eval <- Psi.x.deriv <- prod.spline(x=X,
                                                        K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                                        knots=knots,
                                                        basis=basis,
                                                        deriv.index=deriv.index,
-                                                       deriv=deriv.order)
+                                                       deriv=deriv.order,
+                                                       x.min=X.min,
+                                                       x.max=X.max)
         if(!is.null(X.eval)) {
             Psi.x.eval <- prod.spline(x=X,
                                       xeval=X.eval,
                                       K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                       knots=knots,
-                                      basis=basis)
+                                      basis=basis,
+                                      x.min=X.min,
+                                      x.max=X.max)
 
            Psi.x.deriv.eval <- prod.spline(x=X,
                                            xeval=X.eval,
@@ -150,7 +173,9 @@ npiv <- function(Y,
                                            knots=knots,
                                            basis=basis,
                                            deriv.index=deriv.index,
-                                           deriv=deriv.order)
+                                           deriv=deriv.order,
+                                           x.min=X.min,
+                                           x.max=X.max)
         }
         if(basis!="tensor") {
           Psi.x <- cbind(1,Psi.x)
@@ -262,13 +287,18 @@ npivJ <- function(Y,
                   K.w.segments.set=c(2,4,8,16,32,64)-1,
                   knots=c("uniform","quantiles"),
                   basis=c("tensor","additive","glp"),
+                  X.min=NULL,
+                  X.max=NULL,
+                  W.min=NULL,
+                  W.max=NULL,
                   eval.num=50,
                   boot.num=99,
                   alpha,
                   random.seed=42,
                   check.is.fullrank=FALSE,
                   chol.pivot=FALSE,
-                  lambda=sqrt(.Machine$double.eps)) {
+                  lambda=sqrt(.Machine$double.eps),
+                  progress=TRUE) {
 
     ## Match variable arguments to ensure they are valid
 
@@ -340,7 +370,7 @@ npivJ <- function(Y,
     
     for(ii in 1:NROW(J1.J2.x)) {
 
-        pb$tick()
+        if(progress) pb$tick()
 
         J.x.J1.segments <- J1.J2.x[ii,1]
         J.x.J2.segments <- J1.J2.x[ii,2]
@@ -349,7 +379,7 @@ npivJ <- function(Y,
         K.w.J2.segments <- J1.J2.w[ii,2]
 
         ## Tim precomputes and reuses basis functions... these are
-        ## computationally efficient so might not save much time, morover
+        ## computationally efficient so might not save much time, moreover
         ## if parallelized could be a waste and even add overhead
 
         ## Segments are set deterministically during search so makes
@@ -361,14 +391,18 @@ npivJ <- function(Y,
             B.w.J1 <- B.w.J2 <- matrix(1,NROW(W),1)
         } else {
             B.w.J1 <- prod.spline(x=W,
-                               K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.J1.segments,NCOL(W))),
-                               knots=knots,
-                               basis=basis)
+                                  K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.J1.segments,NCOL(W))),
+                                  knots=knots,
+                                  basis=basis,
+                                  x.min=W.min,
+                                  x.max=W.max)
 
             B.w.J2 <- prod.spline(x=W,
-                               K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.J2.segments,NCOL(W))),
-                               knots=knots,
-                               basis=basis)
+                                  K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.J2.segments,NCOL(W))),
+                                  knots=knots,
+                                  basis=basis,
+                                  x.min=W.min,
+                                  x.max=W.max)
 
             if(basis!="tensor") {
                 B.w.J1 <- cbind(1,B.w.J1)
@@ -383,25 +417,33 @@ npivJ <- function(Y,
             Psi.x.J2.eval <- Psi.x.J2 <- matrix(1,NROW(X),1)
         } else {
             Psi.x.J1.eval <- Psi.x.J1 <- prod.spline(x=X,
-                                K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J1.segments,NCOL(X))),
-                                knots=knots,
-                                basis=basis)
+                                                     K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J1.segments,NCOL(X))),
+                                                     knots=knots,
+                                                     basis=basis,
+                                                     x.min=X.min,
+                                                     x.max=X.max)
             Psi.x.J2.eval <- Psi.x.J2 <- prod.spline(x=X,
-                                K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J2.segments,NCOL(X))),
-                                knots=knots,
-                                basis=basis)
+                                                     K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J2.segments,NCOL(X))),
+                                                     knots=knots,
+                                                     basis=basis,
+                                                     x.min=X.min,
+                                                     x.max=X.max)
 
             if(!is.null(X.eval)) {
                 Psi.x.J1.eval <- prod.spline(x=X,
-                                          xeval=X.eval,
-                                          K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J1.segments,NCOL(X))),
-                                          knots=knots,
-                                          basis=basis)
+                                             xeval=X.eval,
+                                             K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J1.segments,NCOL(X))),
+                                             knots=knots,
+                                             basis=basis,
+                                             x.min=X.min,
+                                             x.max=X.max)
                 Psi.x.J2.eval <- prod.spline(x=X,
-                                          xeval=X.eval,
-                                          K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J2.segments,NCOL(X))),
-                                          knots=knots,
-                                          basis=basis)
+                                             xeval=X.eval,
+                                             K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J2.segments,NCOL(X))),
+                                             knots=knots,
+                                             basis=basis,
+                                             x.min=X.min,
+                                             x.max=X.max)
 
             }
 
@@ -468,7 +510,7 @@ npivJ <- function(Y,
         set.seed(random.seed)
 
         for(b in 1:boot.num) {
-            pbb$tick()
+            if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
             Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se))
         }
@@ -554,8 +596,13 @@ npiv_Jhat_max <- function(X,
                           K.w.smooth=1,
                           knots=c("uniform","quantiles"),
                           basis=c("tensor","additive","glp"),
+                          X.min=NULL,
+                          X.max=NULL,
+                          W.min=NULL,
+                          W.max=NULL,
                           check.is.fullrank=FALSE,
-                          chol.pivot=FALSE) {
+                          chol.pivot=FALSE,
+                          progress=TRUE) {
 
   ## Match variable arguments to ensure they are valid
 
@@ -597,7 +644,7 @@ npiv_Jhat_max <- function(X,
 
   for(ii in 1:L.max) {
 
-    pb$tick()
+    if(progress) pb$tick()
 
     if((ii <= 2) || ((ii > 2) & (test.val[ii-2] <= 10*sqrt(NROW(X))))){
 
@@ -624,7 +671,9 @@ npiv_Jhat_max <- function(X,
           B.w.J <- prod.spline(x=W,
                                K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                                knots=knots,
-                               basis=basis)
+                               basis=basis,
+                               x.min=W.min,
+                               x.max=W.max)
 
           if(basis!="tensor") {
             B.w.J <- cbind(1,B.w.J)
@@ -639,7 +688,9 @@ npiv_Jhat_max <- function(X,
           Psi.x.J <- prod.spline(x=X,
                                  K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                  knots=knots,
-                                 basis=basis)
+                                 basis=basis,
+                                 x.min=X.min,
+                                 x.max=X.max)
 
           if(basis!="tensor") {
             Psi.x.J <- cbind(1,Psi.x.J)
@@ -710,24 +761,34 @@ npiv_choose_J <- function(Y,
                           K.w.smooth=1,
                           knots=c("uniform","quantiles"),
                           basis=c("tensor","additive","glp"),
+                          X.min=NULL,
+                          X.max=NULL,
+                          W.min=NULL,
+                          W.max=NULL,
                           eval.num=50,
                           boot.num=99,
                           random.seed=42,
                           check.is.fullrank=FALSE,
                           chol.pivot=FALSE,
-                          lambda=sqrt(.Machine$double.eps)) {
+                          lambda=sqrt(.Machine$double.eps),
+                          progress=TRUE) {
 
   ## Compute \hat{J}_max and data-determined grid of J values for X and W
   
   tmp1 <- npiv_Jhat_max(X,
                         W,
-                        J.x.degree,
-                        K.w.degree,
-                        K.w.smooth,
-                        knots,
-                        basis,
-                        check.is.fullrank,
-                        chol.pivot)
+                        J.x.degree=J.x.degree,
+                        K.w.degree=K.w.degree,
+                        K.w.smooth=K.w.smooth,
+                        knots=knots,
+                        basis=basis,
+                        X.min=X.min,
+                        X.max=X.max,
+                        W.min=W.min,
+                        W.max=W.max,
+                        check.is.fullrank=check.is.fullrank,
+                        chol.pivot=chol.pivot,
+                        progress=progress)
 
   ## Compute data-driven choice via bootstrap
 
@@ -735,19 +796,24 @@ npiv_choose_J <- function(Y,
                 X,
                 W,
                 X.eval,
-                J.x.degree,
-                K.w.degree,
+                J.x.degree=J.x.degree,
+                K.w.degree=K.w.degree,
                 J.x.segments.set=tmp1$J.x.segments.set,
                 K.w.segments.set=tmp1$K.w.segments.set,
-                knots,
-                basis,
-                eval.num,
-                boot.num,
+                knots=knots,
+                basis=basis,
+                X.min=X.min,
+                X.max=X.max,
+                W.min=W.min,
+                W.max=W.max,
+                eval.num=eval.num,
+                boot.num=boot.num,
                 alpha=tmp1$alpha.hat,
-                random.seed,
-                check.is.fullrank,
-                chol.pivot,
-                lambda)
+                random.seed=random.seed,
+                check.is.fullrank=check.is.fullrank,
+                chol.pivot=chol.pivot,
+                lambda=lambda,
+                progress=progress)
 
   ## Return a list with various objects that might be of interest to
   ## the user
@@ -778,6 +844,10 @@ npivaic <- function(Y,
                     J.x.segments=1,
                     knots=c("uniform","quantiles"),
                     basis=c("tensor","additive","glp"),
+                    X.min=NULL,
+                    X.max=NULL,
+                    W.min=NULL,
+                    W.max=NULL,
                     check.is.fullrank=FALSE,
                     chol.pivot=FALSE,
                     lambda=sqrt(.Machine$double.eps)) {
@@ -830,7 +900,9 @@ npivaic <- function(Y,
         B.w <- prod.spline(x=W,
                            K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                            knots=knots,
-                           basis=basis)
+                           basis=basis,
+                           x.min=W.min,
+                           x.max=W.max)
 
         if(basis!="tensor") B.w <- cbind(1,B.w)
     }
@@ -841,9 +913,11 @@ npivaic <- function(Y,
         Psi.x <- matrix(1,NROW(X),1)
     } else {
         Psi.x <- prod.spline(x=X,
-                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
-                            knots=knots,
-                            basis=basis)
+                             K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                             knots=knots,
+                             basis=basis,
+                             x.min=X.min,
+                             x.max=X.max)
 
         if(basis!="tensor") Psi.x <- cbind(1,Psi.x)
     }

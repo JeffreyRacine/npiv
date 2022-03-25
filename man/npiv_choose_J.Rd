@@ -17,11 +17,16 @@ npiv_choose_J(Y,
               K.w.smooth = 1,
               knots = c("uniform", "quantiles"),
               basis = c("tensor", "additive", "glp"),
+              X.min = NULL,
+              X.max = NULL,
+              W.min = NULL,
+              W.max = NULL,
               eval.num = 50,
               boot.num = 99,
               check.is.fullrank = FALSE,
               chol.pivot = FALSE,
-              lambda = sqrt(.Machine$double.eps))
+              lambda = sqrt(.Machine$double.eps),
+              progress = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -52,6 +57,18 @@ Knots type, i.e., a character string (default \code{knots="quantiles"}) specifyi
   \item{basis}{
 Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
+  \item{X.min}{
+  the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
+}
+   \item{X.max}{
+   the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
+}
+  \item{W.min}{
+  the lower bound on which to construct the spline for predictors in \code{W} - defaults to \code{min(W)}
+}
+   \item{W.max}{
+   the upper bound on which to construct the spline for predictors in \code{W} - defaults to \code{max(W)}
+}
   \item{eval.num}{
 Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
 }
@@ -67,6 +84,9 @@ Argument fed to \code{chol()} (see \code{\link{chol}})
   \item{lambda}{
 Argument fed to \code{chol()} (see \code{\link{chol}})
 }
+  \item{progress}{
+  logical indicating whether to display progress bar or not (defaults to \code{TRUE})
+}  
 }
 \details{
 TBD
