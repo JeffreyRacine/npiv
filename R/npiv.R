@@ -490,8 +490,12 @@ npivJ <- function(Y,
 
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
-
-        Z.sup[ii] <- max(abs(((hhat.J1-hhat.J2)/asy.se)[-which(asy.se == 0)]))
+        
+        if(any(asy.se == 0)){
+          Z.sup[ii] <- max(abs(((hhat.J1-hhat.J2)/asy.se)[-which(asy.se == 0)]))
+        } else {
+          Z.sup[ii] <- max(abs((hhat.J1-hhat.J2)/asy.se))
+        }
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
@@ -508,7 +512,13 @@ npivJ <- function(Y,
         for(b in 1:boot.num) {
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
-            Z.sup.boot[b,ii] <- max(abs(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se)[-which(asy.se == 0)]))
+            
+            if(any(asy.se == 0)){
+              Z.sup.boot[b,ii] <- max(abs(((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se)[-which(asy.se == 0)]))
+            } else {
+              Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws))  / asy.se))
+            }
+            
         }
 
     }
