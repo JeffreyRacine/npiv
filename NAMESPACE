@@ -3,7 +3,6 @@ import(stats,progress,MASS)
 export(npiv,
        npiv_Jhat_max,
        npiv_choose_J,
-       npivaic,
        gsl.bs)
 S3method(fitted, npiv)       
 S3method(residuals, npiv)

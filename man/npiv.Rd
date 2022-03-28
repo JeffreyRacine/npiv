@@ -109,7 +109,7 @@ Argument fed to \code{chol()} (see \code{\link{chol}})
 \details{
 This function can be used in two ways, i) manually where one specifies the number of segments (i.e., number of knots-1) by specifying particular values for \code{K.w.segments} and \code{J.x.segments}, or ii) using the data-driven procedure for selecting model complexity (which will be invoked if either or both \code{K.w.segments} and \code{J.x.segments} are unspecified or set explicitly to NULL (default)).
 
-In general, \code{X} and \code{W} are not equal, otherwise if \code{X}=\code{W} this is not instrumental regression, rather is is conditional mean regression. If the user passes \code{X}=\code{W} then this is recognized as standard nonlinear regression and the B-spline complexity is chosen by Hurvich, Simonoff and Tsai's (1998) \dQuote{corrected} AIC nonlinear model selection procedure.
+In general, \code{X} and \code{W} are not equal, otherwise if \code{X}=\code{W} this is not instrumental regression, rather is is conditional mean regression.
 
 }
 \value{
@@ -133,13 +133,10 @@ The function \code{npiv} returns a list with the following components:
 \item{B.w}{B.w returns the value of the spline bases for \code{W}}
 \item{Psi.x}{Psi.x returns the value of the spline bases for \code{X}}
 \item{Psi.x.deriv}{Psi.x.deriv returns the value of the spline bases for the derivatives}
-\item{AIC.c}{Hurvich, Simonoff and Tsai's (1998) corrected AIC criterion}
 }
 \references{
 
 Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
-
-Hurvich, C.M. and J.S. Simonoff and C.L. Tsai (1998), \dQuote{Smoothing Parameter Selection in Nonparametric Regression Using an Improved Akaike Information Criterion,} Journal of the Royal Statistical Society B, 60, 271-293.
 
 }
 \author{

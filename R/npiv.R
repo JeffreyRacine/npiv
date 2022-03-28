@@ -1,4 +1,4 @@
-# Nonparametric IV estimation per Chen, Christensen and Kankanala
+## Nonparametric IV estimation per Chen, Christensen and Kankanala
 ## (2021), notation-wise, I try to follow their notation closely, and
 ## append .x and .w where needed for clarity (described further
 ## below).
@@ -212,13 +212,6 @@ npiv <- function(Y,
     ## more efficient or can be leveraged to get the correct standard
     ## errors, perhaps with some coaxing needed...
 
-    ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    trH <- NCOL(Psi.x)
-    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
-    aic.c <- ifelse(aic.penalty > 0,
-                    log(mean((Y-Psi.x%*%beta)^2)) + aic.penalty,
-                    .Machine$double.xmax)
-
     ## Compute the IV function and its derivative, denoted h and
     ## h.deriv, respectively, computed on the evaluation data, if
     ## provided, otherwise Psi.x.eval is simply Psi.x by default.
@@ -258,8 +251,7 @@ npiv <- function(Y,
                 beta=beta,
                 B.w=B.w,
                 Psi.x=Psi.x,
-                Psi.x.deriv=Psi.x.deriv,
-                AIC.c=aic.c))
+                Psi.x.deriv=Psi.x.deriv))
 
 }
 
@@ -834,123 +826,3 @@ npiv_choose_J <- function(Y,
 
 }
 
-## Stripped down version that computes the bare minimum necessary to
-## compute the AIC.c function of Hurvich et al (1998). It returns the
-## AIC criterion and estimated IV function h only for the sample
-## realizations (the latter for, say, Monte Carlo simulations
-## etc.). You can pass any combination of spline degrees and knots
-## (#knots=#segments+1).
-
-npivaic <- function(Y,
-                    X,
-                    W,
-                    K.w.degree=4,
-                    K.w.segments=1,
-                    J.x.degree=3,
-                    J.x.segments=1,
-                    knots=c("uniform","quantiles"),
-                    basis=c("tensor","additive","glp"),
-                    X.min=NULL,
-                    X.max=NULL,
-                    W.min=NULL,
-                    W.max=NULL,
-                    check.is.fullrank=FALSE,
-                    chol.pivot=FALSE,
-                    lambda=sqrt(.Machine$double.eps)) {
-
-    ## Match variable arguments to ensure they are valid
-
-    basis <- match.arg(basis)
-    knots <- match.arg(knots)
-
-    ## Conduct some basic error checking to test for valid input
-
-    if(missing(Y)) stop(" must provide Y")
-    if(missing(X)) stop(" must provide X")
-    if(missing(W)) stop(" must provide W")
-    if(K.w.degree < 0) stop("K.w.degree must be a non-negative integer")
-    if(J.x.degree < 0) stop("J.x.degree must be a non-negative integer")
-    if(K.w.segments <= 0) stop("K.w.segments must be a positive integer")
-    if(J.x.segments <= 0) stop("J.x.segments must be a positive integer")
-
-    ## If specified, check that passed objects are of full rank
-
-    if(check.is.fullrank) {
-        if(!is.fullrank(Y)) stop("Y is not of full column rank")
-        if(!is.fullrank(X)) stop("X is not of full column rank")
-        if(!is.fullrank(W)) stop("W is not of full column rank")
-    }
-
-    ## Per Chen, Christensen and Kankanala (2021), notation-wise, Psi
-    ## is the bases matrix for X, B for W. Note that I append .x to
-    ## Psi and .w to B for clarity. Per Chen, Christensen and
-    ## Kankanala (2021), notation-wise, Psi is of dimension J and B of
-    ## dimension K. For clarity I adopt K.w.degree/.segments
-    ## (corresponding to B hence "K") and J.x.degree/.segments
-    ## (corresponding to Psi hence "J"). Note K >= J is necessary
-    ## (number of columns of B.w must be greater than Psi.x, i.e.,
-    ## there must be at least as many "instruments" as "endogenous"
-    ## predictors).
-
-    if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
-
-    ## We allow for degree 0 (constant functions), and also allow for
-    ## additive and generalized polynomial bases (when these are used
-    ## we append a vector of ones, i.e., a "constant" term)
-
-    ## Generate basis functions for W
-
-    if(K.w.degree==0) {
-        B.w <- matrix(1,NROW(W),1)
-    } else {
-        B.w <- prod.spline(x=W,
-                           K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
-                           knots=knots,
-                           basis=basis,
-                           x.min=W.min,
-                           x.max=W.max)
-
-        if(basis!="tensor") B.w <- cbind(1,B.w)
-    }
-
-    ## Generate basis functions for X
-
-    if(J.x.degree==0) {
-        Psi.x <- matrix(1,NROW(X),1)
-    } else {
-        Psi.x <- prod.spline(x=X,
-                             K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
-                             knots=knots,
-                             basis=basis,
-                             x.min=X.min,
-                             x.max=X.max)
-
-        if(basis!="tensor") Psi.x <- cbind(1,Psi.x)
-    }
-
-    ## Generate the NPIV coefficient vector using Choleski
-    ## decomposition (computationally efficient) and call this
-    ## "beta". We first compute an object that is reused twice to
-    ## avoid unnecessary computation (Psi.xTB.wB.wTB.w.invB.w, defined
-    ## in Equation (3)). Note that we use Psi.x and B.x naming
-    ## conventions for clarity, and the "T" and "inv" notation
-    ## connotes "Transpose" and "Inverse", respectively. Intermediate
-    ## results that are reused in some form are stored temporarily.
-
-    Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%chol2inv(chol(t(B.w)%*%B.w,pivot=chol.pivot))%*%t(B.w)
-    h <- Psi.x%*%(chol2inv(chol(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x+diag(lambda,NCOL(Psi.x)),pivot=chol.pivot))%*%Psi.xTB.wB.wTB.w.invB.w%*%Y)
-    ## Compute Hurvich, Siminoff & Tsai's corrected AIC criterion.
-    trH <- NCOL(Psi.x)
-    aic.penalty <- (1+trH/length(Y))/(1-(trH+2)/length(Y))
-    aic.c <- ifelse(aic.penalty > 0,
-                    log(mean((Y-h)^2)) + aic.penalty,
-                    .Machine$double.xmax)
-
-    return(list(fitted=h,
-                K.w.degree=K.w.degree,
-                K.w.segments=K.w.segments,
-                J.x.degree=J.x.degree,
-                J.x.segments=J.x.segments,
-                AIC.c=aic.c))
-
-}
