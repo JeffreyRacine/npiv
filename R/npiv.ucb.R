@@ -193,16 +193,16 @@ npiv.ucb <- function(Y,
         if(progress) pbb$tick()
         boot.draws <- rnorm(length(Y))
         
-        if(any(asy.se == 0)){
-          Z.sup.boot[b,ii] <- max(abs(((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se)[-which(asy.se == 0)]))
+        if(any(asy.se.J == 0)){
+          Z.sup.boot[b,ii] <- max(abs(((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se.J)[-which(asy.se.J == 0)]))
         } else {
-          Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se))
+          Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se.J))
         }
         
-        if(any(asy.se.deriv == 0)){
-          Z.sup.boot.deriv[b,ii] <- max(abs(((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se.deriv)[-which(asy.se.deriv == 0)]))
+        if(any(asy.se.J.deriv == 0)){
+          Z.sup.boot.deriv[b,ii] <- max(abs(((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se.J.deriv)[-which(asy.se.J.deriv == 0)]))
         } else {
-          Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se.deriv))
+          Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%tmp.J%*%(U.J*boot.draws))  / asy.se.J.deriv))
         }
         
       }
