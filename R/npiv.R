@@ -24,8 +24,6 @@ npiv <- function(Y,
                  W.max=NULL,
                  random.seed=42,
                  check.is.fullrank=FALSE,
-                 chol.pivot=FALSE,
-                 lambda=sqrt(.Machine$double.eps),
                  progress=TRUE) {
 
     ## Match variable arguments to ensure they are valid
@@ -83,8 +81,6 @@ npiv <- function(Y,
                                eval.num=eval.num,
                                boot.num=boot.num,
                                check.is.fullrank=check.is.fullrank,
-                               chol.pivot=chol.pivot,
-                               lambda=lambda,
                                progress=progress)
         K.w.segments <- test1$K.w.seg
         J.x.segments <- test1$J.x.seg
@@ -106,8 +102,6 @@ npiv <- function(Y,
                                eval.num=eval.num,
                                boot.num=boot.num,
                                check.is.fullrank=check.is.fullrank,
-                               chol.pivot=chol.pivot,
-                               lambda=lambda,
                                progress=progress)
         K.w.segments <- test1$K.w.seg
         J.x.segments <- test1$J.x.seg
@@ -288,8 +282,6 @@ npivJ <- function(Y,
                   alpha=0.5,
                   random.seed=42,
                   check.is.fullrank=FALSE,
-                  chol.pivot=FALSE,
-                  lambda=sqrt(.Machine$double.eps),
                   progress=TRUE) {
 
     ## Match variable arguments to ensure they are valid
@@ -599,7 +591,6 @@ npiv_Jhat_max <- function(X,
                           W.min=NULL,
                           W.max=NULL,
                           check.is.fullrank=FALSE,
-                          chol.pivot=FALSE,
                           progress=TRUE) {
 
   ## Match variable arguments to ensure they are valid
@@ -767,8 +758,6 @@ npiv_choose_J <- function(Y,
                           boot.num=99,
                           random.seed=42,
                           check.is.fullrank=FALSE,
-                          chol.pivot=FALSE,
-                          lambda=sqrt(.Machine$double.eps),
                           progress=TRUE) {
 
   ## Compute \hat{J}_max and data-determined grid of J values for X and W
@@ -785,7 +774,6 @@ npiv_choose_J <- function(Y,
                         W.min=W.min,
                         W.max=W.max,
                         check.is.fullrank=check.is.fullrank,
-                        chol.pivot=chol.pivot,
                         progress=progress)
 
   ## Compute data-driven choice via bootstrap
@@ -809,8 +797,6 @@ npiv_choose_J <- function(Y,
                 alpha=tmp1$alpha.hat,
                 random.seed=random.seed,
                 check.is.fullrank=check.is.fullrank,
-                chol.pivot=chol.pivot,
-                lambda=lambda,
                 progress=progress)
 
   ## Return a list with various objects that might be of interest to
@@ -822,6 +808,8 @@ npiv_choose_J <- function(Y,
               J.tilde=tmp2$J.tilde,
               J.x.seg=tmp2$J.x.seg,
               K.w.seg=tmp2$K.w.seg,
+              J.x.segments.set=tmp1$J.x.segments.set,
+              K.w.segments.set=tmp1$K.w.segments.set,
               theta.star=tmp2$theta.star))
 
 }
