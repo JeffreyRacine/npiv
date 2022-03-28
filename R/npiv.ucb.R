@@ -334,7 +334,18 @@ npiv.ucb <- function(Y,
                             width = 60,
                             total = boot.num)
     
-    ## Set seed to ensure same bootstrap draws across J
+    ## Save seed prior to setting for bootstrap
+    
+    if(exists(".Random.seed", .GlobalEnv)) {
+      
+      save.seed <- get(".Random.seed", .GlobalEnv)
+      exists.seed = TRUE
+      
+    } else {
+      
+      exists.seed = FALSE
+      
+    }
     
     set.seed(random.seed)
     
