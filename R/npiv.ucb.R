@@ -371,8 +371,8 @@ npiv.ucb <- function(Y,
     
     if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
     
-    cv <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
-    cv.deriv <- quantile(Z.boot.deriv, 1 - alpha, type = 5, names = FALSE)
+    cv <- quantile(Z.sup.boot, 1 - alpha, type = 5, names = FALSE)
+    cv.deriv <- quantile(Z.sup.boot.deriv, 1 - alpha, type = 5, names = FALSE)
 
   }
   
