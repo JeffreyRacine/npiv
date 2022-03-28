@@ -26,6 +26,11 @@ npiv.ucb <- function(Y,
                      check.is.fullrank=FALSE,
                      progress=TRUE) {
   
+  ## Match variable arguments to ensure they are valid
+  
+  basis <- match.arg(basis)
+  knots <- match.arg(knots)
+  
   ## Check for regression
   
   if(all(X == W)){
