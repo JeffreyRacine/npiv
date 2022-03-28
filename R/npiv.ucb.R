@@ -81,8 +81,6 @@ npiv.ucb <- function(Y,
     
     for(ii in 1:length(tmp$J.x.segments.set)) {
       
-      if(progress) pb$tick()
-      
       J.x.segments <- tmp$J.x.segments.set[ii]
       K.w.segments <- tmp$K.w.segments.set[ii]
       
