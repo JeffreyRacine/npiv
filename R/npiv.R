@@ -406,14 +406,14 @@ npiv <- function(Y,
       ## Compute UCBs
       
       if(ucb.h) {
-        h.lower <- hhat - cv * asy.se
-        h.upper <- hhat + cv * asy.se
+        h.lower <- h - cv * asy.se
+        h.upper <- h + cv * asy.se
       } else {
         h.lower <- h.upper <- cv <- NULL
       }
       if(ucb.deriv) {
-        h.lower.deriv <- hhat.deriv - cv.deriv * asy.se.deriv
-        h.upper.deriv <- hhat.deriv + cv.deriv * asy.se.deriv
+        h.lower.deriv <- h.deriv - cv.deriv * asy.se.deriv
+        h.upper.deriv <- h.deriv + cv.deriv * asy.se.deriv
       } else {
         h.lower.deriv <- h.upper.deriv <- cv.deriv <- NULL
       }
