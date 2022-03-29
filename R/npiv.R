@@ -422,6 +422,9 @@ npiv <- function(Y,
       
       if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
       
+    } else {
+      h.lower <- h.upper <- cv <- NULL
+      h.lower.deriv <- h.upper.deriv <- cv.deriv <- NULL
     }
 
     ## Return a list with various objects that might be of interest to
