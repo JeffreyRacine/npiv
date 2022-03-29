@@ -4,8 +4,7 @@ export(npiv,
        npivJ,
        npiv_Jhat_max,
        npiv_choose_J,
-       gsl.bs,
-       npiv.ucb)
+       gsl.bs)
 S3method(fitted, npiv)       
 S3method(residuals, npiv)
 S3method(gsl.bs, default)
