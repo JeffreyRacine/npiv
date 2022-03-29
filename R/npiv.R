@@ -1,7 +1,10 @@
-## Nonparametric IV estimation per Chen, Christensen and Kankanala
-## (2021), notation-wise, I try to follow their notation closely, and
-## append .x and .w where needed for clarity (described further
-## below).
+## Nonparametric IV estimation and UCB construction.
+## If sieve dimension is not provided by the user, it is determined using
+## the method of Chen, Christensen and Kankanala (2021, CCK) and UCBs 
+## are constructed as in CCK. If sieve dimension is provided, then UCBs 
+## are constructed using the method of Chen and Christensen (2018). 
+## We follow the notation of CCK and append .x and .w where needed 
+## for clarity (described further below).
 
 npiv <- function(Y,
                  X,
@@ -22,6 +25,8 @@ npiv <- function(Y,
                  X.max=NULL,
                  W.min=NULL,
                  W.max=NULL,
+                 ucb.h=TRUE,
+                 ucb.deriv=TRUE,
                  random.seed=42,
                  check.is.fullrank=FALSE,
                  progress=TRUE) {
@@ -61,51 +66,36 @@ npiv <- function(Y,
     ## predictors).
 
     if(is.null(K.w.segments) || is.null(J.x.segments)) {
+      ## Save a flag for data driven to detm
+      data.driven <- TRUE
+      ## Check for regression and update splines accordingly
       if(all(X == W)) {
-        ## Regression
         K.w.degree <- J.x.degree
         K.w.smooth <- 0
-        test1 <- npiv_choose_J(Y,
-                               X,
-                               W,
-                               X.eval=X.eval,
-                               J.x.degree=J.x.degree,
-                               K.w.degree=J.x.degree,
-                               K.w.smooth=0,
-                               knots=knots,
-                               basis=basis,
-                               X.min=X.min,
-                               X.max=X.max,
-                               W.min=W.min,
-                               W.max=W.max,
-                               eval.num=eval.num,
-                               boot.num=boot.num,
-                               check.is.fullrank=check.is.fullrank,
-                               progress=progress)
-        K.w.segments <- test1$K.w.seg
-        J.x.segments <- test1$J.x.seg
-      } else {
-        ## IV
-        test1 <- npiv_choose_J(Y,
-                               X,
-                               W,
-                               X.eval=X.eval,
-                               J.x.degree=J.x.degree,
-                               K.w.degree=K.w.degree,
-                               K.w.smooth=K.w.smooth,
-                               knots=knots,
-                               basis=basis,
-                               X.min=X.min,
-                               X.max=X.max,
-                               W.min=W.min,
-                               W.max=W.max,
-                               eval.num=eval.num,
-                               boot.num=boot.num,
-                               check.is.fullrank=check.is.fullrank,
-                               progress=progress)
-        K.w.segments <- test1$K.w.seg
-        J.x.segments <- test1$J.x.seg
       }
+      test1 <- npiv_choose_J(Y,
+                             X,
+                             W,
+                             X.eval=X.eval,
+                             J.x.degree=J.x.degree,
+                             K.w.degree=K.w.degree,
+                             K.w.smooth=K.w.smooth,
+                             knots=knots,
+                             basis=basis,
+                             X.min=X.min,
+                             X.max=X.max,
+                             W.min=W.min,
+                             W.max=W.max,
+                             eval.num=eval.num,
+                             boot.num=boot.num,
+                             check.is.fullrank=check.is.fullrank,
+                             progress=progress)
+      K.w.segments <- test1$K.w.seg
+      J.x.segments <- test1$J.x.seg
+      J.x.segments.set <- test1$J.x.segments.set
+      K.w.segments.set <- test1$K.w.segments.set
+    } else {
+      data.driven <- FALSE
     }
     
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
@@ -187,9 +177,10 @@ npiv <- function(Y,
     ## conventions for clarity, and the "T" and "inv" notation
     ## connotes "Transpose" and "Inverse", respectively. Intermediate
     ## results that are reused in some form are stored temporarily.
-
+    
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%ginv(t(B.w)%*%B.w)%*%t(B.w)
-    beta <- ginv(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x)%*%Psi.xTB.wB.wTB.w.invB.w%*%Y
+    tmp <- ginv(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x)%*%Psi.xTB.wB.wTB.w.invB.w
+    beta <- tmp%*%Y
 
     ## Some ideas for potential computational efficiency.
     ## Note we can also compute beta via lm.fit
@@ -213,20 +204,224 @@ npiv <- function(Y,
     h <- Psi.x.eval%*%beta
     h.deriv <- Psi.x.deriv.eval%*%beta
 
-    ## Compute asymptotic standard errors for the IV function and its
-    ## derivatives (formulae of Chen and Pouzo 2012)
+    ## Compute asymptotic standard errors for the IV estimator and its
+    ## derivatives
 
     U.hat <- Y-Psi.x%*%beta
-    C <- t(Psi.x)%*%B.w
-    B.w.TB.w.inv <- ginv(t(B.w)%*%B.w)
-    P.U <- B.w*as.numeric(U.hat)
-    rho <- C%*%B.w.TB.w.inv%*%t(P.U)%*%(P.U)%*%B.w.TB.w.inv%*%t(C)
-    D.inv <- ginv(C%*%B.w.TB.w.inv%*%t(C))
-    D.inv.rho.D.inv <- D.inv%*%rho%*%D.inv
+    D.inv.rho.D.inv <- t(t(tmp) * as.numeric(U.hat))%*%(t(tmp) * as.numeric(U.hat))
 
     asy.se <- sqrt(rowSums((Psi.x.eval%*%D.inv.rho.D.inv)*Psi.x.eval))
     
     asy.se.deriv <- sqrt(rowSums((Psi.x.deriv.eval%*%D.inv.rho.D.inv)*Psi.x.deriv.eval))
+    
+    ## Uniform confidence bands, if desired
+    
+    if(ucb.h || ucb.deriv){
+      
+      ## Save seed prior to setting for bootstrap
+      
+      if(exists(".Random.seed", .GlobalEnv)) {
+        
+        save.seed <- get(".Random.seed", .GlobalEnv)
+        exists.seed = TRUE
+        
+      } else {
+        
+        exists.seed = FALSE
+        
+      }
+      
+      ## Check if sieve dimension is provided or data-driven
+      
+      if(data.driven) {
+        
+        ## Chen, Christensen, Kankanala (2021) UCB construction
+        
+        ## In what follows we loop over J.x.segments.set
+        
+        if(ucb.h) Z.sup.boot <- matrix(NA,boot.num,length(J.x.segments.set))
+        if(ucb.deriv) Z.sup.boot.deriv <- matrix(NA,boot.num,length(J.x.segments.set))
+        
+        for(ii in 1:length(J.x.segments.set)) {
+          
+          J.x.segments <- J.x.segments.set[ii]
+          K.w.segments <- K.w.segments.set[ii]
+          
+          ## Generate basis functions for W for J
+          
+          if(K.w.degree==0) {
+            B.w.J <- matrix(1,NROW(W),1)
+          } else {
+            B.w.J <- prod.spline(x=W,
+                                 K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
+                                 knots=knots,
+                                 basis=basis,
+                                 x.min=W.min,
+                                 x.max=W.max)
+            if(basis!="tensor") {
+              B.w.J <- cbind(1,B.w.J)
+            }
+          }
+          
+          ## Generate basis functions for X for J
+          
+          if(J.x.degree==0) {
+            Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
+            if(ucb.deriv) Psi.x.deriv.eval <- Psi.x.deriv <- matrix(0,NROW(X),1)
+          } else {
+            Psi.x.J.eval <- Psi.x.J <- prod.spline(x=X,
+                                                   K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                                                   knots=knots,
+                                                   basis=basis,
+                                                   x.min=X.min,
+                                                   x.max=X.max)
+            if(ucb.deriv) Psi.x.J.deriv.eval <- prod.spline(x=X,
+                                                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                                                            knots=knots,
+                                                            basis=basis,
+                                                            deriv.index=deriv.index,
+                                                            deriv=deriv.order,
+                                                            x.min=X.min,
+                                                            x.max=X.max)
+            if(!is.null(X.eval)) {
+              Psi.x.J.eval <- prod.spline(x=X,
+                                          xeval=X.eval,
+                                          K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                                          knots=knots,
+                                          basis=basis,
+                                          x.min=X.min,
+                                          x.max=X.max)
+              if(ucb.deriv) Psi.x.J.deriv.eval <- prod.spline(x=X,
+                                                              xeval=X.eval,
+                                                              K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                                                              knots=knots,
+                                                              basis=basis,
+                                                              deriv.index=deriv.index,
+                                                              deriv=deriv.order,
+                                                              x.min=X.min,
+                                                              x.max=X.max)
+            }
+            
+            if(basis!="tensor") {
+              Psi.x.J <- cbind(1,Psi.x.J)
+              Psi.x.J.eval <- cbind(1,Psi.x.J.eval)
+              if(ucb.deriv) Psi.x.J.deriv <- cbind(0,Psi.x.J.deriv)
+              if(ucb.deriv) Psi.x.J.deriv.eval <- cbind(0,Psi.x.J.deriv.eval)
+            }
+            
+          }
+          
+          ## Code re-use/storage where possible... generate all objects
+          ## needed to compute the t-stat vector
+          
+          B.w.J.TB.w.J.inv <- ginv(t(B.w.J)%*%B.w.J)
+          
+          Psi.xJTB.wB.wTB.w.invB.w <- t(Psi.x.J)%*%B.w.J%*%B.w.J.TB.w.J.inv%*%t(B.w.J)
+          tmp.J <- ginv(Psi.xJTB.wB.wTB.w.invB.w%*%Psi.x.J)%*%Psi.xJTB.wB.wTB.w.invB.w
+          beta.J <- tmp.J%*%Y
+          
+          U.J <- Y-Psi.x.J%*%beta.J
+          hhat.J <- Psi.x.J.eval%*%beta.J
+          
+          ## Compute asymptotic variances
+          
+          D.J.inv.rho.D.J.inv <- t(t(tmp.J) * as.numeric(U.J))%*%(t(tmp.J) * as.numeric(U.J))
+          if(ucb.h) asy.se.J <- sqrt(rowSums((Psi.x.J.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.eval))
+          if(ucb.deriv) asy.se.J.deriv <- sqrt(rowSums((Psi.x.J.deriv.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.deriv.eval))
+          
+          ## Bootstrap the sup t-stat, store in matrix Z.sup.boot and Z.sup.boot.deriv
+          
+          pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
+                                  clear = TRUE,
+                                  width = 60,
+                                  total = boot.num)
+          
+          ## Set seed to ensure same bootstrap draws across J
+          
+          set.seed(random.seed)
+          
+          for(b in 1:boot.num) {
+            
+            if(progress) pbb$tick()
+            boot.draws <- rnorm(length(Y))
+            
+            if(ucb.h) Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / NZD(asy.se.J)))
+            if(ucb.deriv) Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%tmp.J%*%(U.J*boot.draws))  / NZD(asy.se.J.deriv)))
+            
+          }
+          
+        }
+        
+        ## Compute maximum over J set for each bootstrap draw, 
+        ## then quantiles, then critical values
+        
+        if(ucb.h){
+          Z.boot <- apply(Z.sup.boot, 1, max)
+          z.star <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
+          cv <- z.star + 0.25*log(log(length(Y)))*test1$theta.star
+        }
+        if(ucb.deriv){
+          Z.boot.deriv <- apply(Z.sup.boot.deriv, 1, max)
+          z.star.deriv <- quantile(Z.boot.deriv, 1 - alpha, type = 5, names = FALSE)
+          cv.deriv <- z.star.deriv + 0.25*log(log(length(Y)))*test1$theta.star
+        }
+
+        ## Recover data-determined dimension (overwritten during bootstrap loop)
+        
+        J.x.segments <- test1$J.x.seg
+        K.w.segments <- test1$K.w.seg
+        
+      } else {
+        
+        ## Chen and Christensen (2018) UCB construction
+        
+        if(ucb.h) Z.sup.boot <- numeric()
+        if(ucb.deriv) Z.sup.boot.deriv <- numeric()
+        
+        ## Bootstrap the sup t-stat, store in matrix Z.sup.boot and Z.sup.boot.deriv
+        
+        pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
+                                clear = TRUE,
+                                width = 60,
+                                total = boot.num)
+      
+        set.seed(random.seed)
+        
+        for(b in 1:boot.num) {
+          
+          if(progress) pbb$tick()
+          boot.draws <- rnorm(length(Y))
+          
+          if(ucb.h) Z.sup.boot[b] <- max(abs((Psi.x.eval%*%tmp%*%(U.hat*boot.draws))  / NZD(asy.se)))
+          if(ucb.deriv) Z.sup.boot.deriv[b] <- max(abs((Psi.x.deriv.eval%*%tmp%*%(U.hat*boot.draws))  / NZD(asy.se.deriv)))
+          
+        }
+        
+        if(ucb.h) cv <- quantile(Z.sup.boot, 1 - alpha, type = 5, names = FALSE)
+        if(ucb.deriv) cv.deriv <- quantile(Z.sup.boot.deriv, 1 - alpha, type = 5, names = FALSE)
+        
+      }
+      
+      ## Compute UCBs
+      
+      if(ucb.h) {
+        h.lower <- hhat - cv * asy.se
+        h.upper <- hhat + cv * asy.se
+      } else {
+        h.lower <- h.upper <- cv <- NULL
+      }
+      if(ucb.deriv) {
+        h.lower.deriv <- hhat.deriv - cv.deriv * asy.se.deriv
+        h.upper.deriv <- hhat.deriv + cv.deriv * asy.se.deriv
+      } else {
+        h.lower.deriv <- h.upper.deriv <- cv.deriv <- NULL
+      }
+      
+      ## Restore seed
+      
+      if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
+      
+    }
 
     ## Return a list with various objects that might be of interest to
     ## the user

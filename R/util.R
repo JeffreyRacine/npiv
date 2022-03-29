@@ -37,3 +37,11 @@ sqrtm2 <- function(x) {
   return(x.eig$vectors%*%diag(lambda)%*%t(x.eig$vectors))
   
 }
+
+## avoid division by zero
+
+NZD <- function(a) {
+  
+  ifelse(a<0,pmin(-.Machine$double.eps,a),pmax(.Machine$double.eps,a))
+  
+}
