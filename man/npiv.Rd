@@ -1,5 +1,7 @@
 \name{npiv}
 \alias{npiv}
+\alias{npiv.default}
+\alias{npiv.formula}
 \title{
 Nonparametric Instrumental Variable Estimation
 }
@@ -9,29 +11,37 @@ This function implements computationally simple, data-driven procedures for esti
 
 }
 \usage{
-npiv(Y,
-     X,
-     W,
-     X.eval = NULL,
-     deriv.index = 1,
-     deriv.order = 1,
-     K.w.degree = 3,
-     K.w.segments = 1,
-     K.w.smooth = 1,
-     J.x.degree = 3,
-     J.x.segments = 1,
-     boot.num = 99,
-     eval.num = 100,
-     knots = c("uniform", "quantiles"),
-     basis = c("tensor", "additive", "glp"),
-     X.min = NULL,
-     X.max = NULL,
-     W.min = NULL,
-     W.max = NULL,
-     check.is.fullrank = FALSE,
-     chol.pivot = FALSE,
-     lambda = sqrt(.Machine$double.eps),
-     progress = TRUE)
+
+\method{npiv}{default}(...).
+
+\method{npiv}{formula}(formula, data = NULL, newdata = NULL)
+
+npiv(Y=Y,
+     X=X,
+     W=W,
+     X.eval=X.eval,
+     alpha=alpha,
+     basis=basis,
+     boot.num=boot.num,
+     check.is.fullrank=check.is.fullrank,
+     deriv.index=deriv.index,
+     deriv.order=FALSE,
+     eval.num=eval.num,
+     J.x.degree=J.x.degree,
+     J.x.segments=J.x.segments,
+     K.w.degree=K.w.degree,
+     K.w.segments=K.w.segments,
+     K.w.smooth=K.w.smooth,
+     knots=knots,
+     progress=progress,
+     random.seed=random.seed,
+     ucb.h=ucb.h,
+     ucb.deriv=ucb.deriv,
+     W.max=W.max,
+     W.min=W.min,
+     X.min=X.min,
+     X.max=X.max)
+
 }
 
 \arguments{
@@ -47,11 +57,32 @@ Instrument matrix \code{W}
   \item{X.eval}{
 Evaluation points for endogenous predictor matrix \code{X}
 }
+\item{alpha}{
+TBD
+}
+  \item{basis}{
+Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
+}
+  \item{boot.num}{
+Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+}
+  \item{check.is.fullrank}{
+Check for full rank input matrices for \code{X} and \code{W}
+}
   \item{deriv.index}{
 Column of endogenous predictor matrix \code{X} for which to compute derivative (scalar)
 }
   \item{deriv.order}{
 Order of derivative to be computed (scalar)
+}
+  \item{eval.num}{
+Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+}
+  \item{J.x.degree}{
+B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
+}
+  \item{J.x.segments}{
+B-spline number of segments for endogenous predictor matrix, i.e., , i.e., integer/vector specifying the number of segments of the B-spline basis for the the matrix \code{X}(i.e. number of knots minus one) (default \code{segments=1}, i.e. Bezier curve)
 }
   \item{K.w.degree}{
 B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
@@ -62,30 +93,20 @@ B-spline number of segments for instrument matrix, i.e., integer/vector specifyi
   \item{K.w.smooth}{
 B-spline smoothness parameter (for complexity routines where X.eval necessary but not provided)
 }
-  \item{J.x.degree}{
-B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
-}
-  \item{J.x.segments}{
-B-spline number of segments for endogenous predictor matrix, i.e., , i.e., integer/vector specifying the number of segments of the B-spline basis for the the matrix \code{X}(i.e. number of knots minus one) (default \code{segments=1}, i.e. Bezier curve)
-}
-  \item{boot.num}{
-Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
-}
-  \item{eval.num}{
-Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
-}
-
   \item{knots}{
 Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
-  \item{basis}{
-Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
+  \item{progress}{
+  logical indicating whether to display progress bar or not (defaults to \code{TRUE})
 }
-  \item{X.min}{
-  the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
+\item{random.seed}{
+ TBD
 }
-   \item{X.max}{
-   the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
+\item{ucb.h}{
+
+}
+\item{ucb.deriv}{
+
 }
   \item{W.min}{
   the lower bound on which to construct the spline for predictors in \code{W} - defaults to \code{min(W)}
@@ -93,18 +114,15 @@ Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating 
    \item{W.max}{
    the upper bound on which to construct the spline for predictors in \code{W} - defaults to \code{max(W)}
 }
-  \item{check.is.fullrank}{
-Check for full rank input matrices for \code{X} and \code{W}
+  \item{X.min}{
+  the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
 }
-  \item{chol.pivot}{
-Argument fed to \code{chol()} (see \code{\link{chol}})
+   \item{X.max}{
+   the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
 }
-  \item{lambda}{
-Argument fed to \code{chol()} (see \code{\link{chol}})
+\item{...}{
+TBD additional arguments passed to
 }
-  \item{progress}{
-  logical indicating whether to display progress bar or not (defaults to \code{TRUE})
-}  
 }
 \details{
 This function can be used in two ways, i) manually where one specifies the number of segments (i.e., number of knots-1) by specifying particular values for \code{K.w.segments} and \code{J.x.segments}, or ii) using the data-driven procedure for selecting model complexity (which will be invoked if either or both \code{K.w.segments} and \code{J.x.segments} are unspecified or set explicitly to NULL (default)).
@@ -114,7 +132,7 @@ In general, \code{X} and \code{W} are not equal, otherwise if \code{X}=\code{W} 
 }
 \value{
 
- \code{npiv} returns a \code{npiv} object. The generic function \code{\link{fitted}} extracts the estimated values for the sample (or evaluation data, if provided), while the generic function \code{\link{residuals}} extracts the sample residuals.
+ \code{npiv} returns a \code{npiv} object. The generic function \code{\link{fitted}} extracts the estimated values for the sample (or evaluation data, if provided), while the generic function \code{\link{residuals}} extracts the sample residuals. The generic function \code{\link{summary}} provides a simple model summary.
 
 The function \code{npiv} returns a list with the following components:
 
