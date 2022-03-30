@@ -89,10 +89,10 @@ npiv.formula <- function(formula, data, subset, na.action, call, ...){
     }
 
     mf.xf <- mf
-    
+
     mf[[1]] <- as.name("model.frame")
     mf.xf[[1]] <- as.name("model.frame")
-    
+
     ## mangle formula ...
     chromoly <- explodePipe(mf[["formula"]])
 
@@ -120,7 +120,7 @@ npiv.formula <- function(formula, data, subset, na.action, call, ...){
 
     mf[["formula"]] <- terms(mf[["formula"]])
     mf.xf[["formula"]] <- terms(mf.xf[["formula"]])
-    
+
     if(all(orig.class == "ts")){
       arguments <- (as.list(attr(formula.all, "variables"))[-1])
       attr(mf[["formula"]], "predvars") <- bquote(.(as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments)))))[,.(match(arguments.mf,arguments)),drop = FALSE])
@@ -134,7 +134,7 @@ npiv.formula <- function(formula, data, subset, na.action, call, ...){
       attr(mf[["formula"]], "predvars") <- bquote((.(as.call(c(quote(cbind),as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments.timeseries)))),arguments.normal,check.rows = TRUE)))[,.(ix)])[,.(match(arguments.mf,arguments)),drop = FALSE])
       attr(mf.xf[["formula"]], "predvars") <- bquote((.(as.call(c(quote(cbind),as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments.timeseries)))),arguments.normal,check.rows = TRUE)))[,.(ix)])[,.(match(arguments.mfx,arguments)),drop = FALSE])
     }
-    
+
     mf <- eval(mf, parent.frame())
     mf.xf <- eval(mf.xf,parent.frame())
 
@@ -159,7 +159,6 @@ npiv.formula <- function(formula, data, subset, na.action, call, ...){
 
     return(est)
 }
-
 
 fitted.npiv <- function(object, ...){
    return(object$h)
@@ -197,7 +196,6 @@ summary.npiv <- function(object, ...){
 
   cat("\n\n")
 }
-
 
 ## End of S3 definitions, "workhorse" functions follow
 
@@ -301,7 +299,7 @@ npivEst <- function(Y,
     } else {
       data.driven <- FALSE
     }
-    
+
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
 
     ## We allow for degree 0 (constant functions), and also allow for
@@ -381,7 +379,7 @@ npivEst <- function(Y,
     ## conventions for clarity, and the "T" and "inv" notation
     ## connotes "Transpose" and "Inverse", respectively. Intermediate
     ## results that are reused in some form are stored temporarily.
-    
+
     Psi.xTB.wB.wTB.w.invB.w <- t(Psi.x)%*%B.w%*%ginv(t(B.w)%*%B.w)%*%t(B.w)
     tmp <- ginv(Psi.xTB.wB.wTB.w.invB.w%*%Psi.x)%*%Psi.xTB.wB.wTB.w.invB.w
     beta <- tmp%*%Y
@@ -414,45 +412,54 @@ npivEst <- function(Y,
     U.hat <- Y-Psi.x%*%beta
     D.inv.rho.D.inv <- t(t(tmp) * as.numeric(U.hat))%*%(t(tmp) * as.numeric(U.hat))
 
-    asy.se <- sqrt(rowSums((Psi.x.eval%*%D.inv.rho.D.inv)*Psi.x.eval))
-    
-    asy.se.deriv <- sqrt(rowSums((Psi.x.deriv.eval%*%D.inv.rho.D.inv)*Psi.x.deriv.eval))
-    
+    ## NB When X==W and computing asy.se and asy.se.deriv, we can get
+    ## entries that are extremely small (essentially zero it appears)
+    ## that can have a negative sign (e.g., -2.2e-18) which then throw
+    ## an error with sqrt() which gets propogated to, say, quantile
+    ## which throws an error (NaN gives rise to NA which halts
+    ## quantile() unless na.rm=TRUE is set). This does not appear to
+    ## occur otherwise (when X!=W) so this ought to be completely
+    ## benign (removing abs() when X==W has not produced errors I am
+    ## aware of)
+
+    asy.se <- sqrt(abs(rowSums((Psi.x.eval%*%D.inv.rho.D.inv)*Psi.x.eval)))
+    asy.se.deriv <- sqrt(abs(rowSums((Psi.x.deriv.eval%*%D.inv.rho.D.inv)*Psi.x.deriv.eval)))
+
     ## Uniform confidence bands, if desired
-    
+
     if(ucb.h || ucb.deriv){
-      
+
       ## Save seed prior to setting for bootstrap
-      
+
       if(exists(".Random.seed", .GlobalEnv)) {
-        
+
         save.seed <- get(".Random.seed", .GlobalEnv)
         exists.seed = TRUE
-        
+
       } else {
-        
+
         exists.seed = FALSE
-        
+
       }
-      
+
       ## Check if sieve dimension is provided or data-driven
-      
+
       if(data.driven) {
-        
+
         ## Chen, Christensen, Kankanala (2021) UCB construction
-        
+
         ## In what follows we loop over J.x.segments.set
-        
+
         if(ucb.h) Z.sup.boot <- matrix(NA,boot.num,length(J.x.segments.set))
         if(ucb.deriv) Z.sup.boot.deriv <- matrix(NA,boot.num,length(J.x.segments.set))
-        
+
         for(ii in 1:length(J.x.segments.set)) {
-          
+
           J.x.segments <- J.x.segments.set[ii]
           K.w.segments <- K.w.segments.set[ii]
-          
+
           ## Generate basis functions for W for J
-          
+
           if(K.w.degree==0) {
             B.w.J <- matrix(1,NROW(W),1)
           } else {
@@ -466,9 +473,9 @@ npivEst <- function(Y,
               B.w.J <- cbind(1,B.w.J)
             }
           }
-          
+
           ## Generate basis functions for X for J
-          
+
           if(J.x.degree==0) {
             Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
             if(ucb.deriv) Psi.x.deriv.eval <- Psi.x.deriv <- matrix(0,NROW(X),1)
@@ -505,60 +512,61 @@ npivEst <- function(Y,
                                                               x.min=X.min,
                                                               x.max=X.max)
             }
-            
+
             if(basis!="tensor") {
               Psi.x.J <- cbind(1,Psi.x.J)
               Psi.x.J.eval <- cbind(1,Psi.x.J.eval)
               if(ucb.deriv) Psi.x.J.deriv <- cbind(0,Psi.x.J.deriv)
               if(ucb.deriv) Psi.x.J.deriv.eval <- cbind(0,Psi.x.J.deriv.eval)
             }
-            
+
           }
-          
+
           ## Code re-use/storage where possible... generate all objects
           ## needed to compute the t-stat vector
-          
+
           B.w.J.TB.w.J.inv <- ginv(t(B.w.J)%*%B.w.J)
-          
+
           Psi.xJTB.wB.wTB.w.invB.w <- t(Psi.x.J)%*%B.w.J%*%B.w.J.TB.w.J.inv%*%t(B.w.J)
           tmp.J <- ginv(Psi.xJTB.wB.wTB.w.invB.w%*%Psi.x.J)%*%Psi.xJTB.wB.wTB.w.invB.w
           beta.J <- tmp.J%*%Y
-          
+
           U.J <- Y-Psi.x.J%*%beta.J
           hhat.J <- Psi.x.J.eval%*%beta.J
-          
-          ## Compute asymptotic variances
-          
+
+          ## Compute asymptotic variances (see NB above for inclusion
+          ## of abs() when X==W)
+
           D.J.inv.rho.D.J.inv <- t(t(tmp.J) * as.numeric(U.J))%*%(t(tmp.J) * as.numeric(U.J))
-          if(ucb.h) asy.se.J <- sqrt(rowSums((Psi.x.J.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.eval))
-          if(ucb.deriv) asy.se.J.deriv <- sqrt(rowSums((Psi.x.J.deriv.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.deriv.eval))
-          
+          if(ucb.h) asy.se.J <- sqrt(abs(rowSums((Psi.x.J.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.eval)))
+          if(ucb.deriv) asy.se.J.deriv <- sqrt(abs(rowSums((Psi.x.J.deriv.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.deriv.eval)))
+
           ## Bootstrap the sup t-stat, store in matrix Z.sup.boot and Z.sup.boot.deriv
-          
+
           pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
                                   clear = TRUE,
                                   width = 60,
                                   total = boot.num)
-          
+
           ## Set seed to ensure same bootstrap draws across J
-          
+
           set.seed(random.seed)
-          
+
           for(b in 1:boot.num) {
-            
+
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
-            
+
             if(ucb.h) Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / NZD(asy.se.J)))
             if(ucb.deriv) Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%tmp.J%*%(U.J*boot.draws))  / NZD(asy.se.J.deriv)))
-            
+
           }
-          
+
         }
-        
-        ## Compute maximum over J set for each bootstrap draw, 
+
+        ## Compute maximum over J set for each bootstrap draw,
         ## then quantiles, then critical values
-        
+
         if(ucb.h){
           Z.boot <- apply(Z.sup.boot, 1, max)
           z.star <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
@@ -571,43 +579,43 @@ npivEst <- function(Y,
         }
 
         ## Recover data-determined dimension (overwritten during bootstrap loop)
-        
+
         J.x.segments <- test1$J.x.seg
         K.w.segments <- test1$K.w.seg
-        
+
       } else {
-        
+
         ## Chen and Christensen (2018) UCB construction
-        
+
         if(ucb.h) Z.sup.boot <- numeric()
         if(ucb.deriv) Z.sup.boot.deriv <- numeric()
-        
+
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot and Z.sup.boot.deriv
-        
+
         pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
                                 clear = TRUE,
                                 width = 60,
                                 total = boot.num)
-      
+
         set.seed(random.seed)
-        
+
         for(b in 1:boot.num) {
-          
+
           if(progress) pbb$tick()
           boot.draws <- rnorm(length(Y))
-          
+
           if(ucb.h) Z.sup.boot[b] <- max(abs((Psi.x.eval%*%tmp%*%(U.hat*boot.draws))  / NZD(asy.se)))
           if(ucb.deriv) Z.sup.boot.deriv[b] <- max(abs((Psi.x.deriv.eval%*%tmp%*%(U.hat*boot.draws))  / NZD(asy.se.deriv)))
-          
+
         }
-        
+
         if(ucb.h) cv <- quantile(Z.sup.boot, 1 - alpha, type = 5, names = FALSE)
         if(ucb.deriv) cv.deriv <- quantile(Z.sup.boot.deriv, 1 - alpha, type = 5, names = FALSE)
-        
+
       }
-      
+
       ## Compute UCBs
-      
+
       if(ucb.h) {
         h.lower <- h - cv * asy.se
         h.upper <- h + cv * asy.se
@@ -620,11 +628,11 @@ npivEst <- function(Y,
       } else {
         h.lower.deriv <- h.upper.deriv <- cv.deriv <- NULL
       }
-      
+
       ## Restore seed
-      
+
       if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
-      
+
     } else {
       h.lower <- h.upper <- cv <- NULL
       h.lower.deriv <- h.upper.deriv <- cv.deriv <- NULL
@@ -730,18 +738,18 @@ npivJ <- function(Y,
     J1.J2.w <- apply(J1.J2.x, c(1,2), function(u) K.w.segments.set[which(J.x.segments.set == u)])
 
     ## Save seed prior to setting for bootstrap
-    
+
     if(exists(".Random.seed", .GlobalEnv)) {
-      
+
       save.seed <- get(".Random.seed", .GlobalEnv)
       exists.seed = TRUE
-      
+
     } else {
-      
+
       exists.seed = FALSE
-      
+
     }
-    
+
     ## In what follows we loop over _rows_ of J1.J2 (makes for easy
     ##  parallelization if needed)
 
@@ -752,7 +760,7 @@ npivJ <- function(Y,
                            clear = TRUE,
                            width= 60,
                            total = NROW(J1.J2.x))
-    
+
     for(ii in 1:NROW(J1.J2.x)) {
 
         if(progress) pb$tick()
@@ -866,18 +874,18 @@ npivJ <- function(Y,
         asy.var.J2 <- rowSums((Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv)*Psi.x.J2.eval)
 
         ## Compute the covariance
-        
+
         asy.cov.J1.J2 <- rowSums((Psi.x.J1.eval%*%t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J2) * as.numeric(U.J2)))*Psi.x.J2.eval)
-        
+
         ## Compute the denominator of the t-stat
 
         asy.se <- sqrt(asy.var.J1+asy.var.J2-2*asy.cov.J1.J2)
 
         ## The t-stat vector - we take the sup (max) of this to determine
         ## the optimal value of J (segments/knots of the Psi.x basis)
-        
+
         Z.sup[ii] <- max(abs((hhat.J1-hhat.J2)/NZD(asy.se)))
-        
+
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
 
@@ -885,30 +893,30 @@ npivJ <- function(Y,
                                clear = TRUE,
                                width= 60,
                                total = boot.num)
-        
-        ## Set seed to ensure same bootstrap draws across rows of J1.J2 
-        
+
+        ## Set seed to ensure same bootstrap draws across rows of J1.J2
+
         set.seed(random.seed)
 
         for(b in 1:boot.num) {
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
-            
+
             Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws)) / NZD(asy.se)))
-            
+
         }
 
     }
-    
+
     ## Restore seed
-    
+
     if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
-    
+
     ## Compute maximum over J set for each bootstrap draw (should
     ## produce a boot.num x 1 vector)
 
     Z.boot <- apply(Z.sup.boot, 1, max)
-    
+
     theta.star <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
 
     ## Compute Lepski choice
@@ -1080,9 +1088,9 @@ npiv_Jhat_max <- function(X,
         }
 
         ## Compute \hat{s}_J
-        
+
         s.hat.J <- min(svd(sqrtm2(ginv(t(Psi.x.J)%*%Psi.x.J))%*%(t(Psi.x.J)%*%B.w.J)%*%sqrtm2(ginv(t(B.w.J)%*%B.w.J)))$d)
-        
+
       }
 
       ## Compute test value
@@ -1154,7 +1162,7 @@ npiv_choose_J <- function(Y,
                           progress=TRUE) {
 
   ## Compute \hat{J}_max and data-determined grid of J values for X and W
-  
+
   tmp1 <- npiv_Jhat_max(X,
                         W,
                         J.x.degree=J.x.degree,
