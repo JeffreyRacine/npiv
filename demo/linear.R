@@ -50,8 +50,8 @@ model <- npiv(Y,
 ## Create a plot of the instrumental regression function and its
 ## asymptotic standard error bounds
 
-ylim <- c(min(Y,model$fitted-1.96*model$fitted.asy.se,model$fitted+1.96*model$fitted.asy.se),
-          max(Y,model$fitted-1.96*model$fitted.asy.se,model$fitted+1.96*model$fitted.asy.se))
+ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
+          max(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se))
 
 plot(X,Y,cex=0.25,
      col="lightgrey",
@@ -61,7 +61,7 @@ plot(X,Y,cex=0.25,
      ylab="Y")
 
 lines(X.eval,h0,lty=1,col=1,lwd=1)
-lines(X.eval,model$fitted,lty=2,col=2,lwd=2)
+lines(X.eval,model$h,lty=2,col=2,lwd=2)
 
 legend("topleft",c("IV-DGP","NPIV"),col=1:2,lty=1:2,lwd=c(1,2),bty="n")
 

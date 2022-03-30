@@ -71,8 +71,98 @@ npiv.default <- function(Y,
 
 }
 
+npiv.formula <- function(formula, data, subset, na.action, call, ...){
+
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data", "subset", "na.action"),
+               names(mf), nomatch = 0)
+    mf <- mf[c(1,m)]
+
+    if(!missing(call) && is.call(call)){
+      ## rummage about in the call for the original formula
+      for(i in 1:length(call)){
+        if(tryCatch(class(eval(call[[i]])) == "formula",
+                    error = function(e) FALSE))
+          break;
+      }
+      mf[[2]] <- call[[i]]
+    }
+
+    mf.xf <- mf
+    
+    mf[[1]] <- as.name("model.frame")
+    mf.xf[[1]] <- as.name("model.frame")
+    
+    ## mangle formula ...
+    chromoly <- explodePipe(mf[["formula"]])
+
+    if (length(chromoly) != 3) ## stop if malformed formula
+      stop("invoked with improper formula, please see npiv documentation for proper use")
+
+    ## make formula evaluable, then eval
+    bronze <- lapply(chromoly, paste, collapse = " + ")
+
+    mf.xf[["formula"]] <- as.formula(paste(" ~ ", bronze[[2]]),
+                                    env = environment(formula))
+
+    mf[["formula"]] <- as.formula(paste(bronze[[1]]," ~ ", bronze[[3]]),
+                                  env = environment(formula))
+
+    formula.all <- terms(as.formula(paste(" ~ ",bronze[[1]]," + ",bronze[[2]], " + ",bronze[[3]]),
+                                  env = environment(formula)))
+
+    orig.class <- if (missing(data))
+      sapply(eval(attr(formula.all, "variables"), environment(formula.all)),class)
+    else sapply(eval(attr(formula.all, "variables"), data, environment(formula.all)),class)
+
+    arguments.mfx <- chromoly[[2]]
+    arguments.mf <- c(chromoly[[1]],chromoly[[3]])
+
+    mf[["formula"]] <- terms(mf[["formula"]])
+    mf.xf[["formula"]] <- terms(mf.xf[["formula"]])
+    
+    if(all(orig.class == "ts")){
+      arguments <- (as.list(attr(formula.all, "variables"))[-1])
+      attr(mf[["formula"]], "predvars") <- bquote(.(as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments)))))[,.(match(arguments.mf,arguments)),drop = FALSE])
+      attr(mf.xf[["formula"]], "predvars") <- bquote(.(as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments)))))[,.(match(arguments.mfx,arguments)),drop = FALSE])
+    }else if(any(orig.class == "ts")){
+      arguments <- (as.list(attr(formula.all, "variables"))[-1])
+      arguments.normal <- arguments[which(orig.class != "ts")]
+      arguments.timeseries <- arguments[which(orig.class == "ts")]
+
+      ix <- sort(c(which(orig.class == "ts"),which(orig.class != "ts")),index.return = TRUE)$ix
+      attr(mf[["formula"]], "predvars") <- bquote((.(as.call(c(quote(cbind),as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments.timeseries)))),arguments.normal,check.rows = TRUE)))[,.(ix)])[,.(match(arguments.mf,arguments)),drop = FALSE])
+      attr(mf.xf[["formula"]], "predvars") <- bquote((.(as.call(c(quote(cbind),as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments.timeseries)))),arguments.normal,check.rows = TRUE)))[,.(ix)])[,.(match(arguments.mfx,arguments)),drop = FALSE])
+    }
+    
+    mf <- eval(mf, parent.frame())
+    mf.xf <- eval(mf.xf,parent.frame())
+
+    Y <- model.response(mf)
+    X <- mf.xf
+    W <- mf[, chromoly[[3]], drop = FALSE]
+
+    est <- npiv(Y=Y,
+                X=X,
+                W=W,
+                ...)
+
+    ## clean up (possible) inconsistencies due to recursion ...
+    est$call <- match.call(expand.dots = FALSE)
+    environment(est$call) <- parent.frame()
+    est$formula <- formula
+    est$rows.omit <- as.vector(attr(mf,"na.action"))
+    est$nobs.omit <- length(est$rows.omit)
+    est$terms <- attr(mf,"terms")
+    est$xterms <- attr(mf.xf,"terms")
+    est$chromoly <- chromoly
+
+    return(est)
+}
+
+
 fitted.npiv <- function(object, ...){
-   object$fitted
+   object$h
 }
 
 residuals.npiv <- function(object, ...) {
@@ -513,7 +603,7 @@ npivEst <- function(Y,
     ## Return a list with various objects that might be of interest to
     ## the user
 
-    return(list(fitted=h,
+    return(list(h=h,
                 residuals=Y-Psi.x%*%beta,
                 deriv=h.deriv,
                 asy.se=asy.se,

@@ -118,7 +118,7 @@ In general, \code{X} and \code{W} are not equal, otherwise if \code{X}=\code{W} 
 
 The function \code{npiv} returns a list with the following components:
 
-\item{fitted}{fitted returns the estimated instrumental regression function for the sample data (or evaluation data, if provided) }
+\item{h}{h returns the estimated instrumental regression function for the sample data (or evaluation data, if provided) }
 \item{residuals}{residuals returns the residuals for the sample data}
 \item{deriv}{deriv returns the estimated derivative of the instrumental regression function for the sample data (or evaluation data, if provided) }
 \item{asy.se}{asy.se returns the value of asymptotic standard errors for the sample data (or evaluation data, if provided) }
@@ -204,8 +204,8 @@ model <- npiv(Y,
 ## Create a plot of the instrumental regression function and its
 ## asymptotic standard error bounds
 
-ylim <- c(min(Y,model$fitted-1.96*model$fitted.asy.se,model$fitted+1.96*model$fitted.asy.se),
-          max(Y,model$fitted-1.96*model$fitted.asy.se,model$fitted+1.96*model$fitted.asy.se))
+ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
+          max(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se))
 
 plot(X,Y,cex=0.25,
      col="lightgrey",
@@ -215,10 +215,10 @@ plot(X,Y,cex=0.25,
      ylab="Y")
 
 lines(X.eval,h0,lty=1,col=1,lwd=1)
-lines(X.eval,model$fitted,lty=2,col=2,lwd=2)
+lines(X.eval,model$h,lty=2,col=2,lwd=2)
 
-lines(X.eval,model$fitted-1.96*model$asy.se,col=4,lty=4,lwd=1)
-lines(X.eval,model$fitted+1.96*model$asy.se,col=4,lty=4,lwd=1)
+lines(X.eval,model$h-1.96*model$asy.se,col=4,lty=4,lwd=1)
+lines(X.eval,model$h+1.96*model$asy.se,col=4,lty=4,lwd=1)
 
 legend("topleft",c("DGP",paste("NPIV (K.w.degree = ",model$K.w.degree,
                                ", W.knots = ",model$K.w.segments+1,
