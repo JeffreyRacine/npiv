@@ -1,36 +1,119 @@
-## Nonparametric IV estimation and UCB construction.
-## If sieve dimension is not provided by the user, it is determined using
-## the method of Chen, Christensen and Kankanala (2021, CCK) and UCBs 
-## are constructed as in CCK. If sieve dimension is provided, then UCBs 
-## are constructed using the method of Chen and Christensen (2018). 
-## We follow the notation of CCK and append .x and .w where needed 
-## for clarity (described further below).
+## This function provides for an S3 implementation of npiv.
 
-npiv <- function(Y,
-                 X,
-                 W,
-                 X.eval=NULL,
-                 deriv.index=1,
-                 deriv.order=1,
-                 K.w.degree=4,
-                 K.w.segments=NULL,
-                 K.w.smooth=1,
-                 J.x.degree=3,
-                 J.x.segments=NULL,
-                 boot.num=99,
-                 eval.num=100,
-                 knots=c("uniform","quantiles"),
-                 basis=c("tensor","additive","glp"),
-                 X.min=NULL,
-                 X.max=NULL,
-                 W.min=NULL,
-                 W.max=NULL,
-                 ucb.h=TRUE,
-                 ucb.deriv=TRUE,
-                 alpha=0.05,
-                 random.seed=42,
-                 check.is.fullrank=FALSE,
-                 progress=TRUE) {
+npiv <- function(...) UseMethod("npiv")
+
+## Default method - this function takes the minimum arguments
+
+npiv.default <- function(Y,
+                         X,
+                         W,
+                         X.eval=NULL,
+                         alpha=0.05,
+                         basis=c("tensor","additive","glp"),
+                         boot.num=99,
+                         check.is.fullrank=FALSE,
+                         deriv.index=1,
+                         deriv.order=1,
+                         eval.num=100,
+                         J.x.degree=3,
+                         J.x.segments=NULL,
+                         K.w.degree=4,
+                         K.w.segments=NULL,
+                         K.w.smooth=1,
+                         knots=c("uniform","quantiles"),
+                         progress=TRUE,
+                         random.seed=42,
+                         ucb.h=TRUE,
+                         ucb.deriv=TRUE,
+                         W.max=NULL,
+                         W.min=NULL,
+                         X.min=NULL,
+                         X.max=NULL,
+                         ...) {
+
+  knots <- match.arg(knots)
+  basis <- match.arg(basis)
+
+  est <- npivEst(Y=Y,
+                 X=X,
+                 W=W,
+                 X.eval=X.eval,
+                 alpha=alpha,
+                 basis=basis,
+                 boot.num=boot.num,
+                 check.is.fullrank=check.is.fullrank,
+                 deriv.index=deriv.index,
+                 deriv.order=FALSE,
+                 eval.num=eval.num,
+                 J.x.degree=J.x.degree,
+                 J.x.segments=J.x.segments,
+                 K.w.degree=K.w.degree,
+                 K.w.segments=K.w.segments,
+                 K.w.smooth=K.w.smooth,
+                 knots=knots,
+                 progress=progress,
+                 random.seed=random.seed,
+                 ucb.h=ucb.h,
+                 ucb.deriv=ucb.deriv,
+                 W.max=W.max,
+                 W.min=W.min,
+                 X.min=X.min,
+                 X.max=X.max)
+
+  ## Add results to estimated object.
+
+  est$call <- match.call()
+  class(est) <- "npiv"
+
+  ## Return object of type npiv
+
+  return(est)
+
+}
+
+fitted.npiv <- function(object, ...){
+   object$fitted
+}
+
+residuals.npiv <- function(object, ...) {
+   object$residuals
+}
+
+## End of S3 definitions, "workhorse" functions follow
+
+## Nonparametric IV estimation and UCB construction.  If sieve
+## dimension is not provided by the user, it is determined using the
+## method of Chen, Christensen and Kankanala (2021, CCK) and UCBs are
+## constructed as in CCK. If sieve dimension is provided, then UCBs
+## are constructed using the method of Chen and Christensen (2018).
+## We follow the notation of CCK and append .x and .w where needed for
+## clarity (described further below).
+
+npivEst <- function(Y,
+                    X,
+                    W,
+                    X.eval=NULL,
+                    alpha=0.05,
+                    basis=c("tensor","additive","glp"),
+                    boot.num=99,
+                    check.is.fullrank=FALSE,
+                    deriv.index=1,
+                    deriv.order=1,
+                    eval.num=100,
+                    J.x.degree=3,
+                    J.x.segments=NULL,
+                    K.w.degree=4,
+                    K.w.segments=NULL,
+                    K.w.smooth=1,
+                    knots=c("uniform","quantiles"),
+                    progress=TRUE,
+                    random.seed=42,
+                    ucb.h=TRUE,
+                    ucb.deriv=TRUE,
+                    W.max=NULL,
+                    W.min=NULL,
+                    X.min=NULL,
+                    X.max=NULL) {
 
     ## Match variable arguments to ensure they are valid
 
@@ -452,14 +535,6 @@ npiv <- function(Y,
                 Psi.x=Psi.x,
                 Psi.x.deriv=Psi.x.deriv))
 
-}
-
-fitted.npiv <- function(object, ...){
-   object$fitted
-}
-
-residuals.npiv <- function(object, ...) {
-   object$residuals
 }
 
 ## Function for determining optimal spline complexity for the

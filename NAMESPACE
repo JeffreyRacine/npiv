@@ -5,7 +5,12 @@ export(npiv,
        npiv_Jhat_max,
        npiv_choose_J,
        gsl.bs)
+
+#S3method(npiv, formula)
+S3method(npiv, default)
+
 S3method(fitted, npiv)       
 S3method(residuals, npiv)
+
 S3method(gsl.bs, default)
 S3method(predict, gsl.bs)
