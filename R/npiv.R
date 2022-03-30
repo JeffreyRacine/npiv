@@ -162,12 +162,42 @@ npiv.formula <- function(formula, data, subset, na.action, call, ...){
 
 
 fitted.npiv <- function(object, ...){
-   object$h
+   return(object$h)
 }
 
 residuals.npiv <- function(object, ...) {
-   object$residuals
+   return(object$residuals)
 }
+
+print.npiv <- function(x, digits=NULL, ...){
+  cat("\nNonparametric IV Model:\n",
+      "\nIV Regression data: ", x$nobs, " training points,",
+      ifelse(x$trainiseval, "", paste(" and ", x$nevalobs,
+                                      " evaluation points,", sep="")),
+      " in ",x$ndim," endogenous variable(s)\n",sep="")
+
+  cat("\n\n")
+  if(!missing(...))
+    print(...,digits=digits)
+  invisible(x)
+}
+
+summary.npiv <- function(object, ...){
+  cat("\nNonparametric IV Model:\n",
+      "\nIV Regression Data: ", object$nobs, " training points,",
+      ifelse(object$trainiseval, "", paste(" and ", object$nevalobs,
+                                      " evaluation points,", sep="")),
+      " in ",object$ndim," endogenous variable(s)\n",sep="")
+
+  cat("\nB-spline degree for instruments:           ", object$K.w.degree,sep="")
+  cat("\nB-spline knots for instruments:            ", object$K.w.segments+1, "\n",sep="")
+
+  cat("\nB-spline degree for endogenous predictors: ", object$J.x.degree,sep="")
+  cat("\nB-spline knots for endogenous predictors:  ", object$J.x.segments+1, "\n",sep="")
+
+  cat("\n\n")
+}
+
 
 ## End of S3 definitions, "workhorse" functions follow
 
@@ -603,27 +633,28 @@ npivEst <- function(Y,
     ## Return a list with various objects that might be of interest to
     ## the user
 
-    return(list(h=h,
-                residuals=Y-Psi.x%*%beta,
-                deriv=h.deriv,
+    return(list(J.x.degree=J.x.degree,
+                J.x.segments=J.x.segments,
+                K.w.degree=K.w.degree,
+                K.w.segments=K.w.segments,
                 asy.se=asy.se,
+                beta=beta,
+                cv.deriv=cv.deriv,
+                cv=cv,
                 deriv.asy.se=asy.se.deriv,
                 deriv.index=deriv.index,
                 deriv.order=deriv.order,
-                K.w.degree=K.w.degree,
-                K.w.segments=K.w.segments,
-                J.x.degree=J.x.degree,
-                J.x.segments=J.x.segments,
-                h.lower=h.lower,
-                h.upper=h.upper,
+                deriv=h.deriv,
                 h.lower.deriv=h.lower.deriv,
+                h.lower=h.lower,
                 h.upper.deriv=h.upper.deriv,
-                cv=cv,
-                cv.deriv=cv.deriv,
-                beta=beta,
-                B.w=B.w,
-                Psi.x=Psi.x,
-                Psi.x.deriv=Psi.x.deriv))
+                h.upper=h.upper,
+                h=h,
+                nevalobs=if(!is.null(X.eval)){NROW(X.eval)}else{NULL},
+                nobs=NROW(X),
+                ndim=NCOL(X),
+                residuals=Y-Psi.x%*%beta,
+                trainiseval=if(!is.null(X.eval)){FALSE}else{TRUE}))
 
 }
 
