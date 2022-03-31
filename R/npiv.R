@@ -448,12 +448,18 @@ npivEst <- function(Y,
 
         ## Chen, Christensen, Kankanala (2021) UCB construction
 
-        ## In what follows we loop over J.x.segments.set
+        ## In what follows we loop over J.x.segments.boot
+        
+        if(length(J.x.segments.set) > 2){
+          J.x.segments.boot <- J.x.segments.set[which(J.x.segments.set <= max(J.x.segments, max(J.x.segments.set[1:(length(J.x.segments.set)-2)])))]
+        } else {
+          J.x.segments.boot <- J.x.segments.set
+        }
 
-        if(ucb.h) Z.sup.boot <- matrix(NA,boot.num,length(J.x.segments.set))
-        if(ucb.deriv) Z.sup.boot.deriv <- matrix(NA,boot.num,length(J.x.segments.set))
+        if(ucb.h) Z.sup.boot <- matrix(NA,boot.num,length(J.x.segments.boot))
+        if(ucb.deriv) Z.sup.boot.deriv <- matrix(NA,boot.num,length(J.x.segments.boot))
 
-        for(ii in 1:length(J.x.segments.set)) {
+        for(ii in 1:length(J.x.segments.boot)) {
 
           J.x.segments <- J.x.segments.set[ii]
           K.w.segments <- K.w.segments.set[ii]
