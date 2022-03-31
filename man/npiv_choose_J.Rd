@@ -5,7 +5,7 @@
 Nonparametric Instrumental Variables Estimation Model Complexity
 }
 \description{
-This function chooses the data-driven index set \eqn{\hat{\mathcal{J}} =\{J\in \mathcal{T} :0.1(\log\hat J_{\max}) \le J \le \hat J_{\max}}{J ={J∈T :0.1(log J.max) ≤J≤Jmax}} with \eqn{\mathcal{T} = \{2k + 3 : k = 0, 1, 2,\dots, \hat J_{\max}\}}{T={2k + 3 : k = 0, 1, 2,...,J.max}} obtained from \code{\link{npiv_Jhat_max}}
+This function chooses the data-driven index set \eqn{\hat{\mathcal{J}} =\{J\in \mathcal{T} :0.1(\log\hat J_{\max}) \le J \le \hat J_{\max}}{J ={J in T :0.1(log J.max) <= J <= max}} with \eqn{\mathcal{T} = \{2k + 3 : k = 0, 1, 2,\dots, \hat J_{\max}\}}{T={2k + 3 : k = 0, 1, 2,...,J.max}} using the procedure described in Chen, Christensen and Kankanala (2021).
 }
 \usage{
 npiv_choose_J(Y, 
@@ -13,7 +13,7 @@ npiv_choose_J(Y,
               W,
               X.eval = NULL,
               J.x.degree = 3,
-              K.w.degree = 3,
+              K.w.degree = 4,
               K.w.smooth = 1,
               knots = c("uniform", "quantiles"),
               basis = c("tensor", "additive", "glp"),
@@ -23,24 +23,23 @@ npiv_choose_J(Y,
               W.max = NULL,
               eval.num = 50,
               boot.num = 99,
+              random.seed = 42,
               check.is.fullrank = FALSE,
-              chol.pivot = FALSE,
-              lambda = sqrt(.Machine$double.eps),
               progress = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
  \item{Y}{
-Dependent variable vector \code{Y}
+dependent variable vector \code{Y}
 }
   \item{X}{
-Endogenous predictor matrix \code{X}
+endogenous predictor matrix \code{X}
 }
   \item{W}{
-Instrument matrix \code{W}
+instrument matrix \code{W}
 }
   \item{X.eval}{
-Evaluation points for endogenous predictor matrix \code{X}
+evaluation points for endogenous predictor matrix \code{X}
 }
   \item{J.x.degree}{
 B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
@@ -49,13 +48,13 @@ B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying
 B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
 }
   \item{K.w.smooth}{
-  Non-negative integer, such that \eqn{2^{K.w.smooth}} is how many times larger the bases for the instruments are than the bases for the endogenous variables (i.e., \code{K.w.smooth=0} uses the same bases for \code{X} and \code{W})
+  non-negative integer, such that \eqn{2^{K.w.smooth}} is how many times larger the bases for the instruments are than the bases for the endogenous variables (i.e., \code{K.w.smooth=0} uses the same bases for \code{X} and \code{W})
 }
   \item{knots}{
-Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
+knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
   \item{basis}{
-Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
+basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
   \item{X.min}{
   the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
@@ -70,19 +69,16 @@ Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating 
    the upper bound on which to construct the spline for predictors in \code{W} - defaults to \code{max(W)}
 }
   \item{eval.num}{
-Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+number of evaluation observations (for complexity routines where X.eval necessary but not provided)
 }
   \item{boot.num}{
-Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+}
+\item{random.seed}{
+ random seed (defaults to 42) used for replication of bootstrap resamples in applied settings
 }
   \item{check.is.fullrank}{
-Check for full rank input matrices for \code{X} and \code{W}
-}
-  \item{chol.pivot}{
-Argument fed to \code{chol()} (see \code{\link{chol}})
-}
-  \item{lambda}{
-Argument fed to \code{chol()} (see \code{\link{chol}})
+check for full rank input matrices for \code{X} and \code{W}
 }
   \item{progress}{
   logical indicating whether to display progress bar or not (defaults to \code{TRUE})
@@ -106,7 +102,7 @@ TBD
 \item{theta.star}{Description TBD}
 }
 \references{
-Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, \url{https://arxiv.org/pdf/2107.11869.pdf}
 }
 \author{
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
@@ -148,10 +144,7 @@ U <- foo[,3]
 h0 <- sin(pi*X)
 Y <- h0 + sqrt(var.u)*U
 
-out <- npiv_choose_J(Y,
-                     X,
-                     W)
-out                     
+npiv_choose_J(Y,X,W)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):

@@ -20,7 +20,7 @@ Maintainer: Jeffrey S. Racine <racinej@mcmaster.ca>
 }
 \references{
 
-Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, \url{https://arxiv.org/pdf/2107.11869.pdf}
 
 }
 \keyword{ package }

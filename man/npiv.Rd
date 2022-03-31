@@ -7,76 +7,99 @@ Nonparametric Instrumental Variable Estimation
 }
 \description{
 
-This function implements computationally simple, data-driven procedures for estimation and inference on a structural function \code{h0()} and its derivatives in nonparametric models using instrumental variables. The first procedure is a bootstrap-based, data-driven choice of sieve dimension for sieve nonparametric instrumental variables (NPIV) estimators (\code{\link{npiv_Jhat_max}}, \code{\link{npiv_choose_J}}). When implemented with this data-driven choice, sieve NPIV estimators of \code{h0()} and its derivatives are adaptive: they converge at the best possible (i.e., minimax) sup-norm rate, without having to know the smoothness of \code{h0()}, degree of endogeneity of the regressors, or instrument strength. The second procedure is a data-driven approach for constructing honest and adaptive uniform confidence bands (UCBs) for \code{h0()} and its derivatives. The data-driven UCBs guarantee coverage for \code{h0()} and its derivatives uniformly over a generic class of data-generating processes (honesty) and contract at, or within a logarithmic factor of, the minimax sup-norm rate (adaptivity). As such, these data-driven UCBs deliver asymptotic efficiency gains relative to UCBs constructed via the usual approach of undersmoothing. In addition, both procedures apply to nonparametric regression as a special case. 
+This function implements computationally simple, data-driven procedures for estimation and inference on a structural function \eqn{h_0}{h0} and its derivatives in nonparametric models using instrumental variables. The first procedure is a bootstrap-based, data-driven choice of sieve dimension for sieve nonparametric instrumental variables (NPIV) estimators (\code{\link{npiv_choose_J}}). When implemented with this data-driven choice, sieve NPIV estimators of \eqn{h_0}{h0} and its derivatives are adaptive: they converge at the best possible (i.e., minimax) sup-norm rate, without having to know the smoothness of \eqn{h_0}{h0}, degree of endogeneity of the regressors, or instrument strength. The second procedure is a data-driven approach for constructing honest and adaptive uniform confidence bands (UCBs) for \eqn{h_0}{h0} and its derivatives. The data-driven UCBs guarantee coverage for \eqn{h_0}{h0} and its derivatives uniformly over a generic class of data-generating processes (honesty) and contract at, or within a logarithmic factor of, the minimax sup-norm rate (adaptivity). As such, these data-driven UCBs deliver asymptotic efficiency gains relative to UCBs constructed via the usual approach of undersmoothing. In addition, both procedures apply to nonparametric regression as a special case. 
 
 }
 \usage{
+npiv(\dots)
 
-\method{npiv}{default}(...).
+\method{npiv}{formula}(formula,
+     data,
+     subset,
+     na.action,
+     call,
+     \dots)
 
-\method{npiv}{formula}(formula, data = NULL, newdata = NULL)
-
-npiv(Y=Y,
-     X=X,
-     W=W,
-     X.eval=X.eval,
-     alpha=alpha,
-     basis=basis,
-     boot.num=boot.num,
-     check.is.fullrank=check.is.fullrank,
-     deriv.index=deriv.index,
-     deriv.order=FALSE,
-     eval.num=eval.num,
-     J.x.degree=J.x.degree,
-     J.x.segments=J.x.segments,
-     K.w.degree=K.w.degree,
-     K.w.segments=K.w.segments,
-     K.w.smooth=K.w.smooth,
-     knots=knots,
-     progress=progress,
-     random.seed=random.seed,
-     ucb.h=ucb.h,
-     ucb.deriv=ucb.deriv,
-     W.max=W.max,
-     W.min=W.min,
-     X.min=X.min,
-     X.max=X.max)
+\method{npiv}{default}(Y,
+     X,
+     W,
+     X.eval=NULL,
+     alpha=0.05,
+     basis=c("tensor","additive","glp"),
+     boot.num=99,
+     check.is.fullrank=FALSE,
+     deriv.index=1,
+     deriv.order=1,
+     eval.num=100,
+     J.x.degree=3,
+     J.x.segments=NULL,
+     K.w.degree=4,
+     K.w.segments=NULL,
+     K.w.smooth=1,
+     knots=c("uniform","quantiles"),
+     progress=TRUE,
+     random.seed=42,
+     ucb.h=TRUE,
+     ucb.deriv=TRUE,
+     W.max=NULL,
+     W.min=NULL,
+     X.min=NULL,
+     X.max=NULL,
+     \dots)
 
 }
 
 \arguments{
+\item{formula}{ 
+   a symbolic description of the model to be fit 
+}
+\item{data}{ 
+   an optional data frame containing the variables in the
+  model 
+}
+\item{subset}{
+  an optional vector specifying a subset of observations to be used in the fitting process (see additional details about how this argument interacts with data-dependent bases in the \sQuote{Details} section of the \code{\link{model.frame}} documentation)
+}
+\item{na.action}{
+  a function which indicates what should happen when the data contain NAs. The default is set by the \code{na.action} setting of \code{\link{options}}, and is \code{\link{na.fail}} if that is unset. The \sQuote{factory-fresh} default is \code{\link{na.omit}}. Another possible value is \code{NULL}, no action. Value \code{\link{na.exclude}} can be useful.
+}
+  \item{call}{
+    the original function call (this is passed internally by
+    \code{\link{npiv}} - it is not recommended that the user set this)
+  }
+
   \item{Y}{
-Dependent variable vector \code{Y}
+dependent variable vector \code{Y}
 }
   \item{X}{
-Endogenous predictor matrix \code{X}
+endogenous predictor matrix \code{X}
 }
   \item{W}{
-Instrument matrix \code{W}
+instrument matrix \code{W}
 }
   \item{X.eval}{
-Evaluation points for endogenous predictor matrix \code{X}
+evaluation points for endogenous predictor matrix \code{X}
 }
 \item{alpha}{
-TBD
+value lying in \code{(0,0.5)} specifying the nominal size of the uniform confidence bounds (defaults to \code{0.05} which produces 95\% coverage bounds )
 }
   \item{basis}{
-Basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
+basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
 }
   \item{boot.num}{
-Number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
 }
   \item{check.is.fullrank}{
-Check for full rank input matrices for \code{X} and \code{W}
+check for full rank input matrices for \code{X} and \code{W}
 }
   \item{deriv.index}{
-Column of endogenous predictor matrix \code{X} for which to compute derivative (scalar)
+column of endogenous predictor matrix \code{X} for which to compute derivative (scalar)
 }
   \item{deriv.order}{
-Order of derivative to be computed (scalar)
+order of derivative to be computed (scalar)
 }
   \item{eval.num}{
-Number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+number of evaluation observations (for complexity routines where X.eval necessary but not provided)
 }
   \item{J.x.degree}{
 B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
@@ -94,19 +117,19 @@ B-spline number of segments for instrument matrix, i.e., integer/vector specifyi
 B-spline smoothness parameter (for complexity routines where X.eval necessary but not provided)
 }
   \item{knots}{
-Knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
+knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
 }
   \item{progress}{
   logical indicating whether to display progress bar or not (defaults to \code{TRUE})
 }
 \item{random.seed}{
- TBD
+ random seed (defaults to 42) used for replication of bootstrap resamples in applied settings
 }
 \item{ucb.h}{
-
+logical indicating whether to compute bootstrap uniform confidence bounds for the instrumental function \code{h} or not (defaults to \code{TRUE})
 }
 \item{ucb.deriv}{
-
+logical indicating whether to compute bootstrap uniform confidence bounds for the specified derivative of the instrumental function \code{h} or not (defaults to \code{TRUE})
 }
   \item{W.min}{
   the lower bound on which to construct the spline for predictors in \code{W} - defaults to \code{min(W)}
@@ -120,12 +143,28 @@ Knots type, i.e., a character string (default \code{knots="quantiles"}) specifyi
    \item{X.max}{
    the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
 }
-\item{...}{
-TBD additional arguments passed to
+ \item{\dots}{
+   optional arguments
 }
 }
 \details{
-This function can be used in two ways, i) manually where one specifies the number of segments (i.e., number of knots-1) by specifying particular values for \code{K.w.segments} and \code{J.x.segments}, or ii) using the data-driven procedure for selecting model complexity (which will be invoked if either or both \code{K.w.segments} and \code{J.x.segments} are unspecified or set explicitly to NULL (default)).
+
+This function is written to address nonparametric instrumental variable models of the form
+ \eqn{Y=h_0(X)+U,\quad E[U|W]=0\quad{(\rm almost\, surely)}}{Y=h0(X)+U, E[U|W]=0 (almost surely)}
+where estimators are known to be particularly sensitive to tuning parameters. Data-driven procedures for selecting these tuning parameters can render much needed transparency to nonparametric estimation and inference procedures. The key tuning parameter is the sieve dimension \code{J}, which is tuned via modifying the number and placement of interior knots in the B-spline basis (defaults to a cubic B-spline formulation with the number of knots/segments selected via a sup-norm data-driven procedure).
+
+Typical usages are (see above and below for a list of options and the example at the bottom of this document)
+  \preformatted{
+    foo <- npiv(y~x|w)
+    foo <- npiv(y~x1+x2|w1+w2)
+    foo <- npiv(Y=y,X=x,W=w)
+  }
+
+This function can be used in two ways:
+
+  i) manually where one specifies the number of segments (i.e., number of knots-1) by specifying particular values for \code{K.w.segments} and \code{J.x.segments} (not recommended for general use)
+
+  ii) using the data-driven procedure for selecting model complexity (which will be invoked if either or both \code{K.w.segments} and \code{J.x.segments} are unspecified or set explicitly to NULL (default))
 
 In general, \code{X} and \code{W} are not equal, otherwise if \code{X}=\code{W} this is not instrumental regression, rather is is conditional mean regression.
 
@@ -148,13 +187,10 @@ The function \code{npiv} returns a list with the following components:
 \item{J.x.degree}{J.x.degree returns the value used }
 \item{J.x.segments}{J.x.segments returns the value used }
 \item{beta}{beta returns the value of the spline coefficients}
-\item{B.w}{B.w returns the value of the spline bases for \code{W}}
-\item{Psi.x}{Psi.x returns the value of the spline bases for \code{X}}
-\item{Psi.x.deriv}{Psi.x.deriv returns the value of the spline bases for the derivatives}
 }
 \references{
 
-Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, https://arxiv.org/pdf/2107.11869.pdf
+Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, \url{https://arxiv.org/pdf/2107.11869.pdf}
 
 }
 \author{
@@ -167,7 +203,7 @@ TBD
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-See also \code{\link{npiv_choose_J}},  \code{\link{npiv_Jhat_max}},  \code{\link{npivJ}}
+See also \code{\link{npiv_choose_J}}
 }
 \examples{
 ## Simulate data using the mvrnorm() function in the MASS package
@@ -206,11 +242,9 @@ Y <- h0 + sqrt(var.u)*U
 X.eval <- seq(min(X),max(X),length=100)
 h0 <- sin(pi*X.eval)
 
-## Call the npiv() function with specific arguments
+## Call the npiv() function using the formula interface with specific arguments
 
-model <- npiv(Y,
-              X,
-              W,
+model <- npiv(Y~X|W,
               X.eval=X.eval,
               deriv.index=1,
               deriv.order=1,
