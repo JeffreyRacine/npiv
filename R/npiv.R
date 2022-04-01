@@ -954,7 +954,7 @@ npivJ <- function(Y,
         J.seg <- min(J.x.segments.set)
       }
     }
-    J.hat <- (J.seg + J.x.degree)^NCOL(X)
+    J.hat <- dim.bs(basis = basis, degree = rep(J.x.degree,NCOL(X)), segments = rep(J.seg,NCOL(X)))
 
     ## Compute truncated value (second-largest element of
     ## J.x.segments.set)
@@ -1101,7 +1101,7 @@ npiv_Jhat_max <- function(X,
 
       ## Compute test value
 
-      J.x.dim <- (J.x.segments + J.x.degree)^NCOL(X)
+      J.x.dim <- dim.bs(basis = basis, degree = rep(J.x.degree,NCOL(X)), segments = rep(J.x.segments,NCOL(X)))
 
       test.val[ii] <- J.x.dim*sqrt(log(J.x.dim))*max((0.1*log(NROW(X)))^4,1/s.hat.J)
 
@@ -1128,7 +1128,7 @@ npiv_Jhat_max <- function(X,
   J.x.segments.set <- J.x.segments.set[1:L.hat.max]
   K.w.segments.set <- K.w.segments.set[1:L.hat.max]
 
-  J.hat.max <- (max(J.x.segments.set) + J.x.degree)^NCOL(X)
+  J.hat.max <- dim.bs(basis = basis, degree = rep(J.x.degree,NCOL(X)), segments = rep(max(J.x.segments.set),NCOL(X)))
 
   alpha.hat <- min(0.5, 1/J.hat.max)
 
