@@ -290,6 +290,7 @@ npivEst <- function(Y,
                              W.max=W.max,
                              eval.num=eval.num,
                              boot.num=boot.num,
+                             random.seed=random.seed,
                              check.is.fullrank=check.is.fullrank,
                              progress=progress)
       K.w.segments <- test1$K.w.seg
@@ -739,7 +740,7 @@ npivJ <- function(Y,
     ## symmetric computations and those with J2=J1)
 
     J1.J2.x <- expand.grid(J.x.segments.set,J.x.segments.set)
-    J1.J2.x <- subset(J1.J2.x,Var2 > Var1)
+    J1.J2.x <- subset(J1.J2.x,J1.J2.x[,2]>J1.J2.x[,1])
 
     J1.J2.w <- apply(J1.J2.x, c(1,2), function(u) K.w.segments.set[which(J.x.segments.set == u)])
 

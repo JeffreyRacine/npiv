@@ -1,8 +1,6 @@
 useDynLib(npiv, .registration = TRUE)
 import(stats,progress,MASS)
 export(npiv,
-       npivJ,
-       npiv_Jhat_max,
        npiv_choose_J,
        gsl.bs)
 
