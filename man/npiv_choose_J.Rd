@@ -108,13 +108,13 @@ Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
 }
 \note{
-%%  ~~further notes~~
+TBD
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+TBD
 }
 \examples{
 library(MASS)
