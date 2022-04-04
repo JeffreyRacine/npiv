@@ -31,9 +31,8 @@ npiv.default <- function(Y,
                          X.max=NULL,
                          ...) {
 
-  knots <- match.arg(knots)
-  basis <- match.arg(basis)
-
+  t0 <- Sys.time()
+  
   est <- npivEst(Y=Y,
                  X=X,
                  W=W,
@@ -58,11 +57,15 @@ npiv.default <- function(Y,
                  W.max=W.max,
                  W.min=W.min,
                  X.min=X.min,
-                 X.max=X.max)
+                 X.max=X.max,
+                 ...)
+
+  t1 <- Sys.time()
 
   ## Add results to estimated object.
 
   est$call <- match.call()
+  est$ptm <- as.numeric(difftime(t1,t0,units="secs"))
   class(est) <- "npiv"
 
   ## Return object of type npiv
@@ -71,90 +74,90 @@ npiv.default <- function(Y,
 
 }
 
-npiv.formula <- function(formula, data, subset, na.action, call, ...){
+npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
 
-    mf <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data", "subset", "na.action"),
+    ## Here we wrestle with information provided in a formula that
+    ## uses "|" to distinguish endogenous predictors X from
+    ## instruments W where we can also have multivariate X and W plus
+    ## evaluation data _only_ for X feed via newdata. The object `mf'
+    ## grabs Y, X, and W, the object `mf.eval' grabs X.eval via X in
+    ## newdata.
+
+    ## XXX TBD - verify newdata named variables compatible with those
+    ## in formula call XXX
+
+    ## mf is used to obtain a model frame to extract Y and X from a
+    ## formula of the form, say, y ~ x1 + x2 | w1 + w2 where X =
+    ## [x1,x2] and W = [w1,w2]. mf.eval is used to extract only the
+    ## predictors x1 and x2, say, from the newdata data frame.
+
+    ## Since we may also need to strip evaluation data from newdata=
+    ## we jump through a few hoops with mf.eval (for estimation we
+    ## require Y, X, and W, while for evaluation only evaluation
+    ## points for the X variables)
+
+    mf <- match.call()
+    m <- match(c("formula", "data", "subset", "na.action", "call"),
                names(mf), nomatch = 0)
     mf <- mf[c(1,m)]
-
-    if(!missing(call) && is.call(call)){
-      ## rummage about in the call for the original formula
-      for(i in 1:length(call)){
-        if(tryCatch(class(eval(call[[i]])) == "formula",
-                    error = function(e) FALSE))
-          break;
-      }
-      mf[[2]] <- call[[i]]
-    }
-
-    mf.xf <- mf
+    mf.eval <- mf[c(1,m)]
 
     mf[[1]] <- as.name("model.frame")
-    mf.xf[[1]] <- as.name("model.frame")
+    mf.eval[[1]] <- as.name("model.frame")
 
-    ## mangle formula ...
     chromoly <- explodePipe(mf[["formula"]])
 
-    if (length(chromoly) != 3) ## stop if malformed formula
-      stop("invoked with improper formula, please see npiv documentation for proper use")
+    bronze <- sapply(chromoly, paste, collapse = " + ")
 
-    ## make formula evaluable, then eval
-    bronze <- lapply(chromoly, paste, collapse = " + ")
+    mf[["formula"]] <-
+      as.formula(paste(bronze[1]," ~ ",
+                       paste(bronze[2:3], collapse =" + ")),
+                 env = environment(formula))
 
-    mf.xf[["formula"]] <- as.formula(paste(" ~ ", bronze[[2]]),
-                                    env = environment(formula))
-
-    mf[["formula"]] <- as.formula(paste(bronze[[1]]," ~ ", bronze[[3]]),
-                                  env = environment(formula))
-
-    formula.all <- terms(as.formula(paste(" ~ ",bronze[[1]]," + ",bronze[[2]], " + ",bronze[[3]]),
-                                  env = environment(formula)))
-
-    orig.class <- if (missing(data))
-      sapply(eval(attr(formula.all, "variables"), environment(formula.all)),class)
-    else sapply(eval(attr(formula.all, "variables"), data, environment(formula.all)),class)
-
-    arguments.mfx <- chromoly[[2]]
-    arguments.mf <- c(chromoly[[1]],chromoly[[3]])
+    mf.eval[["formula"]] <-
+      as.formula(paste(bronze[1]," ~ ",
+                       paste(bronze[2], collapse =" + ")),
+                 env = environment(formula))
 
     mf[["formula"]] <- terms(mf[["formula"]])
-    mf.xf[["formula"]] <- terms(mf.xf[["formula"]])
-
-    if(all(orig.class == "ts")){
-      arguments <- (as.list(attr(formula.all, "variables"))[-1])
-      attr(mf[["formula"]], "predvars") <- bquote(.(as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments)))))[,.(match(arguments.mf,arguments)),drop = FALSE])
-      attr(mf.xf[["formula"]], "predvars") <- bquote(.(as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments)))))[,.(match(arguments.mfx,arguments)),drop = FALSE])
-    }else if(any(orig.class == "ts")){
-      arguments <- (as.list(attr(formula.all, "variables"))[-1])
-      arguments.normal <- arguments[which(orig.class != "ts")]
-      arguments.timeseries <- arguments[which(orig.class == "ts")]
-
-      ix <- sort(c(which(orig.class == "ts"),which(orig.class != "ts")),index.return = TRUE)$ix
-      attr(mf[["formula"]], "predvars") <- bquote((.(as.call(c(quote(cbind),as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments.timeseries)))),arguments.normal,check.rows = TRUE)))[,.(ix)])[,.(match(arguments.mf,arguments)),drop = FALSE])
-      attr(mf.xf[["formula"]], "predvars") <- bquote((.(as.call(c(quote(cbind),as.call(c(quote(as.data.frame),as.call(c(quote(ts.intersect), arguments.timeseries)))),arguments.normal,check.rows = TRUE)))[,.(ix)])[,.(match(arguments.mfx,arguments)),drop = FALSE])
-    }
+    mf.eval[["formula"]] <- terms(mf.eval[["formula"]])
 
     mf <- eval(mf, parent.frame())
-    mf.xf <- eval(mf.xf,parent.frame())
+
+    mf.eval <- eval(mf.eval, parent.frame())
+
+    if(!(miss.new <- missing(newdata))) {
+      ## Here we need to wrestle with call getting the X data from
+      ## newdata - since there will be no Y in the newdata dataframe
+      ## we invoke delete.response()
+      mf.eval <- delete.response(attr(mf.eval,"terms"))
+      mf.eval <- model.frame(mf.eval, data = newdata)
+      X.eval <- mf.eval[, chromoly[[2]], drop = FALSE]
+    } else {
+      X.eval <- NULL
+    }
 
     Y <- model.response(mf)
-    X <- mf.xf
+    X <- mf[, chromoly[[2]], drop = FALSE]
     W <- mf[, chromoly[[3]], drop = FALSE]
 
-    est <- npiv(Y=Y,
-                X=X,
-                W=W,
-                ...)
+    est <- npiv.default(Y=Y,
+                        X=X,
+                        W=W,
+                        X.eval=X.eval,
+                        ...)
+
+    ## Need to figure out how best to return information to be pulled
+    ## by predict - formula is currently effed up and somehow has
+    ## invisible quotes around X and W on the returned formula???
 
     ## clean up (possible) inconsistencies due to recursion ...
-    est$call <- match.call(expand.dots = FALSE)
-    environment(est$call) <- parent.frame()
-    est$formula <- formula
+    est$call <- match.call()
+#    environment(est$call) <- parent.frame()
+    est$formula <- formula # mf[["formula"]]
     est$rows.omit <- as.vector(attr(mf,"na.action"))
     est$nobs.omit <- length(est$rows.omit)
     est$terms <- attr(mf,"terms")
-    est$xterms <- attr(mf.xf,"terms")
     est$chromoly <- chromoly
 
     return(est)
@@ -167,6 +170,29 @@ fitted.npiv <- function(object, ...){
 residuals.npiv <- function(object, ...) {
    return(object$residuals)
 }
+
+#predict.npiv <- function(object, newdata=NULL, ...) {
+#  if(is.null(newdata)) {
+#     return(fitted(object))
+#  } else {
+##     print(object$formula)
+##     print(object$call$formula)
+#print("in predict")
+#print(object$formula)
+### Well, can always append Y, X, and W to formula object then call npivEst perhaps?
+#     foo <- npiv(object$formula,#Y~X|W, ## NOT VALID, using formula not formula object object$formula
+#                      J.x.degree=object$J.x.degree,
+#                      K.w.degree=object$K.w.degree,
+#                      J.x.segments=object$J.x.segments,
+#                      K.w.segments=object$K.w.segments,
+#                      ucb.h=FALSE,
+#                      ucb.deriv=FALSE,
+#                      ...)#, envir = parent.frame())
+#print(names(object))                      
+#     return(fitted(object))
+#  }
+#}
+
 
 print.npiv <- function(x, digits=NULL, ...){
   cat("\nNonparametric IV Model:\n",
@@ -182,17 +208,21 @@ print.npiv <- function(x, digits=NULL, ...){
 }
 
 summary.npiv <- function(object, ...){
+  cat("Call:\n")
+  print(object$call)
   cat("\nNonparametric IV Model:\n",
       "\nIV Regression Data: ", object$nobs, " training points,",
       ifelse(object$trainiseval, "", paste(" and ", object$nevalobs,
                                       " evaluation points,", sep="")),
       " in ",object$ndim," endogenous variable(s)\n",sep="")
 
-  cat("\nB-spline degree for instruments:           ", object$K.w.degree,sep="")
-  cat("\nB-spline knots for instruments:            ", object$K.w.segments+1, "\n",sep="")
+  cat("\nB-spline degree for instruments:             ", object$K.w.degree,sep="")
+  cat("\nB-spline segments for instruments:           ", object$K.w.segments, "\n",sep="")
 
-  cat("\nB-spline degree for endogenous predictors: ", object$J.x.degree,sep="")
-  cat("\nB-spline knots for endogenous predictors:  ", object$J.x.segments+1, "\n",sep="")
+  cat("\nB-spline degree for endogenous predictors:   ", object$J.x.degree,sep="")
+  cat("\nB-spline segments for endogenous predictors: ", object$J.x.segments, "\n",sep="")
+
+  cat(paste("\nEstimation time: ", formatC(object$ptm[1],digits=1,format="f"), " seconds",sep=""))
 
   cat("\n\n")
 }
@@ -550,7 +580,7 @@ npivEst <- function(Y,
 
           ## Bootstrap the sup t-stat, store in matrix Z.sup.boot and Z.sup.boot.deriv
 
-          pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
+          pbb <- progress_bar$new(format = "  bootstrapping sup t-stat [:bar] :percent eta: :eta",
                                   clear = TRUE,
                                   width = 60,
                                   total = boot.num)
@@ -599,7 +629,7 @@ npivEst <- function(Y,
 
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot and Z.sup.boot.deriv
 
-        pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
+        pbbb <- progress_bar$new(format = "  bootstrapping ucb [:bar] :percent eta: :eta",
                                 clear = TRUE,
                                 width = 60,
                                 total = boot.num)
@@ -608,7 +638,7 @@ npivEst <- function(Y,
 
         for(b in 1:boot.num) {
 
-          if(progress) pbb$tick()
+          if(progress) pbbb$tick()
           boot.draws <- rnorm(length(Y))
 
           if(ucb.h) Z.sup.boot[b] <- max(abs((Psi.x.eval%*%tmp%*%(U.hat*boot.draws))  / NZD(asy.se)))
@@ -896,7 +926,7 @@ npivJ <- function(Y,
         ## Bootstrap the sup t-stat, store in matrix Z.sup.boot, 1
         ## column per J1/J2 combination
 
-        pbb <- progress_bar$new(format = "  bootstrapping [:bar] :percent eta: :eta",
+        pbb <- progress_bar$new(format = "  bootstrapping sup t-stat [:bar] :percent eta: :eta",
                                clear = TRUE,
                                width= 60,
                                total = boot.num)
@@ -1020,9 +1050,9 @@ npiv_Jhat_max <- function(X,
     if(!is.fullrank(W)) stop("W is not of full column rank")
   }
 
-  ## Generate set of J K combinations given input
-  ## J.x.degree and K.w.degree to search over up to a maximum resolution
-  ## level of log(n, base = (2 * dim(X))), which will have a singular
+  ## Generate set of J K combinations given input J.x.degree and
+  ## K.w.degree to search over up to a maximum resolution level of
+  ## log(n, base = (2 * dim(X))), which will have a singular
   ## denominator matrix because
 
   L.max <- max(floor(log(NROW(X), base = 2 * NCOL(X))), 3)
@@ -1034,14 +1064,14 @@ npiv_Jhat_max <- function(X,
 
   test.val <- array(NA, dim = L.max)
 
-  pb <- progress_bar$new(format = "  grid determination [:bar] :percent eta: :eta",
+  pbg <- progress_bar$new(format = "  grid determination [:bar] :percent eta: :eta",
                          clear = TRUE,
                          width= 60,
                          total = L.max)
 
   for(ii in 1:L.max) {
 
-    if(progress) pb$tick()
+    if(progress) pbg$tick()
 
     if((ii <= 2) || ((ii > 2) & (test.val[ii-2] <= 10*sqrt(NROW(X))))){
 

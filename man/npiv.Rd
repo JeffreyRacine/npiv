@@ -15,6 +15,7 @@ npiv(\dots)
 
 \method{npiv}{formula}(formula,
      data,
+     newdata,
      subset,
      na.action,
      call,
@@ -56,6 +57,9 @@ npiv(\dots)
 \item{data}{ 
    an optional data frame containing the variables in the
   model 
+}
+\item{newdata}{
+  an optional data frame in which to look for variables with which to predict (i.e., predictors in \code{X} passed in \code{X.eval} which must contain identically named variables)
 }
 \item{subset}{
   an optional vector specifying a subset of observations to be used in the fitting process (see additional details about how this argument interacts with data-dependent bases in the \sQuote{Details} section of the \code{\link{model.frame}} documentation)
@@ -242,10 +246,12 @@ Y <- h0 + sqrt(var.u)*U
 X.eval <- seq(min(X),max(X),length=100)
 h0 <- sin(pi*X.eval)
 
-## Call the npiv() function using the formula interface with specific arguments
+## Call the npiv() function using the formula interface npiv.formula()
+## with specific arguments, provide evaluation data for X via newdata
+## argument (equivalent to npiv(Y,X,W,X.eval,...) npiv.default() call)
 
 model <- npiv(Y~X|W,
-              X.eval=X.eval,
+              newdata=data.frame(X=X.eval),
               deriv.index=1,
               deriv.order=1,
               K.w.degree=3,
