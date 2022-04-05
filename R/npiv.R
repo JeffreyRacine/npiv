@@ -110,11 +110,10 @@ npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
                         X.eval=X.eval,
                         ...)
 
-    ## Add the formula to the returned list
+    ## Add the formula & original call to the returned list
 
     est$call <- match.call()
     est$formula <- formula
-    environment(est$call) <- parent.frame()
 
     return(est)
 }
