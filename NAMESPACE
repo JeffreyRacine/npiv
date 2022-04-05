@@ -1,5 +1,5 @@
 useDynLib(npiv, .registration = TRUE)
-import(stats,progress,MASS)
+import(stats,progress,MASS,Formula)
 export(npiv,
        npiv_choose_J,
        gsl.bs)
