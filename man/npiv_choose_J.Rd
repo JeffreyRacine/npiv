@@ -2,10 +2,10 @@
 \alias{npiv_choose_J}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Nonparametric Instrumental Variables Estimation Model Complexity
+Data-driven Choice of Sieve Dimension for Nonparametric Instrumental Variables Estimation and Inference
 }
 \description{
-This function chooses the data-driven index set \eqn{\hat{\mathcal{J}} =\{J\in \mathcal{T} :0.1(\log\hat J_{\max}) \le J \le \hat J_{\max}}{J ={J in T :0.1(log J.max) <= J <= max}} with \eqn{\mathcal{T} = \{2k + 3 : k = 0, 1, 2,\dots, \hat J_{\max}\}}{T={2k + 3 : k = 0, 1, 2,...,J.max}} using the procedure described in Chen, Christensen and Kankanala (2021).
+\code{npiv_choose_J} implements the data-driven choice of sieve dimension developed in Chen, Christensen, and Kankanala (2021) for nonparametric instrumental variables estimation using a B-spline sieve. It applies to nonparametric regression as a special case when predictors are exogenous.
 }
 \usage{
 npiv_choose_J(Y, 
@@ -14,7 +14,7 @@ npiv_choose_J(Y,
               X.eval = NULL,
               J.x.degree = 3,
               K.w.degree = 4,
-              K.w.smooth = 1,
+              K.w.smooth = 2,
               knots = c("uniform", "quantiles"),
               basis = c("tensor", "additive", "glp"),
               X.min = NULL,
@@ -29,80 +29,90 @@ npiv_choose_J(Y,
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
- \item{Y}{
-dependent variable vector \code{Y}
+  \item{Y}{
+  dependent variable vector.
 }
   \item{X}{
-endogenous predictor matrix \code{X}
+  matrix of endogenous regressors.
 }
   \item{W}{
-instrument matrix \code{W}
+  matrix of instrumental variables. Set \code{W=X} for nonparametric regression.
 }
   \item{X.eval}{
-evaluation points for endogenous predictor matrix \code{X}
+  vector of evaluation point(s). Default uses 50 equally spaced points over the support of each \code{X} variable.
 }
   \item{J.x.degree}{
-B-spline degree for endogenous predictor matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{X} (default \code{degree=3}, i.e. cubic spline)
+  B-spline degree (integer or vector of integers of length \code{ncol(X)}) for approximating the structural function. Default is \code{degree=3} (cubic B-spline).
 }
   \item{K.w.degree}{
-B-spline degree for instrument matrix, i.e., integer/vector specifying the polynomial degree of the B-spline basis for \code{W} (default \code{degree=3}, i.e. cubic spline)
+  B-spline degree (integer or vector of integers of lenth \code{ncol(W)}) for estimating the nonparametric first-stage. Default is \code{degree=4} (quartic B-spline).
 }
   \item{K.w.smooth}{
-  non-negative integer, such that \eqn{2^{K.w.smooth}} is how many times larger the bases for the instruments are than the bases for the endogenous variables (i.e., \code{K.w.smooth=0} uses the same bases for \code{X} and \code{W})
+  non-negative integer. Basis for the nonparametric first-stage uses \eqn{2^{K.w.smooth}} more B-spline segments for each instrument than the basis approximating the structural function. Default is \code{2}. Setting \code{K.w.smooth=0} uses the same number of segments for \code{X} and \code{W}.
 }
   \item{knots}{
-knots type, i.e., a character string (default \code{knots="quantiles"}) specifying where knots are to be placed. \sQuote{quantiles} specifies knots placed at equally spaced quantiles (equal number of observations lie in each segment) and \sQuote{uniform} specifies knots placed at equally spaced intervals
+  knots type, a character string. Options are:
+
+  \code{quantiles} interior knots are placed at equally spaced quantiles (equal number of observations lie in each segment). Default option. 
+
+  \code{uniform} interior knots are placed at equally spoaced intervals over the support of the variable. 
 }
   \item{basis}{
-basis type, i.e,, a character string (default \code{basis="tensor"}) indicating whether the additive or tensor product B-spline basis matrix for a multivariate polynomial spline or generalized B-spline polynomial basis should be used
+  basis type (if \code{X} or \code{W} are multivariate), a character string. Options are:
+  
+  \code{tensor} tensor product basis. Default option.
+  
+  \code{additive} additive basis for additively separable models.
+  
+  \code{glp} generalized B-spline polynomial basis.
 }
   \item{X.min}{
-  the lower bound on which to construct the spline for predictors in \code{X} - defaults to \code{min(X)}
+  lower bound on the support of each \code{X} variable. Default is \code{min(X)}.
 }
-   \item{X.max}{
-   the upper bound on which to construct the spline for predictors in \code{X} - defaults to \code{max(X)}
+  \item{X.max}{
+  upper bound on the support of each \code{X} variable. Default is \code{max(X)}.
 }
   \item{W.min}{
-  the lower bound on which to construct the spline for predictors in \code{W} - defaults to \code{min(W)}
+  lower bound on the support of each \code{W} variable. Default is \code{min(W)}.
 }
-   \item{W.max}{
-   the upper bound on which to construct the spline for predictors in \code{W} - defaults to \code{max(W)}
+  \item{W.max}{
+  upper bound on the support of each \code{W} variable. Default is \code{max(W)}.
 }
   \item{eval.num}{
-number of evaluation observations (for complexity routines where X.eval necessary but not provided)
+  number of evaluation points for each \code{X} variable if \code{X.eval} is not provided.
 }
   \item{boot.num}{
-number of bootstrap replications (for complexity routines where X.eval necessary but not provided)
+  number of bootstrap replications.
 }
-\item{random.seed}{
- random seed (defaults to 42) used for replication of bootstrap resamples in applied settings
+  \item{random.seed}{
+  random seed to initialize bootstrap replications for reproducibility. Default is \code{42}.
 }
   \item{check.is.fullrank}{
-check for full rank input matrices for \code{X} and \code{W}
+  check that \code{X} and \code{W} have full rank. Default is \code{FALSE}.
 }
   \item{progress}{
-  logical indicating whether to display progress bar or not (defaults to \code{TRUE})
+  whether to display progress bar or not. Default is \code{TRUE}.
 }  
 }
-\details{
-TBD
-}
+%%\details{
+%%TBD
+%%
 \value{
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
-\item{J.hat.max}{Description TBD}
-\item{J.hat.n}{Description TBD}
-\item{J.hat}{Description TBD}
-\item{J.tilde}{Description TBD}
-\item{J.x.seg}{Description TBD}
-\item{K.w.seg}{Description TBD}
-\item{theta.star}{Description TBD}
+\item{J.hat.max}{largest element of candidate set of sieve dimensions searched over.}
+\item{J.hat.n}{second largest element of candidate set of sieve dimensions searched over.}
+\item{J.hat}{bootstrap-based Lepski choice of sieve dimension.}
+\item{J.tilde}{data-driven choice of sieve dimension using the method of Chen, Christensen, and Kankanala (2021). Minimum of \code{J.hat} and \code{J.hat.n}.}
+\item{J.x.seg}{data-driven number of segments for \code{X} using the method of Chen, Christensen, and Kankanala (2021).}
+\item{K.w.seg}{data-driven number of segments for \code{W} using the method of Chen, Christensen, and Kankanala (2021).}
+\item{theta.star}{Lepski critical value used in determination of \code{J.hat}.}
 }
 \references{
-Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, \url{https://arxiv.org/pdf/2107.11869.pdf}
+Chen, X. and T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
 }
 \author{
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
@@ -114,7 +124,7 @@ TBD
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-TBD
+\code{\link{npiv}}
 }
 \examples{
 library(MASS)
@@ -128,7 +138,8 @@ mu <- c(1,1,0)
 Sigma <- matrix(c(1.0,0.85,cov.ux,
                   0.85,1.0,0.0,
                   cov.ux,0.0,1.0),
-                3,3,
+                3,
+                3,
                 byrow=TRUE)
 
 foo <- mvrnorm(n = n,
