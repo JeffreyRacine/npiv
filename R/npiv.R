@@ -68,6 +68,23 @@ npiv.default <- function(Y,
   est$ptm <- as.numeric(difftime(t1,t0,units="secs"))
   class(est) <- "npiv"
 
+  ## Return objects not passed in npivEst (due to inadequacy in
+  ## Formula [or more likely in me] I am unable to get around at the
+  ## moment - can revisit but now predict is functioning hence can
+  ## move on to plot 2022-04-05)
+
+  est$alpha=alpha
+  est$basis=basis
+  est$boot.num=boot.num
+  est$check.is.fullrank=check.is.fullrank
+  est$knots=knots
+  est$rogress=progress
+  est$random.seed=random.seed
+  est$W.max=W.max
+  est$W.min=W.min
+  est$X.min=X.min
+  est$X.max=X.max
+
   ## Return object of type npiv
 
   return(est)
@@ -126,32 +143,39 @@ residuals.npiv <- function(object, ...) {
    return(object$residuals)
 }
 
-#predict.npiv <- function(object, newdata=NULL, ...) {
-#  if(is.null(newdata)) {
-#     return(fitted(object))
-#  } else {
-#  #print(object$formula)
-#  #print(class(object$formula))
-#  #print("here we are")
-#  #print(object$call)
-#  fm <- object$formula
-#  print(fm)
-#  foo <- eval(npiv(formula=object$formula), envir = parent.frame())
-#  stop("Here we are")
-##  npiv(object)
-##     print(fitted(foo))
-#  stop()
-#     foo <- npiv(object$formula,
-#                 J.x.degree=object$J.x.degree,
-#                 K.w.degree=object$K.w.degree,
-#                 J.x.segments=object$J.x.segments,
-#                 K.w.segments=object$K.w.segments,
-#                 ucb.h=FALSE,
-#                 ucb.deriv=FALSE,
-#                 ...)
-#     return(fitted(foo))
-#  }
-#}
+predict.npiv <- function(object, newdata, ...) {
+  if(missing(newdata)) {
+     return(fitted(object))
+  } else {
+      foo <- npiv.default(Y=object$Y,
+                          X=object$X,
+                          W=object$W,
+                          X.eval=newdata,
+                          alpha=object$alpha,
+                          basis=object$basis,
+                          boot.num=object$boot.num,
+                          check.is.fullrank=object$check.is.fullrank,
+                          deriv.index=object$deriv.index,
+                          deriv.order=object$deriv.order,
+                          eval.num=object$eval.num,
+                          J.x.degree=object$J.x.degree,
+                          K.w.degree=object$K.w.degree,
+                          J.x.segments=object$J.x.segments,
+                          K.w.segments=object$K.w.segments,
+                          K.w.smooth=object$K.w.smooth,
+                          knots=object$knots,
+                          progress=object$progress,
+                          random.seed=object$random.seed,
+                          ucb.h=FALSE,
+                          ucb.deriv=FALSE,
+                          W.max=object$W.max,
+                          W.min=object$W.min,
+                          X.min=object$X.min,
+                          X.max=object$X.max,
+                          ...)
+     return(fitted(foo))
+  }
+}
 
 print.npiv <- function(x, digits=NULL, ...){
   cat("\nNonparametric IV Model:\n",
@@ -635,7 +659,10 @@ npivEst <- function(Y,
     }
 
     ## Return a list with various objects that might be of interest to
-    ## the user
+    ## the user (regretfully passing Y, X, and W due to inadequacy in
+    ## Formula [or more likely in me] I am unable to get around at the
+    ## moment - can revisit but now predict is functioning hence can
+    ## move on to plot 2022-04-05)
 
     return(list(J.x.degree=J.x.degree,
                 J.x.segments=J.x.segments,
@@ -658,7 +685,10 @@ npivEst <- function(Y,
                 nobs=NROW(X),
                 ndim=NCOL(X),
                 residuals=Y-Psi.x%*%beta,
-                trainiseval=if(!is.null(X.eval)){FALSE}else{TRUE}))
+                trainiseval=if(!is.null(X.eval)){FALSE}else{TRUE},
+                Y=Y,
+                X=X,
+                W=W))
 
 }
 
