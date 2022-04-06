@@ -112,7 +112,7 @@ npiv_choose_J(Y,
 \item{theta.star}{Lepski critical value used in determination of \code{J.hat}.}
 }
 \references{
-Chen, X. and T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
+Chen, X., T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
 }
 \author{
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
