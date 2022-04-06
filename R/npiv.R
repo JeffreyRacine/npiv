@@ -1161,7 +1161,7 @@ npiv_Jhat_max <- function(X,
 
   J.hat.max <- dim.bs(basis = basis, degree = rep(J.x.degree,NCOL(X)), segments = rep(max(J.x.segments.set),NCOL(X)))
 
-  alpha.hat <- min(0.5, 10/J.hat.max)
+  alpha.hat <- min(0.5, 1/J.hat.max)
 
   ## Return a list with various objects that might be of interest to
   ## the user
