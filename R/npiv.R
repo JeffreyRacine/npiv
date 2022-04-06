@@ -42,7 +42,7 @@ npiv.default <- function(Y,
                  boot.num=boot.num,
                  check.is.fullrank=check.is.fullrank,
                  deriv.index=deriv.index,
-                 deriv.order=FALSE,
+                 deriv.order=deriv.order,
                  eval.num=eval.num,
                  J.x.degree=J.x.degree,
                  J.x.segments=J.x.segments,
@@ -66,13 +66,6 @@ npiv.default <- function(Y,
 
   est$call <- match.call()
   est$ptm <- as.numeric(difftime(t1,t0,units="secs"))
-  class(est) <- "npiv"
-
-  ## Return objects not passed in npivEst (due to inadequacy in
-  ## Formula [or more likely in me] I am unable to get around at the
-  ## moment - can revisit but now predict is functioning hence can
-  ## move on to plot 2022-04-05)
-
   est$alpha=alpha
   est$basis=basis
   est$boot.num=boot.num
@@ -87,6 +80,7 @@ npiv.default <- function(Y,
 
   ## Return object of type npiv
 
+  class(est) <- "npiv"
   return(est)
 
 }
@@ -96,10 +90,10 @@ npiv.formula <- function(formula, data=NULL, newdata=NULL, subset=NULL, na.actio
     mf <- match.call()
 
     ## The Formula package supports the "|" operator. First, transform
-    ## the standard S2 formula provided into a Formula object via
+    ## the standard S3 formula provided into a Formula object via
     ## as.Formula().
 
-    mf[["formula"]] <- as.Formula(mf[["formula"]])
+    mff <- mf[["formula"]] <- as.Formula(mf[["formula"]])
     mf1 <- model.frame(mf, data=data, subset=subset, na.action=na.action)
 
     ## Next, we use the enhanced capabilities of a Formula object to
@@ -108,15 +102,15 @@ npiv.formula <- function(formula, data=NULL, newdata=NULL, subset=NULL, na.actio
     ## left of |) and rhs=2 (grabs W to the right of |).
 
     Y <- model.response(mf1)
-    X <- model.matrix(mf[["formula"]],mf1,rhs=1)[,-1,drop=FALSE]
-    W <- model.matrix(mf[["formula"]],mf1,rhs=2)[,-1,drop=FALSE]
+    X <- model.matrix(mff,mf1,rhs=1)[,-1,drop=FALSE]
+    W <- model.matrix(mff,mf1,rhs=2)[,-1,drop=FALSE]
 
     if(!is.null(newdata)) {
       ## Here we used the enhanced capabilities of a Formula object to
       ## strip off the evaluation data for X
-      mf[["formula"]] <- formula(mf[["formula"]],lhs=0,rhs=1)
+      mff <- mf[["formula"]] <- formula(mf[["formula"]],lhs=0,rhs=1)
       mf.eval <- model.frame(mf, data=newdata, na.action=na.action)
-      X.eval <- model.matrix(formula(mf[["formula"]],lhs=0,rhs=1),mf.eval,rhs=1)[,-1,drop=FALSE]
+      X.eval <- model.matrix(formula(mff,lhs=0,rhs=1),mf.eval,rhs=1)[,-1,drop=FALSE]
     } else {
       X.eval <- NULL
     }
@@ -659,10 +653,7 @@ npivEst <- function(Y,
     }
 
     ## Return a list with various objects that might be of interest to
-    ## the user (regretfully passing Y, X, and W due to inadequacy in
-    ## Formula [or more likely in me] I am unable to get around at the
-    ## moment - can revisit but now predict is functioning hence can
-    ## move on to plot 2022-04-05)
+    ## the user
 
     return(list(J.x.degree=J.x.degree,
                 J.x.segments=J.x.segments,
