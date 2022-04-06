@@ -91,7 +91,7 @@ npiv.default <- function(Y,
 
 }
 
-npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
+npiv.formula <- function(formula, data=NULL, newdata=NULL, subset=NULL, na.action=NULL, call, ...){
 
     mf <- match.call()
 
@@ -100,7 +100,7 @@ npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
     ## as.Formula().
 
     mf[["formula"]] <- as.Formula(mf[["formula"]])
-    mf1 <- model.frame(mf)
+    mf1 <- model.frame(mf, data=data, subset=subset, na.action=na.action)
 
     ## Next, we use the enhanced capabilities of a Formula object to
     ## grab the appropriate variables from the formula (i.e., Y, X,
@@ -111,11 +111,11 @@ npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
     X <- model.matrix(mf[["formula"]],mf1,rhs=1)[,-1,drop=FALSE]
     W <- model.matrix(mf[["formula"]],mf1,rhs=2)[,-1,drop=FALSE]
 
-    if(!missing(newdata)) {
+    if(!is.null(newdata)) {
       ## Here we used the enhanced capabilities of a Formula object to
       ## strip off the evaluation data for X
       mf[["formula"]] <- formula(mf[["formula"]],lhs=0,rhs=1)
-      mf.eval <- model.frame(mf, data = newdata)
+      mf.eval <- model.frame(mf, data=newdata, na.action=na.action)
       X.eval <- model.matrix(formula(mf[["formula"]],lhs=0,rhs=1),mf.eval,rhs=1)[,-1,drop=FALSE]
     } else {
       X.eval <- NULL

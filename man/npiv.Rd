@@ -16,10 +16,10 @@ If sieve dimensions are provided by the user, \code{npiv} implements the bootstr
 npiv(\dots)
 
 \method{npiv}{formula}(formula,
-     data,
-     newdata,
-     subset,
-     na.action,
+     data=NULL,
+     newdata=NULL,
+     subset=NULL,
+     na.action=NULL,
      call,
      \dots)
 
