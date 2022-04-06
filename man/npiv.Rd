@@ -221,108 +221,80 @@ Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christe
 \code{\link{npiv_choose_J}}
 }
 \examples{
-## Simulate data using the mvrnorm() function in the MASS package
+## load data
+data("Engel95", package = "npiv")
 
-library(MASS)
+## sort on logexp (the regressor) for plotting purposes
+Engel95 <- Engel95[order(Engel95$logexp),] 
+attach(Engel95)
 
-set.seed(42)
-n <- 1000
+## Estimate the Engel curve for food using logwages as an instrument
+fm1 <- npiv(food ~ logexp | logwages)
 
-cov.ux <- 0.5
-var.u <- 0.1
-mu <- c(1,1,0)
+## Plot the estimated Engel curve and data-driven uniform confidence bands
+plot(logexp,food,
+     ylab="Food Budget Share",
+     xlab="log(Total Household Expenditure)",
+     xlim=c(4.75, 6.25),
+     ylim=c(0, 0.4),
+     main="",
+     type="p",
+     cex=.5,
+     col="lightgrey")
+lines(logexp,fm1$h,col="blue",lwd=2,lty=1)
+lines(logexp,fm1$h.upper,col="blue",lwd=2,lty=2)
+lines(logexp,fm1$h.lower,col="blue",lwd=2,lty=2)
 
-Sigma <- matrix(c(1.0,0.85,cov.ux,
-                  0.85,1.0,0.0,
-                  cov.ux,0.0,1.0),
-                3,3,
-                byrow=TRUE)
+## Estimate the Engel curve using pre-specified sieve dimension 
+## (dimension 5 for logexp, dimension 9 for logwages)
+fm2 <- npiv(food ~ logexp | logwages,
+            J.x.segments = 2,
+            K.w.segments = 5)
 
-foo <- mvrnorm(n = n,
-               mu,
-               Sigma)
+## Plot uniform confidence bands based on undersmoothing
+lines(logexp,fm2$h.upper,col="red",lwd=2,lty=2)
+lines(logexp,fm2$h.lower,col="red",lwd=2,lty=2)
 
-X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
-W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
-U <- foo[,3]
+## Plot pointwise confidence bands based on pre-asymptotic standard errors
+lines(logexp,fm2$h+1.96*fm2$asy.se,col="red",lwd=2,lty=3)
+lines(logexp,fm2$h-1.96*fm2$asy.se,col="red",lwd=2,lty=3)
 
-## h0 is the instrumental DGP function
+legend("topright",
+       legend=c("Data-driven Estimate",
+                "Data-driven UCBs",
+                "Undersmoothed UCBs",
+                "Pointwise CBs"),
+       col=c("blue","blue","red","red"),
+       lty=c(1,2,2,3),
+       lwd=c(2,2,2,2))
 
-h0 <- sin(pi*X)
-Y <- h0 + sqrt(var.u)*U
+## Plot the data-driven estimate of the derivative of the Engel curve
+plot(logexp,fm1$deriv,col="blue",lwd=2,lty=1,type="l",
+     ylab="Derivative of Food Budget Share",
+     xlab="log(Total Household Expenditure)",
+     xlim=c(4.75, 6.25),
+     ylim=c(-1,1))
 
-## Create evaluation data and instrumental regression function for the
-## endogenous predictor (for plotting with lines as this is sorted)
+## Plot data-driven uniform confidence bands for the derivative
+lines(logexp,fm1$h.upper.deriv,col="blue",lwd=2,lty=2)
+lines(logexp,fm1$h.lower.deriv,col="blue",lwd=2,lty=2)
 
-X.eval <- seq(min(X),max(X),length=100)
-h0 <- sin(pi*X.eval)
+## Plot uniform confidence bands based on undersmoothing
+lines(logexp,fm2$h.upper.deriv,col="red",lwd=2,lty=2)
+lines(logexp,fm2$h.lower.deriv,col="red",lwd=2,lty=2)
 
-## Call the npiv() function using the formula interface npiv.formula()
-## with specific arguments, provide evaluation data for X via newdata
-## argument (equivalent to npiv(Y,X,W,X.eval,...) npiv.default() call)
+## Plot pointwise confidence bands based on pre-asymptotic standard errors
+lines(logexp,fm2$deriv+1.96*fm2$deriv.asy.se,col="red",lwd=2,lty=3)
+lines(logexp,fm2$deriv-1.96*fm2$deriv.asy.se,col="red",lwd=2,lty=3)
 
-model <- npiv(Y~X|W,
-              newdata=data.frame(X=X.eval),
-              deriv.index=1,
-              deriv.order=1,
-              K.w.degree=3,
-              K.w.segments=1,
-              J.x.degree=3,
-              J.x.segments=1)
-
-## Create a plot of the instrumental regression function and its
-## asymptotic standard error bounds
-
-ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
-          max(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se))
-
-plot(X,Y,cex=0.25,
-     col="lightgrey",
-     ylim=ylim,
-     sub=paste("n = ",format(n,format="d", big.mark=','),sep=""),
-     xlab="X",
-     ylab="Y")
-
-lines(X.eval,h0,lty=1,col=1,lwd=1)
-lines(X.eval,model$h,lty=2,col=2,lwd=2)
-
-lines(X.eval,model$h-1.96*model$asy.se,col=4,lty=4,lwd=1)
-lines(X.eval,model$h+1.96*model$asy.se,col=4,lty=4,lwd=1)
-
-legend("topleft",c("DGP",paste("NPIV (K.w.degree = ",model$K.w.degree,
-                               ", W.knots = ",model$K.w.segments+1,
-                               ", J.x.degree = ", model$J.x.degree,
-                               ", X.knots = ",model$J.x.segments+1,")",sep="")),
-               lty=1:2,
-               col=1:2,
-               lwd=c(1,2),
-               bty="n",
-               cex=0.75)
-
-## Create a plot of the instrumental regression function's first
-## partial derivative and its asymptotic standard error bounds
-
-ylim <- c(min(c(model$deriv-1.96*model$deriv.asy.se,
-                model$deriv+1.96*model$deriv.asy.se)),
-          max(c(model$deriv-1.96*model$deriv.asy.se,
-                model$deriv+1.96*model$deriv.asy.se)))
-
-plot(X.eval,model$deriv,type="l",
-     ylim=ylim,
-     sub=paste("K.w.degree = ",model$K.w.degree,
-               ", W.knots = ",model$K.w.segments+1,
-               ", J.x.degree = ", model$J.x.degree,
-               ", X.knots = ",model$J.x.segments+1, sep=""),
-     xlab="X",
-     ylab=paste("Order",model$deriv.order,"Derivative"),
-     lty=2,
-     lwd=2,
-     col=2)
-
-lines(X.eval,model$deriv-1.96*model$deriv.asy.se,col=4,lty=4)
-lines(X.eval,model$deriv+1.96*model$deriv.asy.se,col=4,lty=4)
-abline(h=0,col="grey")
-
+legend("topright",
+       legend=c("Data-driven Estimate",
+                "Data-driven UCBs",
+                "Undersmoothed UCBs",
+                "Pointwise CBs"),
+       col=c("blue","blue","red","red"),
+       lty=c(1,2,2,3),
+       lwd=c(2,2,2,2))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
