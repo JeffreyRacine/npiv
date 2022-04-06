@@ -1,12 +1,12 @@
 useDynLib(npiv, .registration = TRUE)
-import(stats,progress,MASS)
+import(stats,progress,MASS,Formula)
 export(npiv,
        npiv_choose_J,
        gsl.bs)
 
 S3method(npiv, formula)
 S3method(npiv, default)
-#S3method(predict, npiv)
+S3method(predict, npiv)
 
 S3method(fitted, npiv)       
 S3method(residuals, npiv)

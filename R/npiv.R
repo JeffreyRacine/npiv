@@ -32,7 +32,7 @@ npiv.default <- function(Y,
                          ...) {
 
   t0 <- Sys.time()
-  
+
   est <- npivEst(Y=Y,
                  X=X,
                  W=W,
@@ -68,6 +68,23 @@ npiv.default <- function(Y,
   est$ptm <- as.numeric(difftime(t1,t0,units="secs"))
   class(est) <- "npiv"
 
+  ## Return objects not passed in npivEst (due to inadequacy in
+  ## Formula [or more likely in me] I am unable to get around at the
+  ## moment - can revisit but now predict is functioning hence can
+  ## move on to plot 2022-04-05)
+
+  est$alpha=alpha
+  est$basis=basis
+  est$boot.num=boot.num
+  est$check.is.fullrank=check.is.fullrank
+  est$knots=knots
+  est$rogress=progress
+  est$random.seed=random.seed
+  est$W.max=W.max
+  est$W.min=W.min
+  est$X.min=X.min
+  est$X.max=X.max
+
   ## Return object of type npiv
 
   return(est)
@@ -76,70 +93,33 @@ npiv.default <- function(Y,
 
 npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
 
-    ## Here we wrestle with information provided in a formula that
-    ## uses "|" to distinguish endogenous predictors X from
-    ## instruments W where we can also have multivariate X and W plus
-    ## evaluation data _only_ for X feed via newdata. The object `mf'
-    ## grabs Y, X, and W, the object `mf.eval' grabs X.eval via X in
-    ## newdata.
-
-    ## XXX TBD - verify newdata named variables compatible with those
-    ## in formula call XXX
-
-    ## mf is used to obtain a model frame to extract Y and X from a
-    ## formula of the form, say, y ~ x1 + x2 | w1 + w2 where X =
-    ## [x1,x2] and W = [w1,w2]. mf.eval is used to extract only the
-    ## predictors x1 and x2, say, from the newdata data frame.
-
-    ## Since we may also need to strip evaluation data from newdata=
-    ## we jump through a few hoops with mf.eval (for estimation we
-    ## require Y, X, and W, while for evaluation only evaluation
-    ## points for the X variables)
-
     mf <- match.call()
-    m <- match(c("formula", "data", "subset", "na.action", "call"),
-               names(mf), nomatch = 0)
-    mf <- mf[c(1,m)]
-    mf.eval <- mf[c(1,m)]
 
-    mf[[1]] <- as.name("model.frame")
-    mf.eval[[1]] <- as.name("model.frame")
+    ## The Formula package supports the "|" operator. First, transform
+    ## the standard S2 formula provided into a Formula object via
+    ## as.Formula().
 
-    chromoly <- explodePipe(mf[["formula"]])
+    mf[["formula"]] <- as.Formula(mf[["formula"]])
+    mf1 <- model.frame(mf)
 
-    bronze <- sapply(chromoly, paste, collapse = " + ")
+    ## Next, we use the enhanced capabilities of a Formula object to
+    ## grab the appropriate variables from the formula (i.e., Y, X,
+    ## and W). Here we exploit rhs=1 (grabs X to the right of ~ and
+    ## left of |) and rhs=2 (grabs W to the right of |).
 
-    mf[["formula"]] <-
-      as.formula(paste(bronze[1]," ~ ",
-                       paste(bronze[2:3], collapse =" + ")),
-                 env = environment(formula))
+    Y <- model.response(mf1)
+    X <- model.matrix(mf[["formula"]],mf1,rhs=1)[,-1,drop=FALSE]
+    W <- model.matrix(mf[["formula"]],mf1,rhs=2)[,-1,drop=FALSE]
 
-    mf.eval[["formula"]] <-
-      as.formula(paste(bronze[1]," ~ ",
-                       paste(bronze[2], collapse =" + ")),
-                 env = environment(formula))
-
-    mf[["formula"]] <- terms(mf[["formula"]])
-    mf.eval[["formula"]] <- terms(mf.eval[["formula"]])
-
-    mf <- eval(mf, parent.frame())
-
-    mf.eval <- eval(mf.eval, parent.frame())
-
-    if(!(miss.new <- missing(newdata))) {
-      ## Here we need to wrestle with call getting the X data from
-      ## newdata - since there will be no Y in the newdata dataframe
-      ## we invoke delete.response()
-      mf.eval <- delete.response(attr(mf.eval,"terms"))
-      mf.eval <- model.frame(mf.eval, data = newdata)
-      X.eval <- mf.eval[, chromoly[[2]], drop = FALSE]
+    if(!missing(newdata)) {
+      ## Here we used the enhanced capabilities of a Formula object to
+      ## strip off the evaluation data for X
+      mf[["formula"]] <- formula(mf[["formula"]],lhs=0,rhs=1)
+      mf.eval <- model.frame(mf, data = newdata)
+      X.eval <- model.matrix(formula(mf[["formula"]],lhs=0,rhs=1),mf.eval,rhs=1)[,-1,drop=FALSE]
     } else {
       X.eval <- NULL
     }
-
-    Y <- model.response(mf)
-    X <- mf[, chromoly[[2]], drop = FALSE]
-    W <- mf[, chromoly[[3]], drop = FALSE]
 
     est <- npiv.default(Y=Y,
                         X=X,
@@ -147,18 +127,10 @@ npiv.formula <- function(formula, data, newdata, subset, na.action, call, ...){
                         X.eval=X.eval,
                         ...)
 
-    ## Need to figure out how best to return information to be pulled
-    ## by predict - formula is currently effed up and somehow has
-    ## invisible quotes around X and W on the returned formula???
+    ## Add the formula & original call to the returned list
 
-    ## clean up (possible) inconsistencies due to recursion ...
     est$call <- match.call()
-#    environment(est$call) <- parent.frame()
-    est$formula <- formula # mf[["formula"]]
-    est$rows.omit <- as.vector(attr(mf,"na.action"))
-    est$nobs.omit <- length(est$rows.omit)
-    est$terms <- attr(mf,"terms")
-    est$chromoly <- chromoly
+    est$formula <- formula
 
     return(est)
 }
@@ -171,28 +143,39 @@ residuals.npiv <- function(object, ...) {
    return(object$residuals)
 }
 
-#predict.npiv <- function(object, newdata=NULL, ...) {
-#  if(is.null(newdata)) {
-#     return(fitted(object))
-#  } else {
-##     print(object$formula)
-##     print(object$call$formula)
-#print("in predict")
-#print(object$formula)
-### Well, can always append Y, X, and W to formula object then call npivEst perhaps?
-#     foo <- npiv(object$formula,#Y~X|W, ## NOT VALID, using formula not formula object object$formula
-#                      J.x.degree=object$J.x.degree,
-#                      K.w.degree=object$K.w.degree,
-#                      J.x.segments=object$J.x.segments,
-#                      K.w.segments=object$K.w.segments,
-#                      ucb.h=FALSE,
-#                      ucb.deriv=FALSE,
-#                      ...)#, envir = parent.frame())
-#print(names(object))                      
-#     return(fitted(object))
-#  }
-#}
-
+predict.npiv <- function(object, newdata, ...) {
+  if(missing(newdata)) {
+     return(fitted(object))
+  } else {
+      foo <- npiv.default(Y=object$Y,
+                          X=object$X,
+                          W=object$W,
+                          X.eval=newdata,
+                          alpha=object$alpha,
+                          basis=object$basis,
+                          boot.num=object$boot.num,
+                          check.is.fullrank=object$check.is.fullrank,
+                          deriv.index=object$deriv.index,
+                          deriv.order=object$deriv.order,
+                          eval.num=object$eval.num,
+                          J.x.degree=object$J.x.degree,
+                          K.w.degree=object$K.w.degree,
+                          J.x.segments=object$J.x.segments,
+                          K.w.segments=object$K.w.segments,
+                          K.w.smooth=object$K.w.smooth,
+                          knots=object$knots,
+                          progress=object$progress,
+                          random.seed=object$random.seed,
+                          ucb.h=FALSE,
+                          ucb.deriv=FALSE,
+                          W.max=object$W.max,
+                          W.min=object$W.min,
+                          X.min=object$X.min,
+                          X.max=object$X.max,
+                          ...)
+     return(fitted(foo))
+  }
+}
 
 print.npiv <- function(x, digits=NULL, ...){
   cat("\nNonparametric IV Model:\n",
@@ -480,7 +463,7 @@ npivEst <- function(Y,
         ## Chen, Christensen, Kankanala (2021) UCB construction
 
         ## In what follows we loop over J.x.segments.boot
-        
+
         if(length(J.x.segments.set) > 2){
           J.x.segments.boot <- J.x.segments.set[which(J.x.segments.set <= max(J.x.segments, max(J.x.segments.set[1:(length(J.x.segments.set)-2)])))]
         } else {
@@ -676,7 +659,10 @@ npivEst <- function(Y,
     }
 
     ## Return a list with various objects that might be of interest to
-    ## the user
+    ## the user (regretfully passing Y, X, and W due to inadequacy in
+    ## Formula [or more likely in me] I am unable to get around at the
+    ## moment - can revisit but now predict is functioning hence can
+    ## move on to plot 2022-04-05)
 
     return(list(J.x.degree=J.x.degree,
                 J.x.segments=J.x.segments,
@@ -699,7 +685,10 @@ npivEst <- function(Y,
                 nobs=NROW(X),
                 ndim=NCOL(X),
                 residuals=Y-Psi.x%*%beta,
-                trainiseval=if(!is.null(X.eval)){FALSE}else{TRUE}))
+                trainiseval=if(!is.null(X.eval)){FALSE}else{TRUE},
+                Y=Y,
+                X=X,
+                W=W))
 
 }
 
