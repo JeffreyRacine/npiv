@@ -23,11 +23,11 @@ author:
       | Department of Economics
       | Yale University
 title:
-  formatted: "Nonparametric Instrumental Variables Estimation: The R Package \\pkg{npiv}"
+  formatted: "Nonparametric Instrumental Variables Estimation and Inference: The R Package \\pkg{npiv}"
   # If you use tex in the formatted title, also supply version without
-  plain:     "Nonparametric Instrumental Variables Estimation: The R Package \\pkg{npiv}"
+  plain:     "Nonparametric Instrumental Variables Estimation and Inference: The R Package \\pkg{npiv}"
   # For running headers, if needed
-  short:     "\\pkg{npiv}: Nonparametric Instrumental Variables Estimation"
+  short:     "\\pkg{npiv}: Nonparametric Instrumental Variables Estimation and Inference"
 abstract: >
   The abstract of the article.
 keywords:

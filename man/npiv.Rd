@@ -199,7 +199,7 @@ The function \code{npiv} returns a list with the following components:
 \item{K.w.segments}{value of \code{K.w.segments} used (will be data-determined if not provided).}
 \item{J.x.degree}{value of \code{J.x.degree} used.}
 \item{J.x.segments}{value of \code{J.x.segments} used (will be data-determined if not provided).}
-\item{beta}{vector estimated spline coefficients.}
+\item{beta}{vector of estimated spline coefficients.}
 }
 \references{
 
