@@ -27,60 +27,45 @@ total.
 \source{ Richard Blundell and Dennis Kristensen }
 \references{
 
-  Blundell, R. and X. Chen and D. Kristensen (2007),
-  \dQuote{Semi-Nonparametric IV Estimation of Shape-Invariant Engel
-  Curves,} Econometrica, 75, 1613-1669.
+Blundell, R., X. Chen and D. Kristensen (2007). \dQuote{Semi-Nonparametric IV Estimation of Shape-Invariant Engel Curves.} \emph{Econometrica}, \strong{75}(6), 1613-1669. doi: \url{https://doi.org/10.1111/j.1468-0262.2007.00808.x}
+  
+Chen, X. and T. Christensen (2018). \dQuote{Optimal Sup-norm Rates and Uniform Inference on Nonlinear Functionals of Nonparametric IV Regression.} \emph{Quantitative Economics}, \strong{9}(1), 39-85. doi: \url{https://doi.org/10.3982/QE722}
     
-  Chen, X. and T. Christensen and S. Kankanala (2021), \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV}, \url{https://arxiv.org/pdf/2107.11869.pdf}
+Chen, X., T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
 
 }
 
 \keyword{datasets}
 
 \examples{
-data(Engel95)
+## load data
+data("Engel95", package = "npiv")
 
-## Sort on logexp (the endogenous regressor) for plotting purposes
-
+## sort on logexp (the regressor) for plotting purposes
 Engel95 <- Engel95[order(Engel95$logexp),] 
-
 attach(Engel95)
 
-model.iv <- npiv(Y=food,
-                 X=logexp,
-                 W=logwages)
+## Estimate the Engel curve for food using logwages as an instrument
+fm1 <- npiv(food ~ logexp | logwages)
 
-## Compute the non-IV regression (i.e. regress Y on X, simply use
-## logexp for W)
-
-model.niv <- npiv(Y=food,
-                  X=logexp,
-                  W=logexp)
-
-## For the plots, restrict focal attention to the bulk of the data
-## (i.e. for the plotting area trim out 1/4 of one percent from each
-## tail of Y and X)
-
-trim <- 0.0025
-
+## Plot the estimated Engel curve and data-driven uniform confidence bands
 plot(logexp,food,
      ylab="Food Budget Share",
-     xlab="log(Total Expenditure)",
-     xlim=quantile(logexp,c(trim,1-trim)),
-     ylim=quantile(food,c(trim,1-trim)),
-     main="Nonparametric Instrumental Variables",
+     xlab="log(Total Household Expenditure)",
+     xlim=c(4.75, 6.25),
+     ylim=c(0, 0.4),
+     main="",
      type="p",
      cex=.5,
      col="lightgrey")
-
-lines(logexp,model.iv$h,col="blue",lwd=2,lty=2)
-
-lines(logexp,model.niv$h,col="red",lwd=2,lty=4)
+lines(logexp,fm1$h,col="blue",lwd=2,lty=1)
+lines(logexp,fm1$h.upper,col="blue",lwd=2,lty=2)
+lines(logexp,fm1$h.lower,col="blue",lwd=2,lty=2)
 
 legend("topright",
-       c("Nonparametric IV","Nonparametric Regression"),
-       lty=c(2,4),
-       col=c("blue","red"),
-       lwd=c(2,2),
-       bty="n")
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("blue","blue"),
+       lty=c(1,2),
+       lwd=c(2,2))
 }
