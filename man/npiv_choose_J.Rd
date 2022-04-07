@@ -11,7 +11,7 @@ Data-driven Choice of Sieve Dimension for Nonparametric Instrumental Variables E
 npiv_choose_J(Y, 
               X,
               W,
-              X.eval = NULL,
+              X.grid = NULL,
               J.x.degree = 3,
               K.w.degree = 4,
               K.w.smooth = 2,
@@ -21,7 +21,7 @@ npiv_choose_J(Y,
               X.max = NULL,
               W.min = NULL,
               W.max = NULL,
-              eval.num = 50,
+              grid.num = 50,
               boot.num = 99,
               random.seed = 42,
               check.is.fullrank = FALSE,
@@ -38,8 +38,8 @@ npiv_choose_J(Y,
   \item{W}{
   matrix of instrumental variables. Set \code{W=X} for nonparametric regression.
 }
-  \item{X.eval}{
-  vector of evaluation point(s). Default uses 50 equally spaced points over the support of each \code{X} variable.
+  \item{X.grid}{
+  vector of grid point(s). Default uses 50 equally spaced points over the support of each \code{X} variable.
 }
   \item{J.x.degree}{
   B-spline degree (integer or vector of integers of length \code{ncol(X)}) for approximating the structural function. Default is \code{degree=3} (cubic B-spline).
@@ -78,8 +78,8 @@ npiv_choose_J(Y,
   \item{W.max}{
   upper bound on the support of each \code{W} variable. Default is \code{max(W)}.
 }
-  \item{eval.num}{
-  number of evaluation points for each \code{X} variable if \code{X.eval} is not provided.
+  \item{grid.num}{
+  number of grid points for each \code{X} variable if \code{X.grid} is not provided.
 }
   \item{boot.num}{
   number of bootstrap replications.

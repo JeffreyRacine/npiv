@@ -27,13 +27,14 @@ npiv(\dots)
      X,
      W,
      X.eval=NULL,
+     X.grid=NULL,
      alpha=0.05,
      basis=c("tensor","additive","glp"),
      boot.num=99,
      check.is.fullrank=FALSE,
      deriv.index=1,
      deriv.order=1,
-     eval.num=100,
+     grid.num=50,
      J.x.degree=3,
      J.x.segments=NULL,
      K.w.degree=4,
@@ -81,7 +82,10 @@ npiv(\dots)
   matrix of instrumental variables. Set \code{W=X} for nonparametric regression.
 }
   \item{X.eval}{
-  vector of evaluation point(s). Default uses 50 equally spaced points over the support of each \code{X} variable.
+  optional matrix of evaluation data for the endogenous regressors.
+}
+  \item{X.grid}{
+  optional vector of grid points for \code{X} when determining model complexity. Default (\code{X.grid=NULL}) uses 50 equally spaced points (can be changed in \code{grid.num}) over the support of each \code{X} variable.
 }
 \item{alpha}{
   nominal size of the uniform confidence bands. Default is \code{0.05} for 95\% uniform confidence bands.
@@ -107,8 +111,8 @@ npiv(\dots)
   \item{deriv.order}{
   integer indicating the order of derivative to be computed.
 }
-  \item{eval.num}{
-  number of evaluation points for each \code{X} variable if \code{X.eval} is not provided.
+  \item{grid.num}{
+  number of grid points for each \code{X} variable if \code{X.grid} is not provided.
 }
   \item{J.x.degree}{
   B-spline degree (integer or vector of integers of length \code{ncol(X)}) for approximating the structural function. Default is \code{degree=3} (cubic B-spline).
