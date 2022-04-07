@@ -46,19 +46,6 @@ NZD <- function(a) {
   
 }
 
-## S3 related functions
-
-explodePipe <- function(formula){
-  tf <- as.character(formula)  
-  tf <- tf[length(tf)]
-
-  eval(parse(text=paste("c(",
-               ifelse(length(as.character(formula)) == 3,
-                      'strsplit(as.character(formula)[2]," *[+] *"),',""),
-               'strsplit(strsplit(tf," *[|] *")[[1]]," *[+] *"))')))
-}
-
-
 ## Function that determines the dimension of the multivariate basis
 ## without precomputing it.
 
