@@ -150,7 +150,7 @@ X <- 2*pnorm(foo[,1],mean=mu[1],sd=sqrt(Sigma[1,1])) -1
 W <- 2*pnorm(foo[,2],mean=mu[2],sd=sqrt(Sigma[2,2])) -1
 U <- foo[,3]
 
-## h0 is the instrumental DGP function
+## h0 is the true structural function
 
 h0 <- sin(pi*X)
 Y <- h0 + sqrt(var.u)*U
