@@ -64,7 +64,7 @@ lines(logexp,fm1$h.lower,col="blue",lwd=2,lty=2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95 per cent UCBs"),
        col=c("blue","blue"),
        lty=c(1,2),
        lwd=c(2,2))
