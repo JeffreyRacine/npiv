@@ -1,6 +1,6 @@
 # npiv
 
-This is the R package `npiv' (Nonparametric Instrumental Variables Estimation) written and maintained by Jeffrey S. Racine (racinej@mcmaster.ca) and co-authored by Timothy M. Christensen (timothy.christensen@nyu.edu)
+This is the R package `npiv' (Nonparametric Instrumental Variables Estimation and Inference) written and maintained by Jeffrey S. Racine (racinej@mcmaster.ca) and co-authored by Timothy M. Christensen (timothy.christensen@nyu.edu)
 
 ## Installation
 
