@@ -88,7 +88,7 @@ npiv.default <- function(Y,
 
 }
 
-npiv.formula <- function(formula, data=NULL, newdata=NULL, subset=NULL, na.action=NULL, call, ...){
+npiv.formula <- function(formula, data=NULL, newdata=NULL, subset=NULL, na.action="na.omit", call, ...){
 
     mf <- match.call()
 

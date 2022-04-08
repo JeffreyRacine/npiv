@@ -19,7 +19,7 @@ npiv(\dots)
      data=NULL,
      newdata=NULL,
      subset=NULL,
-     na.action=NULL,
+     na.action="na.omit",
      call,
      \dots)
 
