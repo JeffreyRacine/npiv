@@ -11,17 +11,23 @@ author:
     email: \email{racinej@mcmaster.ca}
     url: https://socialsciences.mcmaster.ca/people/racinej
   - name: Timothy M. Christensen
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-4639-5015
     affiliation: 'New York University \AND'
-    # To add another line, use \AND at the end of the previous one as above
-  - name: Xiaohong Chen
-    orcid: 0000-0000-0000-0000
     address: |
       | Department of Economics
-      | Yale University
-    affiliation: |
+      | New York University
+    email: \email{timothy.christensen@nyu.edu}
+    url: https://tmchristensen.com
+    # To add another line, use \AND at the end of the previous one as above
+  - name: Xiaohong Chen
+    orcid: 0000-0003-1125-675X
+    address: |
+      | Cowles Foundation for Research in Economics
       | Department of Economics
       | Yale University
+    affiliation: Yale University
+    email: \email{xiaohong.chen@yale.edu}
+    url: https://economics.yale.edu/people/faculty/xiaohong-chen
 title:
   formatted: "Nonparametric Instrumental Variables Estimation and Inference: The R Package \\pkg{npiv}"
   # If you use tex in the formatted title, also supply version without
@@ -29,13 +35,14 @@ title:
   # For running headers, if needed
   short:     "\\pkg{npiv}: Nonparametric Instrumental Variables Estimation and Inference"
 abstract: >
-  The abstract of the article.
+  Nonparametric instrumental variables (NPIV) methods are becoming widely used in economics, causal inference, and machine learning. A popular class of NPIV estimators are sieve NPIV estimators, which estimate a nonparametric structural function by series two-stage least-squares. The key tuning parameter to choose when implementing these estimators is the sieve dimension used to approximate the structural function. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are a data-driven choice of sieve dimension, which is sup-norm optimal for estimating both the structural function and its derivatives, and a data-driven procedure for constructing uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) uniform confidence bands based on undersmoothing proposed in @CCQE. All methods apply to nonparametric regression as a special case.
 keywords:
   # at least one keyword must be supplied
-  formatted: [keywords, not capitalized, "\\proglang{Java}"]
+  formatted: [nonparametric instrumental variables, nonparametric regression, adaptive estimation, adaptive uniform confidence bands, "\\proglang{R}"]
   plain:     [keywords, not capitalized, Java]
 preamble: >
   \usepackage{amsmath}
+bibliography: npiv.bib
 output: rticles::jss_article
 ---
 
@@ -45,29 +52,50 @@ options(prompt = 'R> ', continue = '+ ')
 
 # Introduction
 
-This template demonstrates some of the basic LaTeX that you need to know to create a JSS article.
+Sieve
 
-## Code formatting
+# Estimation and inference procedures
 
-In general, don't use Markdown, but use the more precise LaTeX commands instead:
+## Sieve NPIV estimators
 
-* \proglang{Java}
-* \pkg{plyr}
+## Data-driven choice of sieve dimension
 
-One exception is inline code, which can be written inside a pair of backticks (i.e., using the Markdown syntax).
+## Data-driven uniform confidence bands
 
-If you want to use LaTeX commands in headers, you need to provide a `short-title` attribute. You can also provide a custom identifier if necessary. See the header of Section \ref{r-code} for example.
+## Undersmoothed uniform confidence bands
 
-# \proglang{R} code {short-title="R code" #r-code}
 
-Can be inserted in regular R markdown blocks.
+# Package description
 
-```{r}
-x <- 1:10
-x
+The contributed \proglang{R} package \pkg{npiv} is used to estimate, and construct uniform confidence bands for, a nonparametric structural function with the methods described in the previous section. In this section, we describe the main functionality of this package.
+
+The main function is `npiv`, which can be called with the following syntax:
 ```
+npiv(formula, data, newdata=NULL, basis=c("tensor","additive","glp"),
+  J.x.degree=3, J.x.segments=NULL, 
+  K.w.degree=4, K.w.segments=NULL, K.w.smooth=2, ...)
+```
+The required arguments include 
 
-## Features specific to \pkg{rticles} {short-title="Features specific to rticles"}
+* `formula`: a formula specifying the model to be estimated. The syntax is the same as the package \pkg{ivreg}. For exampe, `y ~ x1 + x2 | x1 + z1 + z2` where `y` is the dependent variable, `x1` is an exogenous regressor, `x2` is an endogenous regressor, and `z1` and `z2` are instrumental variables.
 
-* Adding short titles to section headers is a feature specific to \pkg{rticles} (implemented via a Pandoc Lua filter). This feature is currently not supported by Pandoc and we will update this template if [it is officially supported in the future](https://github.com/jgm/pandoc/issues/4409).
-* Using the `\AND` syntax in the `author` field to add authors on a new line. This is a specific to the `rticles::jss_article` format.
+* `data`: the data set containing all variables in the formula.
+
+* `newdata`: optional data frame collecting the values of  `x` variables at which to evaluate the estimator. Will evaluate at sample data points if `NULL`.
+
+* `basis`: type of basis to use if `x` variables are multivariate. Default is `tensor` for a tensor-product basis. Can also use `additive` for an additively-separable structural function.
+
+* `J.x.degree`: degree of the B-spline used to approximate the structural function. Default is 3 (cubic spline).
+
+* `J.x.segments`: number of segments (interior knots plus 1) for the B-spline used to approximate the structural function. Default is `NULL`, in which case this and `K.w.segements` are data-determined.
+
+* `K.w.degree`: degree of the B-spline used to approximate the structural function. Default is 3 (cubic spline).
+
+* `K.w.segments`: number of segments (interior knots plus 1) for the B-spline used to approximate the structural function. Default is `NULL`, in which case this and `J.x.segments` are data-determined.
+
+* `K.w.smooth`: a non-negative integer. The basis for the nonparametric first-stage uses `2^{K.w.smooth}` more B-spline segments for each instrument than the basis approximating the structural function. Default is 2. Setting `K.w.smooth=0` uses the same number of segments for `x` and `w`.
+
+# Engel curve estimation
+
+We conclude with an empirical illustration
+
