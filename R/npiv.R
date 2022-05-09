@@ -588,12 +588,12 @@ npivEst <- function(Y,
         if(ucb.h){
           Z.boot <- apply(Z.sup.boot, 1, max)
           z.star <- quantile(Z.boot, 1 - alpha, type = 5, names = FALSE)
-          cv <- z.star + 0.25*log(log(length(Y)))*test1$theta.star
+          cv <- z.star + max(0, log(log(test1$J.tilde)))*test1$theta.star
         }
         if(ucb.deriv){
           Z.boot.deriv <- apply(Z.sup.boot.deriv, 1, max)
           z.star.deriv <- quantile(Z.boot.deriv, 1 - alpha, type = 5, names = FALSE)
-          cv.deriv <- z.star.deriv + 0.25*log(log(length(Y)))*test1$theta.star
+          cv.deriv <- z.star.deriv + max(0, log(log(test1$J.tilde)))*test1$theta.star
         }
 
         ## Recover data-determined dimension (overwritten during bootstrap loop)
