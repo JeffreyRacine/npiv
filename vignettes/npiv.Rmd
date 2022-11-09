@@ -6,42 +6,43 @@ author:
     affiliation: McMaster University
     # use this syntax to add text on several lines
     address: |
-      | Department of Economics & Graduate Program in Statistics
-      | McMaster University
+      | Department of Economics and
+      | Graduate Program in Statistics
     email: \email{racinej@mcmaster.ca}
     url: https://socialsciences.mcmaster.ca/people/racinej
-  - name: Timothy M. Christensen
+  - name: Timothy Christensen
     orcid: 0000-0002-4639-5015
-    affiliation: 'New York University \AND'
+    affiliation: |
+      | New York University and
+      | University College London
     address: |
       | Department of Economics
-      | New York University
     email: \email{timothy.christensen@nyu.edu}
     url: https://tmchristensen.com
     # To add another line, use \AND at the end of the previous one as above
   - name: Xiaohong Chen
     orcid: 0000-0003-1125-675X
     address: |
-      | Cowles Foundation for Research in Economics
+      | Cowles Foundation for Research in Economics and
       | Department of Economics
-      | Yale University
     affiliation: Yale University
     email: \email{xiaohong.chen@yale.edu}
     url: https://economics.yale.edu/people/faculty/xiaohong-chen
 title:
-  formatted: "Nonparametric Instrumental Variables Estimation and Inference: The R Package \\pkg{npiv}"
+  formatted: "Estimation and Inference for Nonparametric Instrumental Variables Models: The R Package \\pkg{npiv}"
   # If you use tex in the formatted title, also supply version without
-  plain:     "Nonparametric Instrumental Variables Estimation and Inference: The R Package \\pkg{npiv}"
+  plain:     "Estimation and Inference for Nonparametric Instrumental Variables Models: The R Package \\pkg{npiv}"
   # For running headers, if needed
-  short:     "\\pkg{npiv}: Nonparametric Instrumental Variables Estimation and Inference"
+  short:     "\\pkg{npiv}: Estimation and Inference for Nonparametric Instrumental Variables Models"
 abstract: >
-  Nonparametric instrumental variables (NPIV) methods are becoming widely used in economics, causal inference, and machine learning. A popular class of NPIV estimators are sieve NPIV estimators, which estimate a nonparametric structural function by series two-stage least-squares. The key tuning parameter to choose when implementing these estimators is the sieve dimension used to approximate the structural function. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are a data-driven choice of sieve dimension, which is sup-norm optimal for estimating both the structural function and its derivatives, and a data-driven procedure for constructing uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) uniform confidence bands based on undersmoothing proposed in @CCQE. All methods apply to nonparametric regression as a special case.
+  Nonparametric instrumental variables (NPIV) methods are now widely used across economics, causal inference, and machine learning. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) a data-driven, rate-optimal choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) uniform confidence bands based on the methods proposed in @CCQE. All methods apply to nonparametric regression as a special case.
 keywords:
   # at least one keyword must be supplied
-  formatted: [nonparametric instrumental variables, nonparametric regression, adaptive estimation, adaptive uniform confidence bands, "\\proglang{R}"]
+  formatted: [nonparametric instrumental variables, nonparametric regression, minimax rate-adaptive estimation, adaptive uniform confidence bands, "\\proglang{R}"]
   plain:     [keywords, not capitalized, Java]
 preamble: >
   \usepackage{amsmath}
+  \usepackage{amsfonts}
 bibliography: npiv.bib
 output: rticles::jss_article
 ---
@@ -58,7 +59,113 @@ Sieve
 
 ## Sieve NPIV estimators
 
+Consider approximating the unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
+\begin{equation}\label{eq:h0_approx}
+ h_0(x) \approx \sum_{j=1}^J c_{Jj} \psi_{Jj}(x) = (\psi^J(x))'c_J\,,
+\end{equation}
+where $\psi^J(x) = (\psi_{J1}(x),\ldots,\psi_{JJ}(x))'$ is a vector of basis functions and $c_J = (c_{J1},\ldots,c_{JJ})'$ is a vector of coefficients. Combining (\ref{eq:npiv}) and (\ref{eq:h0_approx}), we obtain
+\[
+ Y = (\psi^J(X))'c_J + \mathrm{bias}_J + u\,,
+\]
+where $\mathrm{bias}_J = h_0(X) - (\psi^J(X))'c_J$ and $u = Y - h_0(X)$ satisfies $\E[u|W] = 0$. Provided $\mathrm{bias}_J$ is "small" relative to $U$, we have an approximate linear IV model where $\psi^J(X)$ is a $J\times 1$ vector of "endogenous variables" and $c_J$ is a vector of unknown ``parameters''. One can then estimate $c_J$ using two-stage least-squares (TSLS) using $K \geq J$ transformations $b^K(W)= (b_{K1}(W),\ldots,b_{KK}(W))'$ of $W$ as instruments. 
+
+Given data $(X_i,Y_i,W_i)_{i=1}^n$, the TSLS estimator of $c_J$ is simply
+\[
+ \hat c_J = \left(\mathbf \Psi_J' \mathbf P_K^{\phantom \prime} \mathbf \Psi_J^{\phantom \prime} \right)^{-} \mathbf \Psi_J' \mathbf P_K^{\phantom \prime} \mathbf Y \,,
+\]
+where $\mathbf \Psi_J  = (\psi^J({X_1}),\ldots,\psi^J({X_n}))'$ and $\mathbf B_K  = (b^K({W_1}),\ldots,b^K({W_n}))'$ are $n \times J$ and $n \times K$ matrices,
+$\mathbf P_K = \mathbf B_K^{\phantom \prime} (\mathbf B_K' \mathbf B_K^{\phantom \prime})^{-} \mathbf B_K^{\phantom \prime}$
+is the projection matrix onto the instrument space,\footnote{We let $A^-$ denote the generalized (or Moore--Penrose) inverse of a matrix $A$.} and $\mathbf Y = (Y_1,\ldots,Y_n)'$ is a $n \times 1$ vector.
+Sieve NPIV estimators of $h_0$ and its derivative $\partial^a h_0$ are given by
+\[
+ \hat h_J(x) = (\psi^J(x))' \hat c_J \,,~~~~\partial^a \hat h_J(x) =(\partial^a \psi^J(x))' \hat c_J \,,
+\]
+where $\partial^a \psi^J(x) = (\partial^a \psi_{J1}(x),\ldots,\partial^a \psi_{JJ}(x))'$ and 
+\[
+ \partial^a h(x) = \frac{\partial^{|a|} h(x)}{\partial^{a_1} x_1 \ldots \partial^{a_d} x_d} \,,
+\]
+for $a = (a_1,\ldots,a_d) \in (\mathbb{N}_0)^d$ with $|a| = a_1 + \ldots + a_d$.
+
+In practice, a researcher must choose bases $\psi_{J1},\ldots,\psi_{JJ}$ and $b_{K1},\ldots,b_{KK}$ and the tuning parameters $J$ and $K$. We use B-spline bases, as these were shown by @CCQE to lead to estimators of $h_0$ and its derivatives that converge at the minimax sup-norm rate under an appropriate choice of $J$ and $K$. We generally construct bases for multivariate $X$ or $W$ by taking tensor products of univariate bases.\footnote{The exception is when $X$ is multivariate and we wish to impose an additively separable structure on $h_0$.}
+
+The estimator $\hat h_J$ reduces to a nonparametric series regression estimator \[
+ \hat h_J(x) = \psi^J(x)'(\mathbf \Psi_J'\mathbf \Psi_J^{\phantom \prime})^- \mathbf \Psi_J' \mathbf Y
+\]
+in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. The data-driven methods for choosing $J$ and for constructing UCBs $h_0$ and its derivatives therefore carry over to nonparametric regression models as a special case.
+
+
 ## Data-driven choice of sieve dimension
+
+
+The key tuning parameter to be chosen when implmeneting sieve NPIV estimators is the dimension $J$ of the basis used to approximate $h_0$. @CCK introduce a data-driven choice of $J$ that leads to estimators of both $h_0$ and its derivatives that converge at the minimax sup-norm rate. The choice of $K$ is pinned down by $J$ in their procedure, so we write $K(J)$, $b^{K(J)}(W)$, $\mathbf B_{K(J)}$ and $\mathbf P_{K(J)}$ in what follows. 
+
+Before describing the procedure of @CCK we first introduce some notation. 
+Let $\mathcal T$ denote the set of feasible values of $J$. This set depends on the choice of basis. For instance, if $X$ is $d$-dimensional and $\psi_{J1},\ldots,\psi_{JJ}$ is the tensor product of $r$-th order univariate B-spline bases, then $\mathcal T = \{(2^l + r-1)^d : l \in \mathbb N_0 \}$. In particular, with a univariate cubic B-spline basis we have $\mathcal T = \{4,5,7, 11, ...\}$. Let $J^+ = \min\{j \in \mathcal T : j > J\}$ be the smallest sieve dimension in $\mathcal T$ exceeding $J$.
+
+Let $\mathbf M_J = (\mathbf \Psi_J' \mathbf P_{K(J)}^{\phantom \prime} \mathbf \Psi_J^{\phantom \prime} )^{-} \mathbf \Psi_J' \mathbf P_{K(J)}^{\phantom \prime}$. 
+For $J,J_2 \in \mathcal T$ with $J_2 > J$, define
+\[
+D_{J}(x)-D_{J_2}(x) = (\psi^J(x))' \mathbf M_J \hat{\mathbf  u}_J - (\psi^{J_2}(x))' \mathbf M_{J_2} \hat{\mathbf u}_{J_2} \,.
+\]
+The contrast $D_{J}(x)-D_{J_2}(x)$ compares the estimates of $\hat h_J(x) - h_0(x)$ and $\hat h_{J_2}(x) - h_0(x)$. Its variance is estimated by
+\[
+ \hat \sigma_{J,J_2}^2(x) := \hat \sigma_{J}^2(x) + \hat \sigma_{J_2}^2(x) - 2 \tilde \sigma_{J,J_2}(x),
+\]
+where
+\[
+ \hat \sigma_{J}^2(x) =  (\psi^J(x))' \mathbf M_J^{\phantom \prime} \widehat{\mathbf U}_{J,J}^{\phantom \prime} \mathbf M_J' \psi^J(x)
+\]
+and
+\[
+ \tilde \sigma_{J,J_2}(x)  = (\psi^J(x))' \mathbf M_J^{\phantom \prime} \widehat{\mathbf U}_{J,J_2}^{\phantom \prime} \mathbf M_{J_2}' \psi^{J_2}(x)
+\]
+with $\widehat{\mathbf U}_{J,J_2}$ a $n\times n$ diagonal matrix whose $i$th diagonal entry is $\hat u_{i,J} \hat u_{i,J_2}$. A bootstrap version of the contrast is given by
+\[
+D_{J}^*(x)-D_{J_2}^*(x) = (\psi^J(x))'\mathbf M_J^{\phantom \prime}  \hat{\mathbf u}_J^* - (\psi^{J_2}(x))' \mathbf M_{J_2}^{\phantom \prime} \hat{\mathbf u}_{J_2}^*,
+\]
+with $\hat{\mathbf u}_J^* = (\hat u_{1,J}\varpi_1,\ldots,\hat u_{n,J}\varpi_n)'$ denoting a multiplier bootstrap version of $\hat{\mathbf u}_J$, where $(\varpi_i)_{i=1}^n$ are IID standard normal $N(0,1)$ draws independent of the data.
+
+Finally, let $\hat s_J$ be the smallest singular value of $(\mathbf B_{K(J)}'\mathbf B_{K(J)}^{\phantom \prime})^{-1/2} (\mathbf B_{K(J)}' \mathbf \Psi_J^{\phantom \prime}) (\mathbf \Psi_J'\mathbf \Psi_J^{\phantom \prime})^{-1/2}$. 
+
+The data-driven procedure from @CCK for choosing $J$ in NPIV models is summarized in the following three steps:
+
+\begin{enumerate}
+\item Compute 
+\begin{equation}\label{eq:index_set}
+ \hat{\mathcal J}  = \left\{ J \in \mathcal T : 0.1 ( \log \hat J_{\max})^2 \leq J \leq \hat J_{\max}\right\}
+\end{equation}
+where
+\begin{equation} \label{eq:J_hat_max}
+ \hat{J}_{\max} = \min \bigg \{ J \in \mathcal T :   J \sqrt{\log J}  \hat{s}_J^{-1}     \leq 10 \sqrt{n}  <  J^{+} \sqrt{\log J^{+}}   \hat{s}_{J^{+}}^{-1}  \bigg \} \,.
+\end{equation}
+\item Let $\hat \alpha = \min\{ 0.5 , (\log(\hat{J}_{\max})/\hat{J}_{\max})^{1/2}\}$.  For each independent draw of $(\varpi_i)_{i=1}^n$, compute
+\begin{equation}\label{eq:sup-stat}
+ \sup_{\{ (x,J,J_2) \in \mathcal{X} \times \hat{\mathcal J} \times \hat{\mathcal J} : J_2 > J \}} \left| \frac{D_{J}^*(x)-D_{J_2}^*(x)}{\hat \sigma_{J,J_2}(x)} \right|.
+\end{equation}
+Let $\theta^*_{1-\hat \alpha}$ denote the $(1- \hat \alpha )$ quantile of the sup statistic (\ref{eq:sup-stat}) across a large number  of independent draws of $(\varpi_i)_{i=1}^n$.
+\item Let $\hat J_n = \max\{J \in \hat{\mathcal J} : J < \hat J_{\max}\}$ and
+\begin{equation}\label{eq:J_lepski}
+ \hat{J} = \min \left \{ J \in \hat{\mathcal J} : \sup_{(x, J_2) \in \mathcal{X} \times \hat{\mathcal{J}} : J_2 > J } \left| \frac{D_{J}(x)-D_{J_2}(x)}{\hat \sigma_{J,J_2}(x)} \right| \leq 1.1 \theta^*_{1 - \hat \alpha} \right \} \,.
+\end{equation}
+The data-driven choice of sieve dimension is
+\begin{equation} \label{eq:J-choice}
+ \tilde{J} = \min\{\hat{J},\hat J_n\}\,.
+\end{equation}
+\end{enumerate}
+
+@CCK show that the single data-driven choice $\tilde J$ leads to estimators $\hat h_{\tilde J}$ and $\partial^a \hat h_{\tilde J}$ of $h_0$ and $\partial^a h_0$ that converge at the minimax sup-norm rate in NPIV models. They also show that these adaptivity guarantees carry over to nonparametric regression models with $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. In that case, the procedure is implemented largely as above, but with the following slight modifications:
+
+\begin{enumerate}
+\item Compute
+\begin{equation} \label{eq:J_hat_max_regression}
+ \hat{J}_{\max} = \min \bigg \{ J \in \mathcal T :   J \sqrt{\log J} \upsilon_n \leq 10 \sqrt n <  J^{+} \sqrt{\log J^{+}} \upsilon_n  \bigg \}
+\end{equation}
+with $\upsilon_n = \max\{1, (0.1 \log n)^4\}$, then compute $\hat{\mathcal J}$ as in (\ref{eq:index_set}) with this choice of $\hat J_{\max}$.
+\item As above.
+\item Take $\tilde J = \hat J$ for $\hat J$ defined in (\ref{eq:J_lepski}).
+\end{enumerate}
+
+
 
 ## Data-driven uniform confidence bands
 
