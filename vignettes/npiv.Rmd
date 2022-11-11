@@ -59,53 +59,56 @@ Sieve
 
 ## Sieve NPIV estimators
 
-Consider approximating the unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
+We being by briefly describing sieve NPIV estimators. Consider approximating the unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
 \begin{equation}\label{eq:h0_approx}
  h_0(x) \approx \sum_{j=1}^J c_{Jj} \psi_{Jj}(x) = (\psi^J(x))'c_J\,,
 \end{equation}
-where $\psi^J(x) = (\psi_{J1}(x),\ldots,\psi_{JJ}(x))'$ is a vector of basis functions and $c_J = (c_{J1},\ldots,c_{JJ})'$ is a vector of coefficients. Combining (\ref{eq:npiv}) and (\ref{eq:h0_approx}), we obtain
+where $\psi^J(x) = (\psi_{J1}(x),\ldots,\psi_{JJ}(x))^\top$ is a vector of basis functions and $c_J = (c_{J1},\ldots,c_{JJ})^\top$ is a vector of coefficients. Combining (\ref{eq:npiv}) and (\ref{eq:h0_approx}), we obtain
 \[
- Y = (\psi^J(X))'c_J + \mathrm{bias}_J + u\,,
+ Y = (\psi^J(X))^\top c_J + \mathrm{bias}_J + u\,,
 \]
-where $\mathrm{bias}_J = h_0(X) - (\psi^J(X))'c_J$ and $u = Y - h_0(X)$ satisfies $\E[u|W] = 0$. Provided $\mathrm{bias}_J$ is "small" relative to $U$, we have an approximate linear IV model where $\psi^J(X)$ is a $J\times 1$ vector of "endogenous variables" and $c_J$ is a vector of unknown ``parameters''. One can then estimate $c_J$ using two-stage least-squares (TSLS) using $K \geq J$ transformations $b^K(W)= (b_{K1}(W),\ldots,b_{KK}(W))'$ of $W$ as instruments. 
+where $\mathrm{bias}_J = h_0(X) - (\psi^J(X))^\top c_J$ and $u = Y - h_0(X)$ satisfies $\E[u|W] = 0$. Provided $\mathrm{bias}_J$ is "small" relative to $U$, we have an approximate linear IV model where $\psi^J(X)$ is a $J\times 1$ vector of "endogenous variables" and $c_J$ is a vector of unknown ``parameters''. One can then estimate $c_J$ using two-stage least-squares (TSLS) using $K \geq J$ transformations $b^K(W)= (b_{K1}(W),\ldots,b_{KK}(W))^\top$ of $W$ as instruments. 
 
 Given data $(X_i,Y_i,W_i)_{i=1}^n$, the TSLS estimator of $c_J$ is simply
 \[
- \hat c_J = \left(\mathbf \Psi_J' \mathbf P_K^{\phantom \prime} \mathbf \Psi_J^{\phantom \prime} \right)^{-} \mathbf \Psi_J' \mathbf P_K^{\phantom \prime} \mathbf Y \,,
+ \hat c_J = \left(\mathbf \Psi_J^\top \mathbf P_K^{\phantom \top} \mathbf \Psi_J^{\phantom \top} \right)^{-} \mathbf \Psi_J^\top \mathbf P_K^{\phantom \top} \mathbf Y \,,
 \]
-where $\mathbf \Psi_J  = (\psi^J({X_1}),\ldots,\psi^J({X_n}))'$ and $\mathbf B_K  = (b^K({W_1}),\ldots,b^K({W_n}))'$ are $n \times J$ and $n \times K$ matrices,
-$\mathbf P_K = \mathbf B_K^{\phantom \prime} (\mathbf B_K' \mathbf B_K^{\phantom \prime})^{-} \mathbf B_K^{\phantom \prime}$
-is the projection matrix onto the instrument space,\footnote{We let $A^-$ denote the generalized (or Moore--Penrose) inverse of a matrix $A$.} and $\mathbf Y = (Y_1,\ldots,Y_n)'$ is a $n \times 1$ vector.
+where $\mathbf \Psi_J  = (\psi^J({X_1}),\ldots,\psi^J({X_n}))^\top$ and $\mathbf B_K  = (b^K({W_1}),\ldots,b^K({W_n}))^\top$ are $n \times J$ and $n \times K$ matrices,
+$\mathbf P_K = \mathbf B_K^{\phantom \prime} (\mathbf B_K^\top \mathbf B_K^{\phantom \top})^{-} \mathbf B_K^\top$
+is the projection matrix onto the instrument space,\footnote{We let $A^-$ denote the generalized (or Moore--Penrose) inverse of a matrix $A$.} and $\mathbf Y = (Y_1,\ldots,Y_n)^\top$ is a $n \times 1$ vector.
 Sieve NPIV estimators of $h_0$ and its derivative $\partial^a h_0$ are given by
 \[
- \hat h_J(x) = (\psi^J(x))' \hat c_J \,,~~~~\partial^a \hat h_J(x) =(\partial^a \psi^J(x))' \hat c_J \,,
+ \hat h_J(x) = (\psi^J(x))^\top \hat c_J \,,~~~~\partial^a \hat h_J(x) =(\partial^a \psi^J(x))^\top \hat c_J \,,
 \]
-where $\partial^a \psi^J(x) = (\partial^a \psi_{J1}(x),\ldots,\partial^a \psi_{JJ}(x))'$ and 
+where $\partial^a \psi^J(x) = (\partial^a \psi_{J1}(x),\ldots,\partial^a \psi_{JJ}(x))^\top$ and 
 \[
  \partial^a h(x) = \frac{\partial^{|a|} h(x)}{\partial^{a_1} x_1 \ldots \partial^{a_d} x_d} \,,
 \]
 for $a = (a_1,\ldots,a_d) \in (\mathbb{N}_0)^d$ with $|a| = a_1 + \ldots + a_d$.
 
-In practice, a researcher must choose bases $\psi_{J1},\ldots,\psi_{JJ}$ and $b_{K1},\ldots,b_{KK}$ and the tuning parameters $J$ and $K$. We use B-spline bases, as these were shown by @CCQE to lead to estimators of $h_0$ and its derivatives that converge at the minimax sup-norm rate under an appropriate choice of $J$ and $K$. We generally construct bases for multivariate $X$ or $W$ by taking tensor products of univariate bases.\footnote{The exception is when $X$ is multivariate and we wish to impose an additively separable structure on $h_0$.}
-
-The estimator $\hat h_J$ reduces to a nonparametric series regression estimator \[
- \hat h_J(x) = \psi^J(x)'(\mathbf \Psi_J'\mathbf \Psi_J^{\phantom \prime})^- \mathbf \Psi_J' \mathbf Y
+The estimator $\hat h_J$ reduces to a nonparametric series regression estimator
+\[
+ \hat h_J(x) = \psi^J(x)^\top(\mathbf \Psi_J^\top\mathbf \Psi_J^{\phantom \top})^- \mathbf \Psi_J^\top \mathbf Y
 \]
 in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. The data-driven methods for choosing $J$ and for constructing UCBs $h_0$ and its derivatives therefore carry over to nonparametric regression models as a special case.
 
+In practice, a researcher must choose bases $\psi_{J1},\ldots,\psi_{JJ}$ and $b_{K1},\ldots,b_{KK}$ and the tuning parameters $J$ and $K$. Previously, @CCQE showed that B-spline and certain wavelet bases lead to estimators of $h_0$ and its derivatives that converge at the minimax sup-norm rate under an appropriate choice of $J$ and $K$. These bases also lead to estimators that converge at the optimal rate in the special case of nonparametric regression [@BCCK; @CC15Reg], again under an appropriate choice of sieve dimension. We therefore use B-spline bases in what follows as these are easier to compute than wavelet bases. We generally construct bases for multivariate $X$ or $W$ by taking tensor products of univariate bases.\footnote{The exception is when $X$ is multivariate and we wish to impose an additively separable structure on $h_0$.}
 
-## Data-driven choice of sieve dimension
+The key tuning parameter to be chosen when implementing sieve NPIV estimators is the dimension $J$ of the basis used to approximate $h_0$. Note that the bias of sieve NPIV estimators is decreasing in $J$ because $h_0$ is approximated over a richer set of basis functions. On the other hand, the variance (or sampling uncertainty) is increasing in $J$ because there are more coefficients to estimate. Choices of $J$ that appropriately balance bias against sampling uncertainty will lead to estimators that converge at optimal rates. Note, however, that the bias and sampling uncertainty depend on certain model regularities, such as the smoothness of $h_0$ and the strength of the instruments, which are unknown. It is therefore very important to have data-driven methods for choosing tuning parameters that can *adapt* to these unknown model regularities.
 
 
-The key tuning parameter to be chosen when implmeneting sieve NPIV estimators is the dimension $J$ of the basis used to approximate $h_0$. @CCK introduce a data-driven choice of $J$ that leads to estimators of both $h_0$ and its derivatives that converge at the minimax sup-norm rate. The choice of $K$ is pinned down by $J$ in their procedure, so we write $K(J)$, $b^{K(J)}(W)$, $\mathbf B_{K(J)}$ and $\mathbf P_{K(J)}$ in what follows. 
+## Data-driven choice of sieve dimension 
+
+
+@CCK introduce a data-driven choice of $J$ that leads to estimators of both $h_0$ and its derivatives that converge at the optimal sup-norm rate. The choice of $K$ is pinned down by $J$ in their procedure, so we write $K(J)$, $b^{K(J)}(W)$, $\mathbf B_{K(J)}$ and $\mathbf P_{K(J)}$ in what follows. 
 
 Before describing the procedure of @CCK we first introduce some notation. 
-Let $\mathcal T$ denote the set of feasible values of $J$. This set depends on the choice of basis. For instance, if $X$ is $d$-dimensional and $\psi_{J1},\ldots,\psi_{JJ}$ is the tensor product of $r$-th order univariate B-spline bases, then $\mathcal T = \{(2^l + r-1)^d : l \in \mathbb N_0 \}$. In particular, with a univariate cubic B-spline basis we have $\mathcal T = \{4,5,7, 11, ...\}$. Let $J^+ = \min\{j \in \mathcal T : j > J\}$ be the smallest sieve dimension in $\mathcal T$ exceeding $J$.
+Let $\mathcal T$ denote the set of feasible values of $J$. This set depends on the choice of basis. For instance, if $X$ is $d$-dimensional and $\psi_{J1},\ldots,\psi_{JJ}$ is the tensor product of $r$-th degree univariate B-spline bases, then $\mathcal T = \{(2^l + r)^d : l \in \mathbb N_0 \}$. In particular, with a univariate cubic B-spline basis we have $\mathcal T = \{4,5,7, 11, ...\}$. Let $J^+ = \min\{j \in \mathcal T : j > J\}$ be the smallest sieve dimension in $\mathcal T$ exceeding $J$.
 
-Let $\mathbf M_J = (\mathbf \Psi_J' \mathbf P_{K(J)}^{\phantom \prime} \mathbf \Psi_J^{\phantom \prime} )^{-} \mathbf \Psi_J' \mathbf P_{K(J)}^{\phantom \prime}$. 
+Let $\mathbf M_J = (\mathbf \Psi_J^\top \mathbf P_{K(J)}^{\phantom \top} \mathbf \Psi_J^{\phantom \top} )^{-} \mathbf \Psi_J^\top \mathbf P_{K(J)}^{\phantom \top}$. 
 For $J,J_2 \in \mathcal T$ with $J_2 > J$, define
 \[
-D_{J}(x)-D_{J_2}(x) = (\psi^J(x))' \mathbf M_J \hat{\mathbf  u}_J - (\psi^{J_2}(x))' \mathbf M_{J_2} \hat{\mathbf u}_{J_2} \,.
+D_{J}(x)-D_{J_2}(x) = (\psi^J(x))^\top \mathbf M_J \hat{\mathbf  u}_J - (\psi^{J_2}(x))^\top \mathbf M_{J_2} \hat{\mathbf u}_{J_2} \,.
 \]
 The contrast $D_{J}(x)-D_{J_2}(x)$ compares the estimates of $\hat h_J(x) - h_0(x)$ and $\hat h_{J_2}(x) - h_0(x)$. Its variance is estimated by
 \[
@@ -113,19 +116,19 @@ The contrast $D_{J}(x)-D_{J_2}(x)$ compares the estimates of $\hat h_J(x) - h_0(
 \]
 where
 \[
- \hat \sigma_{J}^2(x) =  (\psi^J(x))' \mathbf M_J^{\phantom \prime} \widehat{\mathbf U}_{J,J}^{\phantom \prime} \mathbf M_J' \psi^J(x)
+ \hat \sigma_{J}^2(x) =  (\psi^J(x))^\top \mathbf M_J^{\phantom \top} \widehat{\mathbf U}_{J,J}^{\phantom \top} \mathbf M_J^\top \psi^J(x)
 \]
 and
 \[
- \tilde \sigma_{J,J_2}(x)  = (\psi^J(x))' \mathbf M_J^{\phantom \prime} \widehat{\mathbf U}_{J,J_2}^{\phantom \prime} \mathbf M_{J_2}' \psi^{J_2}(x)
+ \tilde \sigma_{J,J_2}(x)  = (\psi^J(x))^\top \mathbf M_J^{\phantom \top} \widehat{\mathbf U}_{J,J_2}^{\phantom \top} \mathbf M_{J_2}^\top \psi^{J_2}(x)
 \]
 with $\widehat{\mathbf U}_{J,J_2}$ a $n\times n$ diagonal matrix whose $i$th diagonal entry is $\hat u_{i,J} \hat u_{i,J_2}$. A bootstrap version of the contrast is given by
 \[
-D_{J}^*(x)-D_{J_2}^*(x) = (\psi^J(x))'\mathbf M_J^{\phantom \prime}  \hat{\mathbf u}_J^* - (\psi^{J_2}(x))' \mathbf M_{J_2}^{\phantom \prime} \hat{\mathbf u}_{J_2}^*,
+D_{J}^*(x)-D_{J_2}^*(x) = (\psi^J(x))^\top\mathbf M_J^{\phantom \top}  \hat{\mathbf u}_J^* - (\psi^{J_2}(x))^\top \mathbf M_{J_2}^{\phantom \top} \hat{\mathbf u}_{J_2}^*,
 \]
-with $\hat{\mathbf u}_J^* = (\hat u_{1,J}\varpi_1,\ldots,\hat u_{n,J}\varpi_n)'$ denoting a multiplier bootstrap version of $\hat{\mathbf u}_J$, where $(\varpi_i)_{i=1}^n$ are IID standard normal $N(0,1)$ draws independent of the data.
+with $\hat{\mathbf u}_J^* = (\hat u_{1,J}\varpi_1,\ldots,\hat u_{n,J}\varpi_n)^\top$ denoting a multiplier bootstrap version of $\hat{\mathbf u}_J$, where $(\varpi_i)_{i=1}^n$ are IID standard normal $N(0,1)$ draws independent of the data.
 
-Finally, let $\hat s_J$ be the smallest singular value of $(\mathbf B_{K(J)}'\mathbf B_{K(J)}^{\phantom \prime})^{-1/2} (\mathbf B_{K(J)}' \mathbf \Psi_J^{\phantom \prime}) (\mathbf \Psi_J'\mathbf \Psi_J^{\phantom \prime})^{-1/2}$. 
+Finally, let $\hat s_J$ be the smallest singular value of $(\mathbf B_{K(J)}^\top\mathbf B_{K(J)}^{\phantom \top})^{-1/2} (\mathbf B_{K(J)}^\top \mathbf \Psi_J^{\phantom \top}) (\mathbf \Psi_J^\top \mathbf \Psi_J^{\phantom \top})^{-1/2}$. 
 
 The data-driven procedure from @CCK for choosing $J$ in NPIV models is summarized in the following three steps:
 
@@ -153,30 +156,123 @@ The data-driven choice of sieve dimension is
 \end{equation}
 \end{enumerate}
 
-@CCK show that the single data-driven choice $\tilde J$ leads to estimators $\hat h_{\tilde J}$ and $\partial^a \hat h_{\tilde J}$ of $h_0$ and $\partial^a h_0$ that converge at the minimax sup-norm rate in NPIV models. They also show that these adaptivity guarantees carry over to nonparametric regression models with $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. In that case, the procedure is implemented largely as above, but with the following slight modifications:
+@CCK show that the single data-driven choice $\tilde J$ leads to estimators $\hat h_{\tilde J}$ and $\partial^a \hat h_{\tilde J}$ of $h_0$ and $\partial^a h_0$ that converge at the optimal sup-norm rate in NPIV models. They also show that these adaptivity guarantees carry over to nonparametric regression models with $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. In that case, the procedure is implemented largely as above, but with the following slight modifications:
 
 \begin{enumerate}
-\item Compute
+\item[$1.^{\prime}$] Compute
 \begin{equation} \label{eq:J_hat_max_regression}
  \hat{J}_{\max} = \min \bigg \{ J \in \mathcal T :   J \sqrt{\log J} \upsilon_n \leq 10 \sqrt n <  J^{+} \sqrt{\log J^{+}} \upsilon_n  \bigg \}
 \end{equation}
 with $\upsilon_n = \max\{1, (0.1 \log n)^4\}$, then compute $\hat{\mathcal J}$ as in (\ref{eq:index_set}) with this choice of $\hat J_{\max}$.
-\item As above.
-\item Take $\tilde J = \hat J$ for $\hat J$ defined in (\ref{eq:J_lepski}).
+\item[$2.^{\prime}$] As above.
+\item[$3.^{\prime}$] Take $\tilde J = \hat J$ for $\hat J$ defined in (\ref{eq:J_lepski}).
 \end{enumerate}
-
 
 
 ## Data-driven uniform confidence bands
 
+
+We now describe the method for constructing UCBs for $h_0$ and its derivatives proposed in @CCK. The approach builds on the data-driven choice of $J$ introduced in the previous subsection. Recall $\hat{\mathcal J}$ and $\tilde J$ from above. Let $\hat A = \log \log \tilde J$ and
+\[
+ \hat{\mathcal J}_{-} =
+ \begin{cases}
+ \{J \in \hat{\mathcal J} : J < \hat J_n\} & \mbox{~if $\tilde J = \hat J$}, \\
+ \hat{\mathcal J} & \mbox{~if $\tilde J = \hat J_n$}.
+ \end{cases}
+\]
+
+UCBs for the structural function $h_0$ in NPIV models are constructed in the following steps:
+
+\begin{enumerate}
+\item[4.] For each independent draw of $(\varpi_i)_{i=1}^n$, compute
+\begin{equation} \label{eq:z_star-UCB}
+ \sup_{(x,J) \in \mathcal{X} \times \hat{\mathcal J}_{-}} \left| \frac{D_J^*(x)}{\hat \sigma_J(x)} \right|.
+\end{equation}
+Let $z_{1-\alpha}^*$ denote the $(1-\alpha )$ quantile of the sup statistic (\ref{eq:z_star-UCB}) across a large number of independent draws of $(\varpi_i)_{i=1}^n$.
+\item[5.] Construct the 100$(1-\alpha)$\% UCB
+\begin{equation} \label{band}
+ C_n(x) = \bigg[ \hat{h}_{\tilde{J}}(x) - \left( z_{1-\alpha}^* + \hat A \theta^*_{1-\hat \alpha}  \right ) \hat \sigma_{\tilde J}(x) , ~  \hat{h}_{\tilde{J}}(x) + \left( z_{1-\alpha}^* + \hat A \theta^*_{1-\hat \alpha}  \right) \hat \sigma_{\tilde J}(x) \bigg] \,.
+\end{equation}
+\end{enumerate}
+
+UCBs for derivatives $\partial^a h_0$ of the structural function in NPIV models are constructed analogously:
+
+\begin{enumerate}
+\item[$4.^{\prime}$] For each independent draw of $(\varpi_i)_{i=1}^n$, compute
+\begin{equation} \label{eq:z_star-UCB-derivative}
+ \sup_{(x,J) \in \mathcal{X} \times \hat{\mathcal J}_{-}} \left| \frac{D_J^{a*}(x)}{\hat \sigma_J^a(x)} \right|.
+\end{equation}
+Let $z_{1-\alpha}^{a*}$ denote the $(1-\alpha )$ quantile of sup statistic (\ref{eq:z_star-UCB-derivative}) across a large number of independent draws of $(\varpi_i)_{i=1}^n$.
+\item[$5.^{\prime}$] Construct the 100$(1-\alpha)$\% UCB
+\begin{equation} \label{band-derivative}
+ C_n^a(x) = \bigg[ \partial^a \hat{h}_{\tilde{J}}(x) - \left(\! z_{1-\alpha}^{a*} + \hat A \theta^*_{1-\hat \alpha} \! \right) \hat \sigma_{\tilde J}^a(x) ,~ \partial^a \hat{h}_{\tilde{J}}(x) + \left( \!z_{1-\alpha}^{a*} + \hat A \theta^*_{1-\hat \alpha} \! \right ) \hat \sigma_{\tilde J}^a(x) \bigg] .
+\end{equation}
+\end{enumerate}
+
+The above UCB constructions apply equally to nonparametric regression models in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$.
+
+@CCK establish uniform asymptotic coverage guarantees for these UCBs for both NPIV and nonparametric regression models. They also show that the UCBs contract at the optimal sup-norm rate (up to logarithmic factors).
+
+
 ## Undersmoothed uniform confidence bands
+
+
+An alternative UCB construction based on a deterministic (i.e., non-data-driven) choice of sieve dimension is proposed by @CCQE for NPIV models. The construction also applies to nonparametric regression in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. The theoretical justification for this approach is based on *undersmoothing*. That is, the sieve dimension $J$ should be larger than what would be optimal for estimation, so that bias is of smaller order than sampling uncertainty. 
+
+We now briefly summarize their procedure using the notation introduced above. UCBs for $h_0$ and $\partial^a h_0$ are constructed as follows:
+
+\begin{enumerate}
+\item For each independent draw of $(\varpi_i)_{i=1}^n$, compute
+\begin{equation} \label{eq:z_star-J-UCB}
+ \sup_{x\in \mathcal{X}} \left| \frac{D_J^*(x)}{\hat \sigma_J(x)} \right|~\mbox{for $h_0$, or}~~~~\sup_{x \in \mathcal{X}} \left| \frac{D_J^{a*}(x)}{\hat \sigma_J^a(x)} \right|~\mbox{for $\partial^a h_0$}.
+\end{equation}
+Let $z_{1-\alpha,J}^*$ and $z_{1-\alpha,J}^{a*}$ denote the $(1-\alpha )$ quantile of
+these sup statistics across a large number of independent draws of $(\varpi_i)_{i=1}^n$.
+\item Construct the $100(1-\alpha)\%$ UCBs
+\[
+ C_{n,J}(x) = \bigg[ \hat{h}_{J}(x) -  z_{1-\alpha,J}^* \hat \sigma_{J}(x) , ~  \hat{h}_{J}(x) + z_{1-\alpha,J}^* \hat \sigma_{J}(x) \bigg] ~\mbox{for $h_0$},
+\]
+or
+\[
+ C_{n,J}^a(x) = \bigg[ \partial^a \hat{h}_{J}(x) - z_{1-\alpha,J}^{a*} \hat \sigma_{J}^a(x) ,~ \partial^a \hat{h}_{J}(x) +  z_{1-\alpha,J}^{a*} \hat \sigma_{J}^a(x) \bigg] ~\mbox{for $\partial^a h_0$}.
+\]
+\end{enumerate}
+
+
+
+Finally, we note that it may sometimes be of interest to construct confidence intervals (CIs) for $h_0(x)$ or $\partial^a h_0(x)$ at a certain point $x$. To this end, one may use the following constructions for $100(1-\alpha)\%$ CIs
+\[
+ \bigg[ \hat{h}_{J}(x) -  z_{1-\alpha/2} \hat \sigma_{J}(x) , ~  \hat{h}_{J}(x) + z_{1-\alpha/2} \hat \sigma_{J}(x) \bigg] ~\mbox{for $h_0(x)$},
+\]
+or
+\[
+ \bigg[ \partial^a \hat{h}_{J}(x) - z_{1-\alpha/2} \hat \sigma_{J}^a(x) ,~ \partial^a \hat{h}_{J}(x) +  z_{1-\alpha/2} \hat \sigma_{J}^a(x) \bigg] ~\mbox{for $\partial^a h_0(x)$},
+\]
+with $z_{1-\alpha/2}$ denoting the $1-\alpha/2$ quantile of the $N(0,1)$ distribution. These CIs can be (and sometimes are) plotted alongside estimates of $h_0$ or $\partial^a h_0$, but it should be understood that they are only valid *pointwise*. That is, they will generally be too narrow to contain the entire function $h_0$ or $\partial^a h_0$ with desired asymptotic coverage probability. By contrast, the above UCB constructions will contain the true structural function or its derivatives with desired asymptotic coverage probability.
 
 
 # Package description
 
-The contributed \proglang{R} package \pkg{npiv} is used to estimate, and construct uniform confidence bands for, a nonparametric structural function with the methods described in the previous section. In this section, we describe the main functionality of this package.
 
-The main function is `npiv`, which can be called with the following syntax:
+The contributed \proglang{R} package \pkg{npiv} is used to estimate and construct UCBs for a nonparametric structural function $h_0$ and its derivatives $\partial^a h_0$ in both NPIV and nonparametric regression models. In this section, we describe the main functionality of this package. The current version of the package can be downloaded from GitHub:
+
+```
+library(devtools); install_github('JeffreyRacine/npiv')
+```
+
+```{r, echo = FALSE, message = FALSE}
+if (!require("npiv")){
+  library(devtools)
+  install_github('JeffreyRacine/npiv')
+  }
+library("npiv")
+```
+
+
+## Use in NPIV models
+
+
+The main function is `npiv()`, which can be called with the following syntax:
 ```
 npiv(formula, data, newdata=NULL, basis=c("tensor","additive","glp"),
   J.x.degree=3, J.x.segments=NULL, 
@@ -184,25 +280,286 @@ npiv(formula, data, newdata=NULL, basis=c("tensor","additive","glp"),
 ```
 The required arguments include 
 
-* `formula`: a formula specifying the model to be estimated. The syntax is the same as the package \pkg{ivreg}. For exampe, `y ~ x1 + x2 | x1 + z1 + z2` where `y` is the dependent variable, `x1` is an exogenous regressor, `x2` is an endogenous regressor, and `z1` and `z2` are instrumental variables.
+* `formula`: a symbolic formula specifying the model to be estimated. The syntax is the same as the package \pkg{ivreg} [@IVREG]. For exampe, `y ~ x1 + x2 | x1 + z1 + z2` where `y` is the dependent variable, `x1` is an exogenous regressor, `x2` is an endogenous regressor, and `z1` and `z2` are instrumental variables.
 
-* `data`: the data set containing all variables in the formula.
+* `data`: an optional data frame containing the variables in the model.
 
-* `newdata`: optional data frame collecting the values of  `x` variables at which to evaluate the estimator. Will evaluate at sample data points if `NULL`.
+* `newdata`: optional data frame collecting the values of  `x` variables at which to evaluate the estimator (e.g. for plotting). Will evaluate at sample data points if `NULL`.
 
-* `basis`: type of basis to use if `x` variables are multivariate. Default is `tensor` for a tensor-product basis. Can also use `additive` for an additively-separable structural function.
+* `basis`: type of basis to use if `x` variables are multivariate. Default is `tensor` for a tensor-product basis. Can also use `additive` for an additively-separable structural function or `glp` for generalized B-spline polynomial bases (for further details, see documentation for the package \pkg{crs} [@CRS]).
 
 * `J.x.degree`: degree of the B-spline used to approximate the structural function. Default is 3 (cubic spline).
 
-* `J.x.segments`: number of segments (interior knots plus 1) for the B-spline used to approximate the structural function. Default is `NULL`, in which case this and `K.w.segements` are data-determined.
+* `J.x.segments`: number of segments (interior knots plus 1) for the B-spline used to approximate the structural function. Note that integers for both `J.x.segments` and `K.w.segments` must be passed to estimate the model with a deterministic $J$ (and $K$) and return undersmoothed UCBs. Te default is `NULL`, in which case both `J.x.segments` and `K.w.segements` are data-determined using the procedure described above and data-driven UCBs are returned.
 
-* `K.w.degree`: degree of the B-spline used to approximate the structural function. Default is 3 (cubic spline).
+* `K.w.degree`: degree of the B-spline used to approximate the nonparametric first stage. Default is 4 (quartic spline).
 
-* `K.w.segments`: number of segments (interior knots plus 1) for the B-spline used to approximate the structural function. Default is `NULL`, in which case this and `J.x.segments` are data-determined.
+* `K.w.segments`: number of segments (interior knots plus 1) for the B-spline used to approximate the structural function. Note that integers for both `J.x.segments` and `K.w.segments` must be passed to estimate the model with a deterministic $J$ (and $K$) and return undersmoothed UCBs. The default is `NULL`, in which case both `J.x.segments` and `K.w.segements` are data-determined using the procedure described above and data-driven UCBs are returned.
 
 * `K.w.smooth`: a non-negative integer. The basis for the nonparametric first-stage uses `2^{K.w.smooth}` more B-spline segments for each instrument than the basis approximating the structural function. Default is 2. Setting `K.w.smooth=0` uses the same number of segments for `x` and `w`.
 
+The output of the function `npiv()` is a '`npiv`' object. The `summary()` method prints a brief summary of the estimated model. The `npiv` object includes the following components:
+
+* `h`: the estimated structural function evaluated at the sample data (or evaluation data, if provided).
+
+* `h.upper`: the upper UCB for the structural function.
+
+* `h.lower`: the lower UCB for the structural function.
+
+* `deriv`: estimated derivative of the structural function evaluated at the sample data (or evaluation data, if provided).
+
+* `h.upper.deriv`: the upper UCB for the derivative of the structural function.
+
+* `h.lower.deriv`: the lower UCB for the derivative of the structural function.
+
+* `asy.se`: pre-asymptotic standard errors for the estimator of the structural function evaluated at the sample data (or evaluation data, if provided). These may be used to construct (pointwise) confidence intervals for $h_0(x)$ based on undersmoothing when a deterministic sieve dimension is used. 
+
+* `deriv.asy.se`: pre-asymptotic standard errors for the estimator of the derivative of the structural function evaluated at the sample data (or evaluation data, if provided).  These may be used to construct (pointwise) confidence intervals for $\partial^a h_0(x)$ based on undersmoothing when a deterministic sieve dimension is used.
+
+* `K.w.segments`: value of `K.w.segments` used (will be data-determined if not provided).
+
+* `J.x.segments`: value of `J.x.segments` used (will be data-determined if not provided).
+
+* `beta`: vector of estimated spline coefficients $\hat c_J$.
+
+
+## Use in Nonparametric Regression Models
+
+
+The command `npiv()` may also be used for data-driven choice of sieve dimension and UCB construction in nonparametric regression models. In this case, `formula` should pass the same explanatory variables as instrumental variables (and in the same order). Calling
+
+```
+npiv(y ~ x1 + x2 | x1 + x2)
+```
+
+will perform nonparameric regression of `y` on `x1` and `x2`, with a data-driven choice of sieve dimension. Note that this choice of sieve dimension will be rate-optimal for sup-norm. This choice may therefore differ from the choice of sieve dimension selected by other methods that target mean-square error (i.e., $L^2$ norm), such as cross validation, because the optimal choice for sup-norm and $L^2$ norm diverge at different rates. As before, data-driven UCBs for the conditional mean function and its derivative will also be computed by default. 
+
+Estimators based on a deterministic choice of sieve dimension and undersmoothed UCBs can be computed by passing `J.x.segments`. Note that `K.w.segments` and `K.w.smooth` are both redundant for nonparametric regression.
+
+## Additional Options
+
+By default, `npiv` will perform estimation of the structural function $h_0$ and construct 95\% UCBs for $h_0$ and $\frac{d h_0}{dx}$ if $x$ is scalar or 
+\[
+ \frac{\partial h_0(x_1,\ldots,x_d)}{\partial x_1}
+\]
+if $x$ is multivariate. The following optional arguments can be used to modify the UCB constructions:
+
+* `alpha`: nominal size of the uniform confidence bands. Default is 0.05 for 95% uniform confidence bands.
+
+* `deriv.index`: integer indicating for which regressor to compute the derivative. Default is `1`.
+
+* `deriv.order`: integer indicating the order of derivative to be computed. Default is `1`.
+
+* `ucb.h`: whether to compute a uniform confidence band for the structural function. Default is `TRUE.`
+
+* `ucb.deriv`: whether to compute a uniform confidence band for the derivative of the structural function. Default is `TRUE`.
+
+Run time can be improved by passing `ucb.h = FALSE` or `ucb.deriv = FALSE` when a UCB for $h_0$ or its derivative are not required.
+
+
 # Engel curve estimation
 
-We conclude with an empirical illustration
 
+We illustrate the usage of `npiv` with an application to nonparametric Engel curve estimation [@BCK]. Engel curves explain how consumers' budget shares on different categories of goods and services vary as a function of total household expenditure. Understanding these substitution patterns across expenditure categories is important for policy analysis and modeling demand.
+
+We use data from the 1995 British Family Expenditure Survey, following @BCK, @CCQE, and several other works. We focus on the subset of 1655 married or cohabitating couples with the head of household employed and aged between 20 and 55 and with at most two children. The data are available as part of \pkg{npiv} in the data frame `Engel95`.
+
+```{r}
+data("Engel95", package = "npiv")
+head(Engel95)
+```
+
+The first seven columns of `Engel95` list household budget shares across different expenditure categories. The variables `logexp` and `logwages` are log total household expenditure and log household income. The final variable `nkids` indicates whether the household has zero children (if `nkids = 0`; 628 households in total), or 1-2 two children (if `nkids = 1`; 1027 households in total).
+
+We wish to estimate the Engel curve $h_0$ for household budget share on a particular expenditure category (e.g., food). The model is
+\[
+ Y_i = h_0(X_i) + u_i
+\]
+where $Y_i$ is budget share for household $i$ on the expenditure category of interest and $X_i$ is log total household expenditure. As is well known [@BBL; @BBC], log total household expenditure is endogenous:
+\[
+ \E[Y_i | X_i] \neq h_0(X_i),
+\]
+which follows from the fact that total expenditure is the sum of expenditure across categories.
+We therefore follow @BBL, @BCK, and several other works and use log household income as and instrument for expenditure.
+
+We first estimate the Engel curve for food using log income as an instrument. We foucs on the subset of households with 1-2 children.
+
+```{r}
+Engel.kids <- subset(Engel95, nkids == 1)
+Engel.kids <- Engel.kids[order(Engel.kids$logexp),] 
+attach(Engel.kids)
+fm.food.dd <- npiv(food ~ logexp | logwages)
+summary(fm.food.dd)
+```
+
+As `J.x.segments` and `K.w.segments` are not passed in this call (and therefore revert to their default `NULL` values), `npiv()` uses a data-driven choice of sieve dimension and constructs data-driven uniform confidence bands using the methods from @CCK. The data-driven choice of sieve dimension are $J = 4$ and $K = 8$ (the sum of segments and degree for each basis). As $X$ and $W$ are both scalar and the degree of each basis is the default values of 3 for a cubic B-spline basis for $X$ and 4 for a quartic B-spline basis for $W$. The run time represents the total time to perform data-driven choice of sieve dimension and to construct the data-driven UCBs for $h_0$ and its derivative.
+
+Alternatively, we can estimate $h_0$ and its derivative using a deterministic choice of $J$ and $K$ and construct undersmoothed UCBs based on the methods of @CCQE by passing both `J.x.segments` and `K.w.segments`. As the justification for the UCBs is undersmoothing, we must choose a $J$ and $K$ larger than the optimal value so that bias is of smaller order than sampling uncertainty. We choose to estimate with `J.x.segments = 2` and `K.w.segments = 5`, which corresponds to $J = 5$ and $K = 9$.
+
+```{r}
+fm.food.det <- npiv(food ~ logexp | logwages, J.x.segments = 2, K.w.segments = 5)
+```
+
+```{r food-dd, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+## Plot the estimated Engel curve and data-driven UCBs
+plot(logexp, food,
+     ylab = "Food Budget Share",
+     xlab = "log(Total Household Expenditure)",
+     xlim = c(4.75, 6.25),
+     ylim = c(0, 0.4),
+     main = "",
+     type = "p",
+     cex = .5,
+     col = "lightgrey")
+lines(logexp, fm.food.dd$h,col="blue",lwd=2,lty=1)
+lines(logexp, fm.food.dd$h.upper,col="blue",lwd=2,lty=2)
+lines(logexp, fm.food.dd$h.lower,col="blue",lwd=2,lty=2)
+
+legend("topright",
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("blue","blue"),
+       lty=c(1,2),
+       lwd=c(2,2))
+```
+
+```{r, food-det, echo = FALSE, dev = 'pdf', fig.show = 'hide'}
+## Plot the estimated Engel curve and undersmoothed UCBs
+plot(logexp, food,
+     ylab = "Food Budget Share",
+     xlab = "log(Total Household Expenditure)",
+     xlim = c(4.75, 6.25),
+     ylim = c(0, 0.4),
+     main = "",
+     type = "p",
+     cex = .5,
+     col = "lightgrey")
+lines(logexp, fm.food.det$h,col="red",lwd=2,lty=1)
+lines(logexp, fm.food.det$h.upper,col="red",lwd=2,lty=2)
+lines(logexp, fm.food.det$h.lower,col="red",lwd=2,lty=2)
+
+legend("topright",
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("red","red"),
+       lty=c(1,2),
+       lwd=c(2,2))
+```
+
+
+The estimated Engel curves for food and corresponding UCBs are plotted below. Both the data-driven and undersmoothed estimates looks similar and are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of overall household expenditure as household expenditure increases. Note, however, that the undersmoothed estimates and UCBs are wigglier than their data-driven counterparts, as they use a higher-dimensional basis to approximate $h_0$.
+
+![Engel Curve for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd', 'pdf')`)
+
+![Engel Curve for Food: Estimates and UCBs based on Undersmoothing](`r knitr::fig_chunk('food-det', 'pdf')`)
+
+```{r food-dd-deriv, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+## Plot the estimated Engel curve derivative and data-driven UCBs
+plot(logexp, fm.food.dd$deriv,
+     ylab = "Change in Food Budget Share",
+     xlab = "log(Total Household Expenditure)",
+     xlim = c(4.75, 6.25),
+     ylim = c(-2, 2),
+     col = "blue",
+     type = "l",
+     lwd=2,
+     lty=1)
+lines(logexp, fm.food.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
+lines(logexp, fm.food.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
+abline(0, 0, col = "black", lty = 2, lwd = 2)
+
+legend("topright",
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("blue","blue"),
+       lty=c(1,2),
+       lwd=c(2,2))
+```
+
+```{r, food-det-deriv, echo = FALSE, dev = 'pdf', fig.show = 'hide'}
+## Plot the estimated Engel curve derivative and undersmoothed UCBs
+plot(logexp, fm.food.det$deriv,
+     ylab = "Change in Food Budget Share",
+     xlab = "log(Total Household Expenditure)",
+     xlim = c(4.75, 6.25),
+     ylim = c(-2, 2),
+     col = "red",
+     type = "l",
+     lwd=2,
+     lty=1)
+lines(logexp, fm.food.det$h.upper.deriv,col="red",lwd=2,lty=2)
+lines(logexp, fm.food.det$h.lower.deriv,col="red",lwd=2,lty=2)
+abline(0, 0, col = "black", lty = 2, lwd = 2)
+
+legend("topright",
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("red","red"),
+       lty=c(1,2),
+       lwd=c(2,2))
+```
+
+These differences are also apparent when we compare the estimated derivatives of the Engel curves. Note also from the UCBs for derivatives that while the estimated derivatives are generally negative, the zero function lies almost entirely inside both sets of UCBs. Therefore, it is difficult to conclude that the Engel curves for food are significantly downwards-sloping. 
+
+![Engel Curve Derivative for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd-deriv', 'pdf')`)
+
+![Engel Curve Derivative for Food: Estimates and UCBs based on Undersmoothing](`r knitr::fig_chunk('food-det-deriv', 'pdf')`)
+
+We repeat the exercise to estimate an Engel curve for household budget share on fuel:
+
+```{r}
+fm.fuel.dd <- npiv(fuel ~ logexp | logwages)
+summary(fm.fuel.dd)
+```
+
+```{r fuel-dd, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+## Plot the estimated Engel curve and data-driven UCBs
+plot(logexp, fuel,
+     ylab = "Fuel Budget Share",
+     xlab = "log(Total Household Expenditure)",
+     xlim = c(4.75, 6.25),
+     ylim = c(0, 0.4),
+     main = "",
+     type = "p",
+     cex = .5,
+     col = "lightgrey")
+lines(logexp, fm.fuel.dd$h,col="blue",lwd=2,lty=1)
+lines(logexp, fm.fuel.dd$h.upper,col="blue",lwd=2,lty=2)
+lines(logexp, fm.fuel.dd$h.lower,col="blue",lwd=2,lty=2)
+
+legend("topright",
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("blue","blue"),
+       lty=c(1,2),
+       lwd=c(2,2))
+```
+
+```{r fuel-dd-deriv, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+## Plot the estimated Engel curve derivative and data-driven UCBs
+plot(logexp, fm.fuel.dd$deriv,
+     ylab = "Change in Fuel Budget Share",
+     xlab = "log(Total Household Expenditure)",
+     xlim = c(4.75, 6.25),
+     ylim = c(-2, 2),
+     col = "blue",
+     type = "l",
+     lwd=2,
+     lty=1)
+lines(logexp, fm.fuel.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
+lines(logexp, fm.fuel.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
+abline(0, 0, col = "black", lty = 2, lwd = 2)
+
+legend("topright",
+       legend=c("Estimate",
+                "95% UCBs"),
+       col=c("blue","blue"),
+       lty=c(1,2),
+       lwd=c(2,2))
+```
+
+We see from the estimated Engel curve and its derivative that budget shares on fuel decrease significantly at low income levels and then flatten out completely at moderate to high income levels.
+
+![Engel Curve for Fuel: Data-driven Estimates and UCBs](`r knitr::fig_chunk('fuel-dd', 'pdf')`)
+
+![Engel Curve Derivative for Fuel: Data-driven Estimates and UCBs](`r knitr::fig_chunk('fuel-dd-deriv', 'pdf')`)
