@@ -1085,11 +1085,11 @@ npiv_Jhat_max <- function(X,
 
       if(K.w.degree < J.x.degree) stop("K.w.degree must be >= J.x.degree")
 
-      ## Estimate measure of ill-posedness if IV model; if regression set to 1 by default
+      ## Estimate measure of ill-posedness if IV model; if regression set to constant by default
 
       if(all(X == W)){
 
-        s.hat.J <- 1
+        s.hat.J <- max(1, (0.1 * log(NROW(X)))^4)
 
       } else {
 
