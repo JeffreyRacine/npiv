@@ -277,8 +277,21 @@ npivEst <- function(Y,
     ## (number of columns of B.w must be greater than Psi.x, i.e.,
     ## there must be at least as many "instruments" as "endogenous"
     ## predictors).
+    
+    check1 <- check2 <- FALSE
+    if(all(X == W)){
+      # Regression case; check if J is provided
+      if(is.null(J.x.segments)){
+        check2 <- TRUE
+      }
+    }else{
+      # IV case; check if J or K are not provided
+      if(is.null(K.w.segments) || is.null(J.x.segments)){
+        check1 <- TRUE
+      }
+    }
 
-    if(is.null(K.w.segments) || is.null(J.x.segments)) {
+    if(check1 || check2) {
       ## Save a flag for data driven to detm
       data.driven <- TRUE
       ## Check for regression and update splines accordingly
@@ -310,6 +323,12 @@ npivEst <- function(Y,
       K.w.segments.set <- test1$K.w.segments.set
     } else {
       data.driven <- FALSE
+      if(all(X == W)) {
+        K.w.degree <- J.x.degree
+        K.w.segments <- J.x.segments
+        K.w.smooth <- 0
+      }
+      
     }
 
     if(K.w.degree+K.w.segments < J.x.degree+J.x.segments) stop("K.w.degree+K.w.segments must be >= J.x.degree+J.x.segments")
