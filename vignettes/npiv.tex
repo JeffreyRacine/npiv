@@ -33,9 +33,9 @@ fully data-driven NPIV estimation and inference methods proposed in
 data-driven, rate-optimal choices of sieve dimension for sieve NPIV
 estimators and (ii) data-driven uniform confidence bands for the
 structural function and its derivatives. Additional functionality allows
-for constructing (non-data driven) nonparametric uniform confidence
-bands based on the methods proposed in \citet{CCQE}. All methods subsume
-standard nonparametric regression as a special case.
+for constructing (non-data driven) uniform confidence bands based on the
+methods proposed in \citet{CCQE}. All methods subsume standard
+nonparametric regression as a special case.
 }
 
 \Keywords{nonparametric instrumental variables, nonparametric
@@ -267,7 +267,7 @@ is estimated by \[
  \hat \sigma_{J}^2(x) =  (\psi^J(x))^\top \mathbf M_J^{\phantom \top} \widehat{\mathbf U}_{J,J}^{\phantom \top} \mathbf M_J^\top \psi^J(x)
 \] and \[
  \tilde \sigma_{J,J_2}(x)  = (\psi^J(x))^\top \mathbf M_J^{\phantom \top} \widehat{\mathbf U}_{J,J_2}^{\phantom \top} \mathbf M_{J_2}^\top \psi^{J_2}(x)
-\] with \(\widehat{\mathbf U}_{J,J_2}\) a \(n\times n\) diagonal matrix
+\] with \(\widehat{\mathbf U}_{J,J_2}\) an \(n\times n\) diagonal matrix
 whose \(i\)th diagonal entry is \(\hat u_{i,J} \hat u_{i,J_2}\). A
 bootstrap version of the contrast is given by \[
 D_{J}^*(x)-D_{J_2}^*(x) = (\psi^J(x))^\top\mathbf M_J^{\phantom \top}  \hat{\mathbf u}_J^* - (\psi^{J_2}(x))^\top \mathbf M_{J_2}^{\phantom \top} \hat{\mathbf u}_{J_2}^*,
@@ -310,10 +310,11 @@ The data-driven choice of sieve dimension is
 to estimators \(\hat h_{\tilde J}\) and \(\partial^a \hat h_{\tilde J}\)
 of \(h_0\) and \(\partial^a h_0\) that converge at the optimal sup-norm
 rate in NPIV models. They also show that these adaptivity guarantees
-carry over to nonparametric regression models with \(W = X\), \(K = J\),
-and \((b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})\). In that
-case, the procedure is implemented largely as above, but with the
-following slight modifications:
+carry over to standard nonparametric regression models with \(W = X\),
+\(K = J\), and
+\((b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})\). In that case,
+the procedure is implemented largely as above, but with the following
+slight modifications:
 
 \begin{enumerate}
 \item[$1.^{\prime}$] Compute
@@ -371,14 +372,14 @@ Let $z_{1-\alpha}^{a*}$ denote the $(1-\alpha )$ quantile of sup statistic (\ref
 \end{equation}
 \end{enumerate}
 
-The above UCB constructions apply equally to nonparametric regression
-models in the special case in which \(W = X\), \(K = J\), and
+The above UCB constructions apply equally to standard nonparametric
+regression models in the special case in which \(W = X\), \(K = J\), and
 \((b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})\).
 
 \citet{CCK} establish uniform asymptotic coverage guarantees for these
-UCBs for both NPIV and nonparametric regression models. They also show
-that the UCBs contract at the optimal sup-norm rate (up to logarithmic
-factors).
+UCBs for both NPIV and standard nonparametric regression models. They
+also show that the UCBs contract at the optimal sup-norm rate (up to
+logarithmic factors).
 
 \hypertarget{undersmoothed-uniform-confidence-bands}{%
 \subsection{Undersmoothed uniform confidence
@@ -386,7 +387,7 @@ bands}\label{undersmoothed-uniform-confidence-bands}}
 
 An alternative UCB construction based on a deterministic (i.e.,
 non-data-driven) choice of sieve dimension is proposed by \citet{CCQE}
-for NPIV models. The construction also applies to nonparametric
+for NPIV models. The construction also applies to standard nonparametric
 regression in the special case in which \(W = X\), \(K = J\), and
 \((b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})\). The
 theoretical justification for this approach is based on
@@ -418,7 +419,7 @@ or
 Finally, we note that it may sometimes be of interest to construct
 confidence intervals (CIs) for \(h_0(x)\) or \(\partial^a h_0(x)\) at a
 certain point \(x\). To this end, one may use the following
-constructions for \(100(1-\alpha)\%\) CIs \[
+constructions for \(100(1-\alpha)\%\) CIs: \[
  \bigg[ \hat{h}_{J}(x) -  z_{1-\alpha/2} \hat \sigma_{J}(x) , ~  \hat{h}_{J}(x) + z_{1-\alpha/2} \hat \sigma_{J}(x) \bigg] ~\mbox{for $h_0(x)$},
 \] or \[
  \bigg[ \partial^a \hat{h}_{J}(x) - z_{1-\alpha/2} \hat \sigma_{J}^a(x) ,~ \partial^a \hat{h}_{J}(x) +  z_{1-\alpha/2} \hat \sigma_{J}^a(x) \bigg] ~\mbox{for $\partial^a h_0(x)$},
@@ -438,10 +439,10 @@ derivatives with desired asymptotic coverage probability.
 
 The contributed \proglang{R} package \pkg{npiv} is used to estimate and
 construct UCBs for a nonparametric structural function \(h_0\) and its
-derivatives \(\partial^a h_0\) in both NPIV and nonparametric regression
-models. In this section, we describe the main functionality of this
-package. The current version of the package can be downloaded from
-GitHub:
+derivatives \(\partial^a h_0\) in both NPIV and standard nonparametric
+regression models. In this section, we describe the main functionality
+of this package. The current version of the package can be downloaded
+from GitHub:
 
 \begin{verbatim}
 library(devtools); install_github('JeffreyRacine/npiv')
@@ -455,8 +456,8 @@ following syntax:
 
 \begin{verbatim}
 npiv(formula, data, newdata=NULL, basis=c("tensor","additive","glp"),
-  J.x.degree=3, J.x.segments=NULL, 
-  K.w.degree=4, K.w.segments=NULL, K.w.smooth=2, ...)
+     J.x.degree=3, J.x.segments=NULL, 
+     K.w.degree=4, K.w.segments=NULL, K.w.smooth=2, ...)
 \end{verbatim}
 
 The required arguments include
@@ -465,7 +466,7 @@ The required arguments include
 \item
   \texttt{formula}: a symbolic formula specifying the model to be
   estimated. The syntax is the same as the package \pkg{ivreg}
-  \citep{IVREG}. For exampe,
+  \citep{IVREG}. For example,
   \texttt{y\ \textasciitilde{}\ x1\ +\ x2\ \textbar{}\ x1\ +\ z1\ +\ z2}
   where \texttt{y} is the dependent variable, \texttt{x1} is an
   exogenous regressor, \texttt{x2} is an endogenous regressor, and
@@ -560,20 +561,21 @@ model. The \texttt{npiv} object includes the following components:
   \texttt{beta}: vector of estimated spline coefficients \(\hat c_J\).
 \end{itemize}
 
-\hypertarget{use-in-nonparametric-regression-models}{%
-\subsection{Use in Nonparametric Regression
-Models}\label{use-in-nonparametric-regression-models}}
+\hypertarget{use-in-standard-nonparametric-regression-models}{%
+\subsection{Use in standard nonparametric regression
+models}\label{use-in-standard-nonparametric-regression-models}}
 
 The command \texttt{npiv()} may also be used for data-driven choice of
-sieve dimension and UCB construction in nonparametric regression models.
-In this case, \texttt{formula} should pass the same explanatory
-variables as instrumental variables (and in the same order). Calling
+sieve dimension and UCB construction in standard nonparametric
+regression models. In this case, \texttt{formula} should pass the same
+explanatory variables as instrumental variables (and in the same order).
+Calling
 
 \begin{verbatim}
 npiv(y ~ x1 + x2 | x1 + x2)
 \end{verbatim}
 
-will perform nonparameric regression of \texttt{y} on \texttt{x1} and
+will perform nonparametric regression of \texttt{y} on \texttt{x1} and
 \texttt{x2}, with a data-driven choice of sieve dimension. Note that
 this choice of sieve dimension will be rate-optimal for sup-norm. This
 choice may therefore differ from the choice of sieve dimension selected
@@ -594,7 +596,7 @@ confidence intervals for \(h_0(x)\) and \(\partial^a h_0(x)\) based on
 undersmoothing.
 
 \hypertarget{additional-options}{%
-\subsection{Additional Options}\label{additional-options}}
+\subsection{Additional options}\label{additional-options}}
 
 By default, \texttt{npiv} will perform estimation of the structural
 function \(h_0\) and construct 95\% UCBs for \(h_0\) and
@@ -633,14 +635,15 @@ application to nonparametric Engel curve estimation \citep{BCK}. Engel
 curves explain how consumers' expenditure shares on different categories
 of goods and services vary as a function of total household expenditure.
 Understanding consumers' consumption and substitution patterns across
-expenditure categories is important for policy analysis and modeling
-demand. Engel curve estimation is therefore the subject of a large
-amount of empirical work in economics. There is also a long tradition of
-estimating Engel curves via ``flexible'' (i.e., nonparametric or
-semi-parametric) methods which recognize correctly that consumers'
-expenditure shares vary nonlinearly with total expenditure.\footnote{Interestingly,
-  the original empirical exercise performed by Engel over 150 years ago
-  used precursors of nonparametric statistical methods \citep{CM}.}
+expenditure categories is important for conducting policy analysis and
+for modeling demand. Engel curve estimation is therefore the subject of
+a large amount of empirical work in economics. There is also a long
+tradition of estimating Engel curves via ``flexible'' (i.e.,
+nonparametric or semi-parametric) methods which recognize correctly that
+consumers' expenditure shares vary nonlinearly with total
+expenditure.\footnote{Interestingly, the original empirical exercise
+  performed by Engel over 150 years ago used precursors of nonparametric
+  statistical methods \citep{CM}.}
 
 We wish to estimate the Engel curve \(h_0\) for a household's
 expenditure share on a particular category, say food. The model is \[
@@ -653,7 +656,7 @@ expenditure was exogenously specified as \(x\). As is well known
 \citep{BBL, BBC}, total household expenditure is endogenous: \[
  \E[Y_i | X_i] \neq h_0(X_i),
 \] which follows from the fact that the household's consumption
-preferences determines its expenditure across categrories and therefore
+preferences determines its expenditure across categories and therefore
 its total expenditure. To deal with this endogeneity, we shall follow
 \citet{BBL}, \citet{BCK}, and several other works and use log household
 income (\(W_i\)) as an instrument for expenditure.
@@ -730,7 +733,7 @@ B-spline segments for instruments:           4
 B-spline degree for endogenous predictors:   3
 B-spline segments for endogenous predictors: 1
 
-Estimation time: 8.3 seconds
+Estimation time: 3.3 seconds
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -754,19 +757,19 @@ choose to estimate with \texttt{J.x.segments\ =\ 2} and
 \begin{CodeChunk}
 \begin{CodeInput}
 R> fm.food.det <- npiv(food ~ logexp | logwages, J.x.segments = 2, 
-+                         K.w.segments = 5)
++                      K.w.segments = 5)
 \end{CodeInput}
 \end{CodeChunk}
 
-The estimated Engel curves for food and plotted below, together with
-UCBs. Both the data-driven and undersmoothed estimates looks similar and
-are downward-sloping. This seems reasonable from an economic standpoint:
-food is a necessary good, and so it should decrease as a proportion of
-overall household expenditure as household expenditure increases. Note,
-however, that the data-driven estimate looks close to linear whereas the
-undersmoothed estimates and UCBs are quite wiggly. This is to be
-expected: as undersmoothed bands use a sub-optimally large choice of
-sieve dimension and will therefore be less ``efficient'' than
+The estimated Engel curves for food are plotted below, together with
+their UCBs. Both the data-driven and undersmoothed estimates looks
+similar and are downward-sloping. This seems reasonable from an economic
+standpoint: food is a necessary good, and so it should decrease as a
+proportion of overall household expenditure as household expenditure
+increases. Note, however, that the data-driven estimate looks close to
+linear whereas the undersmoothed estimates and UCBs are quite wiggly.
+This is to be expected: undersmoothed bands use a sub-optimally large
+choice of sieve dimension and will therefore be less ``efficient'' than
 data-driven bands.
 
 \begin{figure}
@@ -825,7 +828,7 @@ B-spline segments for instruments:           4
 B-spline degree for endogenous predictors:   3
 B-spline segments for endogenous predictors: 1
 
-Estimation time: 3.6 seconds
+Estimation time: 4.0 seconds
 \end{CodeOutput}
 \end{CodeChunk}
 
