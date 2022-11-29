@@ -48,7 +48,14 @@ output: rticles::jss_article
 ---
 
 ```{r, setup, include=FALSE}
-options(prompt = 'R> ', continue = '+ ')
+options(prompt = 'R> ', 
+        continue = '+ ')
+knitr::opts_chunk$set(cache=FALSE,
+                      out.width='75%',
+                      fig.asp=0.75,
+                      fig.pos="!ht",
+                      dev='tikz',
+                      fig.align='center')
 ```
 
 # Introduction
@@ -419,7 +426,7 @@ fm.food.det <- npiv(food ~ logexp | logwages, J.x.segments = 2,
                         K.w.segments = 5)
 ```
 
-```{r food-dd, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+```{r food-dd, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve and data-driven UCBs
 plot(logexp, food,
      ylab = "Food Budget Share",
@@ -436,13 +443,14 @@ lines(logexp, fm.food.dd$h.lower,col="blue",lwd=2,lty=2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95\\% UCBs"),
        col=c("blue","blue"),
        lty=c(1,2),
-       lwd=c(2,2))
+       lwd=c(2,2),
+       bty="n")
 ```
 
-```{r, food-det, echo = FALSE, dev = 'pdf', fig.show = 'hide'}
+```{r, food-det, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve and undersmoothed UCBs
 plot(logexp, food,
      ylab = "Food Budget Share",
@@ -459,10 +467,11 @@ lines(logexp, fm.food.det$h.lower,col="red",lwd=2,lty=2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95\\% UCBs"),
        col=c("red","red"),
        lty=c(1,2),
-       lwd=c(2,2))
+       lwd=c(2,2),
+       bty="n")
 ```
 
 
@@ -472,13 +481,14 @@ The estimated Engel curves for food and plotted below, together with UCBs. Both 
 
 ![Engel Curve for Food: Estimates and UCBs based on Undersmoothing](`r knitr::fig_chunk('food-det', 'pdf')`)
 
-```{r food-dd-deriv, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+```{r food-dd-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and data-driven UCBs
 plot(logexp, fm.food.dd$deriv,
      ylab = "Change in Food Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(-2, 2),
+     # ylim = c(-2, 2),
+     ylim = c(-0.75, 0.75),
      col = "blue",
      type = "l",
      lwd=2,
@@ -489,19 +499,21 @@ abline(0, 0, col = "black", lty = 2, lwd = 2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95\\% UCBs"),
        col=c("blue","blue"),
        lty=c(1,2),
-       lwd=c(2,2))
+       lwd=c(2,2),
+       bty="n")
 ```
 
-```{r, food-det-deriv, echo = FALSE, dev = 'pdf', fig.show = 'hide'}
+```{r, food-det-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and undersmoothed UCBs
 plot(logexp, fm.food.det$deriv,
      ylab = "Change in Food Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(-2, 2),
+     # ylim = c(-2, 2),
+     ylim = c(-0.75, 0.75),
      col = "red",
      type = "l",
      lwd=2,
@@ -512,10 +524,11 @@ abline(0, 0, col = "black", lty = 2, lwd = 2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95\\% UCBs"),
        col=c("red","red"),
        lty=c(1,2),
-       lwd=c(2,2))
+       lwd=c(2,2),
+       bty="n")
 ```
 
 These differences are also apparent when we compare the estimated derivatives of the Engel curves. The UCBs for derivatives are generally negative, but the zero function lies almost entirely inside both sets of UCBs. Therefore, while the estimates appear downwards-sloping, it is difficult to conclude that the Engel curves for food are significantly downwards-sloping. 
@@ -531,13 +544,14 @@ fm.fuel.dd <- npiv(fuel ~ logexp | logwages)
 summary(fm.fuel.dd)
 ```
 
-```{r fuel-dd, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+```{r fuel-dd, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve and data-driven UCBs
 plot(logexp, fuel,
      ylab = "Fuel Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(0, 0.4),
+     # ylim = c(0, 0.4),
+     ylim = c(0, 0.25),     
      main = "",
      type = "p",
      cex = .5,
@@ -548,13 +562,14 @@ lines(logexp, fm.fuel.dd$h.lower,col="blue",lwd=2,lty=2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95\\% UCBs"),
        col=c("blue","blue"),
        lty=c(1,2),
-       lwd=c(2,2))
+       lwd=c(2,2),
+       bty="n")
 ```
 
-```{r fuel-dd-deriv, dev = 'pdf', echo = FALSE, fig.show = 'hide'}
+```{r fuel-dd-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and data-driven UCBs
 plot(logexp, fm.fuel.dd$deriv,
      ylab = "Change in Fuel Budget Share",
@@ -571,10 +586,11 @@ abline(0, 0, col = "black", lty = 2, lwd = 2)
 
 legend("topright",
        legend=c("Estimate",
-                "95% UCBs"),
+                "95\\% UCBs"),
        col=c("blue","blue"),
        lty=c(1,2),
-       lwd=c(2,2))
+       lwd=c(2,2),
+       bty="n")
 ```
 
 We see from the estimated Engel curve and its derivative that budget shares on fuel decrease significantly at low income levels and then flatten out completely at moderate to high income levels. As there is much less variation in households' fuel expenditure than their food expenditure, these curves are estimated with greater precision and the UCBs are correspondingly much narrower.
