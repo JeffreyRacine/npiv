@@ -35,7 +35,7 @@ title:
   # For running headers, if needed
   short:     "\\pkg{npiv}: Estimation and Inference for Nonparametric Instrumental Variables Models"
 abstract: >
-  Nonparametric instrumental variables (NPIV) methods are now widely used across economics, causal inference, and machine learning. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) a data-driven, rate-optimal choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) uniform confidence bands based on the methods proposed in @CCQE. All methods apply to nonparametric regression as a special case.
+  Nonparametric instrumental variables (NPIV) methods are widely used for causal inference in economics and have been adopted in other fields including machine learning, by way of illustration. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) data-driven, rate-optimal choices of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) nonparametric uniform confidence bands based on the methods proposed in @CCQE. All methods subsume standard nonparametric regression as a special case.
 keywords:
   # at least one keyword must be supplied
   formatted: [nonparametric instrumental variables, nonparametric regression, minimax rate-adaptive estimation, adaptive uniform confidence bands, "\\proglang{R}"]
@@ -50,34 +50,28 @@ output: rticles::jss_article
 ```{r, setup, include=FALSE}
 options(prompt = 'R> ', 
         continue = '+ ')
-knitr::opts_chunk$set(cache=FALSE,
-                      out.width='75%',
-                      fig.asp=0.75,
-                      fig.pos="!ht",
-                      dev='tikz',
-                      fig.align='center')
+knitr::opts_chunk$set(cache=TRUE,dev='tikz')
 ```
 
 # Introduction
 
-Nonparametric instrumental variables (NPIV) methods are now widely used across many fields of empirical work. While there is a relatively long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], NPIV methods have recently seen new use in diverse areas such as causal inference in biostatistics [@WangZhiTT2018] as well as reinforcement learning [@grettonRL2021], and, more generally, causal machine learning [@causalML]. The basic premise is that we are interested in estimating a nonparametric *structural function* $h_0$ linking a scalar outcome variable $Y$ and a vector of regressors $X$ through the relation
+Nonparametric instrumental variables (NPIV) methods are well-established, widely used, and have been adopted by practitioners in a range of empirical fields. While there is a relatively long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], NPIV methods have recently been adopted in non-economic areas including causal inference in biostatistics [@WangZhiTT2018] as well as reinforcement learning [@grettonRL2021], and, more generally, causal machine learning [@causalML]. The basic premise underlying NPIV is that we are interested in estimating a nonparametric *structural function* $h_0$ linking a scalar outcome variable $Y$ and a vector of regressors $X$ through the relation
 \begin{equation}\label{eq:npiv}
  Y = h_0(X) + u,
 \end{equation}
-where $u$ is a disturbance term. Unlike a nonparametric regression model, the function $h_0$ is not necessarily the conditional mean of $Y$ given $X$ but rather has a particular *structural* or *causal* interpretation. Equivalently, $X$ is *endogenous* in the sense that $\E[u|X]$ is not necessarily zero. NPIV methods allow for the estimation of $h_0$ using a vector of *instrumental variables* $W$ for which $\E[u|W] = 0$.^[To simplify exposition, we shall omit the ``almost surely'' qualifier when specifying conditional moment restrictions.] For instance, in a demand estimation context the variable $Y$ denotes the quantity demanded, $X$ denotes the price, and $W$ is a "cost-shifter" that causes variation in the marginal cost of production. Derivatives of $h_0$ may also be of interest as they have important "structural" interpretations as elasticities or other marginal effects.
+where $u$ is a disturbance term. Unlike a standard nonparametric regression model, the function $h_0$ is not necessarily the conditional mean of $Y$ given $X$ but rather has a particular *structural* or *causal* interpretation. Equivalently, $X$ is *endogenous* in the sense that $\E[u|X]$ is not necessarily zero. NPIV methods allow for the estimation of $h_0$ using a vector of *instrumental variables* $W$ for which $\E[u|W] = 0$.^[To simplify exposition, we shall omit the "almost surely" qualifier when specifying conditional moment restrictions.] For instance, in a demand estimation context the variable $Y$ denotes the quantity demanded, $X$ denotes the price, and $W$ is a "cost-shifter" that causes variation in the marginal cost of production. Derivatives of $h_0$ may also be of interest as they have important "structural" interpretations as elasticities or other marginal effects.
 
-This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods for $h_0$ and derivatives of $h_0$ proposed in @CCK. The methods are developed in the context of sieve NPIV estimators, which are simply implemented by two-stage least-squares [@AC; @NP].
+This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods for $h_0$ and derivatives of $h_0$ proposed in @CCK. The methods are developed in the context of sieve NPIV estimators, which are implemented in a very simple and straightforward manner using two-stage least-squares (TSLS) [@AC; @NP].
 
-The main methods implemented in this package are (i) a data-driven choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands (UCBs) for the structural function and its derivatives. As shown in @CCK, the single data-driven choice of sieve dimension is adaptive to the optimal (i.e., minimax) sup-norm rate for estimating both $h_0$ and derivatives of $h_0$. Moreover, the data-driven *uniform* confidence bands contain the entire true structural function and its derivatives with desired asymptotic coverage probability and contract at the optimal rate (up to log terms). Additional functionality allows for constructing (non-data driven) UCBs based on the methods proposed in @CCQE as well as *pointwise* confidence intervals for $h_0(x)$ or its derivatives at a point $x$. All methods apply to nonparametric regression as a special case.
+The main methods implemented in this package are (i) a data-driven choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands (UCBs) for the structural function and its derivatives. As shown in @CCK, the single data-driven choice of sieve dimension is adaptive to the optimal (i.e., minimax) sup-norm rate for estimating both $h_0$ and derivatives of $h_0$. Moreover, the data-driven *uniform* confidence bands contain the entire true structural function and its derivatives with desired asymptotic coverage probability and contract at the optimal rate (up to log terms). Additional functionality allows for constructing (non-data driven) UCBs based on the methods proposed in @CCQE as well as *pointwise* confidence intervals for $h_0(x)$ or its derivatives at a point $x$. All methods subsume standard nonparametric regression as a special case.
 
-The remainder of this article is organized as follows. [Section 2](#method) reviews sieve NPIV estimators and describes the data-driven methods from @CCK and UCB constructions from @CCQE. [Section 3](#desc) gives a description of the main functionality of the package \pkg{npiv} and describes its implementation in NPIV models and nonparametric regression models. [Section 4](#engel) then illustrates the methods in the context of Engel curve estimation based on household consumption data.
-
+The remainder of this article is organized as follows. [Section 2](#method) reviews sieve NPIV estimators and describes the data-driven methods from @CCK and the UCB constructions from @CCQE. [Section 3](#desc) gives a description of the main functionality of the package \pkg{npiv} and describes its implementation of NPIV models and nonparametric regression models. [Section 4](#engel) then illustrates the methods in the context of Engel curve estimation based on household consumption data.
 
 # Estimation and inference procedures {#method}
 
 ## Sieve NPIV estimators
 
-We being by briefly describing sieve NPIV estimators. Consider approximating the unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
+We being by briefly describing sieve NPIV estimators. Consider approximating an unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
 \begin{equation}\label{eq:h0_approx}
  h_0(x) \approx \sum_{j=1}^J c_{Jj} \psi_{Jj}(x) = (\psi^J(x))'c_J\,,
 \end{equation}
@@ -85,7 +79,7 @@ where $\psi^J(x) = (\psi_{J1}(x),\ldots,\psi_{JJ}(x))^\top$ is a vector of basis
 \[
  Y = (\psi^J(X))^\top c_J + \mathrm{bias}_J + u\,,
 \]
-where $\mathrm{bias}_J = h_0(X) - (\psi^J(X))^\top c_J$ and $u = Y - h_0(X)$ satisfies $\E[u|W] = 0$. Provided $\mathrm{bias}_J$ is "small" relative to $U$, we have an approximate linear IV model where $\psi^J(X)$ is a $J\times 1$ vector of "endogenous variables" and $c_J$ is a vector of unknown ``parameters''. One can then estimate $c_J$ using two-stage least-squares (TSLS) using $K \geq J$ transformations $b^K(W)= (b_{K1}(W),\ldots,b_{KK}(W))^\top$ of $W$ as instruments. 
+where $\mathrm{bias}_J = h_0(X) - (\psi^J(X))^\top c_J$ and $u = Y - h_0(X)$ satisfies $\E[u|W] = 0$. Provided $\mathrm{bias}_J$ is "small" relative to $U$, we have an approximate linear IV model where $\psi^J(X)$ is a $J\times 1$ vector of "endogenous variables" and $c_J$ is a vector of unknown "parameters". One can then estimate $c_J$ using TSLS using $K \geq J$ transformations $b^K(W)= (b_{K1}(W),\ldots,b_{KK}(W))^\top$ of $W$ as instruments. 
 
 Given data $(X_i,Y_i,W_i)_{i=1}^n$, the TSLS estimator of $c_J$ is simply
 \[
@@ -93,7 +87,7 @@ Given data $(X_i,Y_i,W_i)_{i=1}^n$, the TSLS estimator of $c_J$ is simply
 \]
 where $\mathbf \Psi_J  = (\psi^J({X_1}),\ldots,\psi^J({X_n}))^\top$ and $\mathbf B_K  = (b^K({W_1}),\ldots,b^K({W_n}))^\top$ are $n \times J$ and $n \times K$ matrices,
 $\mathbf P_K = \mathbf B_K^{\phantom \prime} (\mathbf B_K^\top \mathbf B_K^{\phantom \top})^{-} \mathbf B_K^\top$
-is the projection matrix onto the instrument space,^[We let $A^-$ denote the generalized (or Moore--Penrose) inverse of a matrix $A$.] and $\mathbf Y = (Y_1,\ldots,Y_n)^\top$ is a $n \times 1$ vector.
+is the projection matrix onto the instrument space,^[We let $A^-$ denote the generalized (or Moore--Penrose) inverse of a matrix $A$.] and $\mathbf Y = (Y_1,\ldots,Y_n)^\top$ is an $n \times 1$ vector.
 Sieve NPIV estimators of $h_0$ and its derivative $\partial^a h_0$ are given by
 \[
  \hat h_J(x) = (\psi^J(x))^\top \hat c_J \,,~~~~\partial^a \hat h_J(x) =(\partial^a \psi^J(x))^\top \hat c_J \,,
@@ -104,11 +98,11 @@ where $\partial^a \psi^J(x) = (\partial^a \psi_{J1}(x),\ldots,\partial^a \psi_{J
 \]
 for $a = (a_1,\ldots,a_d) \in (\mathbb{N}_0)^d$ with $|a| = a_1 + \ldots + a_d$.
 
-The estimator $\hat h_J$ reduces to a nonparametric series regression estimator
+The estimator $\hat h_J$ collapses to a standard nonparametric series regression estimator
 \[
  \hat h_J(x) = \psi^J(x)^\top(\mathbf \Psi_J^\top\mathbf \Psi_J^{\phantom \top})^- \mathbf \Psi_J^\top \mathbf Y
 \]
-in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. The data-driven methods for choosing $J$ and for constructing UCBs $h_0$ and its derivatives therefore carry over to nonparametric regression models as a special case.
+in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. The data-driven methods for choosing $J$ and for constructing UCBs for $h_0$ and its derivatives therefore carry over to standard nonparametric regression models as a special case.
 
 In practice, a researcher must choose bases $\psi_{J1},\ldots,\psi_{JJ}$ and $b_{K1},\ldots,b_{KK}$ and the tuning parameters $J$ and $K$. Previously, @CCQE showed that B-spline and certain wavelet bases lead to estimators of $h_0$ and its derivatives that converge at the minimax sup-norm rate under an appropriate choice of $J$ and $K$. These bases also lead to estimators that converge at the optimal rate in the special case of nonparametric regression [@BCCK; @CC15Reg], again under an appropriate choice of sieve dimension. We therefore use B-spline bases in what follows as these are easier to compute than wavelet bases. We generally construct bases for multivariate $X$ or $W$ by taking tensor products of univariate bases.^[The exception is when $X$ is multivariate and we wish to impose an additively separable structure on $h_0$.]
 
@@ -475,7 +469,7 @@ legend("topright",
 ```
 
 
-The estimated Engel curves for food and plotted below, together with UCBs. Both the data-driven and undersmoothed estimates looks similar and are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of overall household expenditure as household expenditure increases. Note, however, that the data-driven estimate looks close to linear whereas the undersmoothed estimates and UCBs are quite wiggly. This is to be expected: as undersmoothed bands use a sub-optimally large choice of sieve dimension and will therefore be less ``efficient'' than data-driven bands.
+The estimated Engel curves for food and plotted below, together with UCBs. Both the data-driven and undersmoothed estimates looks similar and are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of overall household expenditure as household expenditure increases. Note, however, that the data-driven estimate looks close to linear whereas the undersmoothed estimates and UCBs are quite wiggly. This is to be expected: as undersmoothed bands use a sub-optimally large choice of sieve dimension and will therefore be less "efficient" than data-driven bands.
 
 ![Engel Curve for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd', 'pdf')`)
 
