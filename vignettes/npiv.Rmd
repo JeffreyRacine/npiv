@@ -1,15 +1,6 @@
 ---
 documentclass: jss
 author:
-  - name: Jeffrey S. Racine
-    orcid: 0000-0002-5680-3705
-    affiliation: McMaster University
-    # use this syntax to add text on several lines
-    address: |
-      | Department of Economics and
-      | Graduate Program in Statistics
-    email: \email{racinej@mcmaster.ca}
-    url: https://socialsciences.mcmaster.ca/people/racinej
   - name: Timothy Christensen
     orcid: 0000-0002-4639-5015
     affiliation: |
@@ -19,7 +10,6 @@ author:
       | Department of Economics
     email: \email{timothy.christensen@nyu.edu}
     url: https://tmchristensen.com
-    # To add another line, use \AND at the end of the previous one as above
   - name: Xiaohong Chen
     orcid: 0000-0003-1125-675X
     address: |
@@ -28,14 +18,24 @@ author:
     affiliation: Yale University
     email: \email{xiaohong.chen@yale.edu}
     url: https://economics.yale.edu/people/faculty/xiaohong-chen
+  - name: Jeffrey S. Racine
+    orcid: 0000-0002-5680-3705
+    affiliation: McMaster University
+    # use this syntax to add text on several lines
+    address: |
+      | Department of Economics and
+      | Graduate Program in Statistics
+    email: \email{racinej@mcmaster.ca}
+    url: https://socialsciences.mcmaster.ca/people/racinej
+    # To add another line, use \AND at the end of the previous one as above
 title:
-  formatted: "Estimation and Inference for Nonparametric Instrumental Variables Models: The \\proglang{R} Package \\pkg{npiv}"
+  formatted: "Estimation and Confidence Bands for Nonparametric Instrumental Variables Models: The \\proglang{R} Package \\pkg{npiv}"
   # If you use tex in the formatted title, also supply version without
   plain:     "Estimation and Inference for Nonparametric Instrumental Variables Models: The R Package \\pkg{npiv}"
   # For running headers, if needed
   short:     "\\pkg{npiv}: Estimation and Inference for Nonparametric Instrumental Variables Models"
 abstract: >
-  Nonparametric instrumental variables (NPIV) methods are widely used for causal inference in economics and have been adopted in other fields including machine learning, by way of illustration. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) data-driven, rate-optimal choices of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) uniform confidence bands based on the methods proposed in @CCQE. All methods subsume standard nonparametric regression as a special case.
+  Nonparametric instrumental variables (NPIV) methods are widely used in economics and have been adopted in other fields including causal inference in biostatistics and machine learning. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) data-driven, rate-optimal choices of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing (non-data driven) uniform confidence bands based on the methods proposed in @CCQE. All methods subsume standard nonparametric regression as a special case.
 keywords:
   # at least one keyword must be supplied
   formatted: [nonparametric instrumental variables, nonparametric regression, minimax rate-adaptive estimation, adaptive uniform confidence bands, "\\proglang{R}"]
@@ -63,15 +63,15 @@ where $u$ is a disturbance term. Unlike a standard nonparametric regression mode
 
 This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods for $h_0$ and derivatives of $h_0$ proposed in @CCK. The methods are developed in the context of sieve NPIV estimators, which are implemented in a very simple and straightforward manner using two-stage least-squares (TSLS) [@AC; @NP].
 
-The main methods implemented in this package are (i) a data-driven choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands (UCBs) for the structural function and its derivatives. As shown in @CCK, the single data-driven choice of sieve dimension is adaptive to the optimal (i.e., minimax) sup-norm rate for estimating both $h_0$ and derivatives of $h_0$. Moreover, the data-driven *uniform* confidence bands contain the entire true structural function and its derivatives with desired asymptotic coverage probability and contract at the optimal rate (up to log terms). Additional functionality allows for constructing (non-data driven) UCBs based on the methods proposed in @CCQE as well as *pointwise* confidence intervals for $h_0(x)$ or its derivatives at a point $x$. All methods subsume standard nonparametric regression as a special case.
+The main methods implemented in this package are (i) a data-driven choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands (UCBs) for the structural function and its derivatives. As shown in @CCK, the single data-driven choice of sieve dimension is adaptive to the optimal (i.e., minimax) sup-norm rate for estimating both $h_0$ and derivatives of $h_0$. Moreover, the data-driven *uniform* confidence bands contain the entire true structural function and its derivatives with desired asymptotic coverage probability and contract at the optimal rate (up to log terms). Additional functionality allows for constructing (non-data driven) UCBs based on the methods proposed in @CCQE as well as *pointwise* confidence intervals for $h_0(x)$ or its derivatives at a point $x$ based on the method of @ChenPouzo. All methods subsume standard nonparametric regression as a special case.
 
-The remainder of this article is organized as follows. [Section 2](#method) reviews sieve NPIV estimators and describes the data-driven methods from @CCK and the UCB constructions from @CCQE. [Section 3](#desc) gives a description of the main functionality of the package \pkg{npiv} and describes its implementation of NPIV models and nonparametric regression models. [Section 4](#engel) then illustrates the methods in the context of Engel curve estimation based on household consumption data.
+The remainder of this article is organized as follows. [Section 2](#method) reviews sieve NPIV estimators and describes the data-driven methods from @CCK and the UCB constructions from @CCQE. [Section 3](#desc) gives a description of the main functionality of the package \pkg{npiv} and describes its implementation. [Section 4](#engel) then illustrates the methods in the context of Engel curve estimation based on household consumption data.
 
-# Estimation and inference procedures {#method}
+# Method {#method}
 
 ## Sieve NPIV estimators
 
-We being by briefly describing sieve NPIV estimators. Consider approximating an unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
+The exposition in this section closely follows @CCK. We being by briefly describing sieve NPIV estimators. Consider approximating an unknown structural function $h_0$ using a linear combination of $J$ basis functions, denoted $\psi_{J1},\ldots,\psi_{JJ}$:
 \begin{equation}\label{eq:h0_approx}
  h_0(x) \approx \sum_{j=1}^J c_{Jj} \psi_{Jj}(x) = (\psi^J(x))'c_J\,,
 \end{equation}
@@ -106,7 +106,7 @@ in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\p
 
 In practice, a researcher must choose bases $\psi_{J1},\ldots,\psi_{JJ}$ and $b_{K1},\ldots,b_{KK}$ and the tuning parameters $J$ and $K$. Previously, @CCQE showed that B-spline and certain wavelet bases lead to estimators of $h_0$ and its derivatives that converge at the minimax sup-norm rate under an appropriate choice of $J$ and $K$. These bases also lead to estimators that converge at the optimal rate in the special case of nonparametric regression [@BCCK; @CC15Reg], again under an appropriate choice of sieve dimension. We therefore use B-spline bases in what follows as these are easier to compute than wavelet bases. We generally construct bases for multivariate $X$ or $W$ by taking tensor products of univariate bases.^[The exception is when $X$ is multivariate and we wish to impose an additively separable structure on $h_0$.]
 
-The key tuning parameter to be chosen when implementing sieve NPIV estimators is the dimension $J$ of the basis used to approximate $h_0$. Note that the bias of sieve NPIV estimators is decreasing in $J$ because $h_0$ is approximated over a richer set of basis functions. On the other hand, the variance (or sampling uncertainty) is increasing in $J$ because there are more coefficients to estimate. Choices of $J$ that appropriately balance bias against sampling uncertainty will lead to estimators that converge at optimal rates. Note, however, that the bias and sampling uncertainty depend on certain model regularities, such as the smoothness of $h_0$ and the strength of the instruments, which are unknown. It is therefore very important to have data-driven methods for choosing tuning parameters that can *adapt* to these unknown model regularities.
+The key tuning parameter to be chosen when implementing sieve NPIV estimators is the dimension $J$ of the basis used to approximate $h_0$. Note that the bias of sieve NPIV estimators is decreasing in $J$ because $h_0$ is approximated over a richer set of basis functions. On the other hand, the variance (or sampling uncertainty) is increasing in $J$ because there are more coefficients to estimate. Choices of $J$ that appropriately balance bias against sampling uncertainty will lead to estimators that converge at optimal rates. However, bias and sampling uncertainty depend on certain model regularities, such as the smoothness of $h_0$ and the strength of the instruments, which are unknown. It is therefore very important to have data-driven methods for choosing tuning parameters that can *adapt* to these unknown model regularities.
 
 
 ## Data-driven choice of sieve dimension 
@@ -226,7 +226,7 @@ The above UCB constructions apply equally to standard nonparametric regression m
 @CCK establish uniform asymptotic coverage guarantees for these UCBs for both NPIV and standard nonparametric regression models. They also show that the UCBs contract at the optimal sup-norm rate (up to logarithmic factors).
 
 
-## Undersmoothed uniform confidence bands
+## Uniform confidence bands based on undersmoothing
 
 
 An alternative UCB construction based on a deterministic (i.e., non-data-driven) choice of sieve dimension is proposed by @CCQE for NPIV models. The construction also applies to standard nonparametric regression in the special case in which $W = X$, $K = J$, and $(b_{K1},\ldots,b_{KK}) = (\psi_{J1},\ldots,\psi_{JJ})$. The theoretical justification for this approach is based on *undersmoothing*. That is, the sieve dimension $J$ should be larger than what would be optimal for estimation, so that bias is of smaller order than sampling uncertainty. 
@@ -250,7 +250,7 @@ or
 \]
 \end{enumerate}
 
-
+## Pointwise confidence intervals based on undersmoothing {#pw}
 
 Finally, we note that it may sometimes be of interest to construct confidence intervals (CIs) for $h_0(x)$ or $\partial^a h_0(x)$ at a certain point $x$. To this end, one may use the following constructions for $100(1-\alpha)\%$ CIs:
 \[
@@ -260,7 +260,7 @@ or
 \[
  \bigg[ \partial^a \hat{h}_{J}(x) - z_{1-\alpha/2} \hat \sigma_{J}^a(x) ,~ \partial^a \hat{h}_{J}(x) +  z_{1-\alpha/2} \hat \sigma_{J}^a(x) \bigg] ~\mbox{for $\partial^a h_0(x)$},
 \]
-where $z_{1-\alpha/2}$ is the $1-\alpha/2$ quantile of the $N(0,1)$ distribution; @CC15Reg and @BCCK provide a formal justification for these constructions. These CIs can be (and sometimes are) plotted alongside estimates of $h_0$ or $\partial^a h_0$, but it should be understood that they are only valid *pointwise*. That is, they will generally be too narrow to contain the entire function $h_0$ or $\partial^a h_0$ with desired asymptotic coverage probability. By contrast, the above UCB constructions will contain the true structural function or its derivatives with desired asymptotic coverage probability.
+where $z_{1-\alpha/2}$ is the $1-\alpha/2$ quantile of the $N(0,1)$ distribution; see @ChenPouzo for a formal justification for these constructions. These CIs can be (and sometimes are) plotted alongside estimates of $h_0$ or $\partial^a h_0$, but it should be understood that they are only valid *pointwise*. That is, they will generally be too narrow to contain the entire function $h_0$ or $\partial^a h_0$ with desired asymptotic coverage probability. By contrast, the above UCB constructions will contain the true structural function or its derivatives with desired asymptotic coverage probability.
 
 
 # Package description {#desc}
@@ -344,10 +344,12 @@ The command `npiv()` may also be used for data-driven choice of sieve dimension 
 npiv(y ~ x1 + x2 | x1 + x2)
 ```
 
-will perform nonparametric regression of `y` on `x1` and `x2`, with a data-driven choice of sieve dimension. Note that this choice of sieve dimension will be rate-optimal for sup-norm. This choice may therefore differ from the choice of sieve dimension selected by other methods that target mean-square error (i.e., $L^2$ norm), such as cross validation, because the optimal choice for sup-norm and $L^2$ norm diverge at different rates. As before, data-driven UCBs for the conditional mean function and its derivative will also be computed by default using the procedure of @CCK.
+will perform nonparametric regression of `y` on `x1` and `x2`, with a data-driven choice of sieve dimension. Note that this choice of sieve dimension will be rate-optimal for estimation of $h_0$ and its derivatives under sup-norm loss. This choice may differ from the choice of sieve dimension selected by other methods that target mean-square error (i.e., $L^2$-norm loss), such as cross validation, because the optimal choice for sup-norm and $L^2$ norm diverge at different rates. As before, data-driven UCBs for the conditional mean function and its derivative will also be computed by default using the procedure of @CCK.
 
-Estimators based on a deterministic choice of sieve dimension and undersmoothed UCBs can be computed by passing `J.x.segments`. Note that `K.w.segments` and `K.w.smooth` are both redundant for nonparametric regression and do not need to be specified. In this case, undersmoothed UCBs are constructed using the procedure of @CCQE; see also @BCCK. Standard errors `asy.se` and `deriv.asy.se` may also be used to construct (pointwise) confidence intervals for $h_0(x)$ and $\partial^a h_0(x)$ based on undersmoothing.
+Estimators based on a deterministic choice of sieve dimension and undersmoothed UCBs can be computed by passing `J.x.segments`. Note that `K.w.segments` and `K.w.smooth` are both redundant for nonparametric regression and do not need to be specified. In this case, undersmoothed UCBs are constructed using the procedure of @CCQE; see also @BCCK. Standard errors `asy.se` and `deriv.asy.se` may also be used to construct (pointwise) confidence intervals for $h_0(x)$ and $\partial^a h_0(x)$ based on undersmoothing, using the method described in [Section 2.5](#pw).
 
+
+\newpage
 
 ## Additional options
 
@@ -380,14 +382,14 @@ We wish to estimate the Engel curve $h_0$ for a household's expenditure share on
 \[
  Y_i = h_0(X_i) + u_i
 \]
-where $Y_i$ is expenditure share for household $i$ on food and $X_i$ is log total household expenditure. The "structural" interpretation of the model is that the household would spend the fraction $h_0(x)$ of its total expenditure on food if log total expenditure was exogenously specified as $x$. As is well known [@BBL; @BBC], total household expenditure is endogenous:
+where $Y_i$ is expenditure share for household $i$ on food and $X_i$ is log total household expenditure. The "structural" interpretation of the model is that the household would spend the fraction $h_0(x)$ of its total expenditure on food if log total expenditure was exogenously specified as $x$. As is well known (see, e.g., @BBL), total household expenditure is endogenous:
 \[
  \E[Y_i | X_i] \neq h_0(X_i),
 \]
 which follows from the fact that the household's consumption preferences determines its expenditure across categories and therefore its total expenditure.
 To deal with this endogeneity, we shall follow @BBL, @BCK, and several other works and use log household income ($W_i$) as an instrument for expenditure.
 
-We use data from the 1995 British Family Expenditure Survey as in @BCK. We focus on the subset of 1655 married or cohabitating couples with the head of household employed and aged between 20 and 55 and with at most two children. The data are available as part of \pkg{npiv} in the data frame `Engel95`.
+We use data from the 1995 British Family Expenditure Survey as in @BCK. The data consist of 1655 married or cohabitating couples with the head of household employed and aged between 20 and 55 and with zero, one, or two children. The data are available as part of \pkg{npiv} in the data frame `Engel95`.
 
 ```{r}
 data("Engel95", package = "npiv")
@@ -481,7 +483,6 @@ plot(logexp, fm.food.dd$deriv,
      ylab = "Change in Food Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     # ylim = c(-2, 2),
      ylim = c(-0.75, 0.75),
      col = "blue",
      type = "l",
@@ -506,7 +507,6 @@ plot(logexp, fm.food.det$deriv,
      ylab = "Change in Food Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     # ylim = c(-2, 2),
      ylim = c(-0.75, 0.75),
      col = "red",
      type = "l",
@@ -525,7 +525,7 @@ legend("topright",
        bty="n")
 ```
 
-These differences are also apparent when we compare the estimated derivatives of the Engel curves. The UCBs for derivatives are generally negative, but the zero function lies almost entirely inside both sets of UCBs. Therefore, while the estimates appear downwards-sloping, it is difficult to conclude that the Engel curves for food are significantly downwards-sloping. 
+These differences are also apparent when we compare the estimated derivatives of the Engel curves. The zero function lies almost entirely inside both sets of UCBs over most of of the support of ependiture, but significantly above the UCBs for certain sub-intervals of expenditure. Therefore, while the estimates appear downwards-sloping, it is difficult to conclude that the Engel curves for food are significantly downwards-sloping (except over certain sub-intervals of expenditure). 
 
 ![Engel Curve Derivative for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd-deriv', 'pdf')`)
 
@@ -544,7 +544,6 @@ plot(logexp, fuel,
      ylab = "Fuel Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     # ylim = c(0, 0.4),
      ylim = c(0, 0.25),     
      main = "",
      type = "p",
@@ -569,7 +568,7 @@ plot(logexp, fm.fuel.dd$deriv,
      ylab = "Change in Fuel Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(-2, 2),
+     ylim = c(-0.75, 0.75),
      col = "blue",
      type = "l",
      lwd=2,

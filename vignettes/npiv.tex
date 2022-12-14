@@ -7,16 +7,16 @@
 \usepackage[utf8]{inputenc}
 
 \author{
-Jeffrey S. Racine~\orcidlink{0000-0002-5680-3705}\\McMaster
-University \And Timothy Christensen~\orcidlink{0000-0002-4639-5015}\\New
-York University and\\
+Timothy Christensen~\orcidlink{0000-0002-4639-5015}\\New York University
+and\\
 University College London \And Xiaohong
-Chen~\orcidlink{0000-0003-1125-675X}\\Yale University
+Chen~\orcidlink{0000-0003-1125-675X}\\Yale University \And Jeffrey S.
+Racine~\orcidlink{0000-0002-5680-3705}\\McMaster University
 }
-\title{Estimation and Inference for Nonparametric Instrumental Variables
-Models: The \proglang{R} Package \pkg{npiv}}
+\title{Estimation and Confidence Bands for Nonparametric Instrumental
+Variables Models: The \proglang{R} Package \pkg{npiv}}
 
-\Plainauthor{Jeffrey S. Racine, Timothy Christensen, Xiaohong Chen}
+\Plainauthor{Timothy Christensen, Xiaohong Chen, Jeffrey S. Racine}
 \Plaintitle{Estimation and Inference for Nonparametric Instrumental
 Variables Models: The R Package \pkg{npiv}}
 \Shorttitle{\pkg{npiv}: Estimation and Inference for Nonparametric
@@ -24,11 +24,11 @@ Instrumental Variables Models}
 
 
 \Abstract{
-Nonparametric instrumental variables (NPIV) methods are widely used for
-causal inference in economics and have been adopted in other fields
-including machine learning, by way of illustration. This article
-discusses the \proglang{R} package \pkg{npiv}, which implements novel,
-fully data-driven NPIV estimation and inference methods proposed in
+Nonparametric instrumental variables (NPIV) methods are widely used in
+economics and have been adopted in other fields including causal
+inference in biostatistics and machine learning. This article discusses
+the \proglang{R} package \pkg{npiv}, which implements novel, fully
+data-driven NPIV estimation and inference methods proposed in
 \citet{CCK}. The main methods implemented in this package are (i)
 data-driven, rate-optimal choices of sieve dimension for sieve NPIV
 estimators and (ii) data-driven uniform confidence bands for the
@@ -52,13 +52,7 @@ confidence bands, \proglang{R}}
 %% \Acceptdate{2012-06-04}
 
 \Address{
-    Jeffrey S. Racine\\
-    McMaster University\\
-    Department of Economics and\\
-Graduate Program in Statistics\\
-  E-mail: \email{racinej@mcmaster.ca}\\
-  URL: \url{https://socialsciences.mcmaster.ca/people/racinej}\\~\\
-      Timothy Christensen\\
+    Timothy Christensen\\
     New York University and\\
 University College London\\
     Department of Economics\\
@@ -70,6 +64,12 @@ University College London\\
 Department of Economics\\
   E-mail: \email{xiaohong.chen@yale.edu}\\
   URL: \url{https://economics.yale.edu/people/faculty/xiaohong-chen}\\~\\
+      Jeffrey S. Racine\\
+    McMaster University\\
+    Department of Economics and\\
+Graduate Program in Statistics\\
+  E-mail: \email{racinej@mcmaster.ca}\\
+  URL: \url{https://socialsciences.mcmaster.ca/people/racinej}\\~\\
   }
 
 
@@ -137,29 +137,29 @@ probability and contract at the optimal rate (up to log terms).
 Additional functionality allows for constructing (non-data driven) UCBs
 based on the methods proposed in \citet{CCQE} as well as
 \emph{pointwise} confidence intervals for \(h_0(x)\) or its derivatives
-at a point \(x\). All methods subsume standard nonparametric regression
-as a special case.
+at a point \(x\) based on the method of \citet{ChenPouzo}. All methods
+subsume standard nonparametric regression as a special case.
 
 The remainder of this article is organized as follows.
 \protect\hyperlink{method}{Section 2} reviews sieve NPIV estimators and
 describes the data-driven methods from \citet{CCK} and the UCB
 constructions from \citet{CCQE}. \protect\hyperlink{desc}{Section 3}
 gives a description of the main functionality of the package \pkg{npiv}
-and describes its implementation of NPIV models and nonparametric
-regression models. \protect\hyperlink{engel}{Section 4} then illustrates
-the methods in the context of Engel curve estimation based on household
-consumption data.
+and describes its implementation. \protect\hyperlink{engel}{Section 4}
+then illustrates the methods in the context of Engel curve estimation
+based on household consumption data.
 
 \hypertarget{method}{%
-\section{Estimation and inference procedures}\label{method}}
+\section{Method}\label{method}}
 
 \hypertarget{sieve-npiv-estimators}{%
 \subsection{Sieve NPIV estimators}\label{sieve-npiv-estimators}}
 
-We being by briefly describing sieve NPIV estimators. Consider
-approximating an unknown structural function \(h_0\) using a linear
-combination of \(J\) basis functions, denoted
-\(\psi_{J1},\ldots,\psi_{JJ}\): \begin{equation}\label{eq:h0_approx}
+The exposition in this section closely follows \citet{CCK}. We being by
+briefly describing sieve NPIV estimators. Consider approximating an
+unknown structural function \(h_0\) using a linear combination of \(J\)
+basis functions, denoted \(\psi_{J1},\ldots,\psi_{JJ}\):
+\begin{equation}\label{eq:h0_approx}
  h_0(x) \approx \sum_{j=1}^J c_{Jj} \psi_{Jj}(x) = (\psi^J(x))'c_J\,,
 \end{equation} where
 \(\psi^J(x) = (\psi_{J1}(x),\ldots,\psi_{JJ}(x))^\top\) is a vector of
@@ -228,11 +228,11 @@ functions. On the other hand, the variance (or sampling uncertainty) is
 increasing in \(J\) because there are more coefficients to estimate.
 Choices of \(J\) that appropriately balance bias against sampling
 uncertainty will lead to estimators that converge at optimal rates.
-Note, however, that the bias and sampling uncertainty depend on certain
-model regularities, such as the smoothness of \(h_0\) and the strength
-of the instruments, which are unknown. It is therefore very important to
-have data-driven methods for choosing tuning parameters that can
-\emph{adapt} to these unknown model regularities.
+However, bias and sampling uncertainty depend on certain model
+regularities, such as the smoothness of \(h_0\) and the strength of the
+instruments, which are unknown. It is therefore very important to have
+data-driven methods for choosing tuning parameters that can \emph{adapt}
+to these unknown model regularities.
 
 \hypertarget{data-driven-choice-of-sieve-dimension}{%
 \subsection{Data-driven choice of sieve
@@ -381,9 +381,9 @@ UCBs for both NPIV and standard nonparametric regression models. They
 also show that the UCBs contract at the optimal sup-norm rate (up to
 logarithmic factors).
 
-\hypertarget{undersmoothed-uniform-confidence-bands}{%
-\subsection{Undersmoothed uniform confidence
-bands}\label{undersmoothed-uniform-confidence-bands}}
+\hypertarget{uniform-confidence-bands-based-on-undersmoothing}{%
+\subsection{Uniform confidence bands based on
+undersmoothing}\label{uniform-confidence-bands-based-on-undersmoothing}}
 
 An alternative UCB construction based on a deterministic (i.e.,
 non-data-driven) choice of sieve dimension is proposed by \citet{CCQE}
@@ -416,6 +416,10 @@ or
 \]
 \end{enumerate}
 
+\hypertarget{pw}{%
+\subsection{Pointwise confidence intervals based on
+undersmoothing}\label{pw}}
+
 Finally, we note that it may sometimes be of interest to construct
 confidence intervals (CIs) for \(h_0(x)\) or \(\partial^a h_0(x)\) at a
 certain point \(x\). To this end, one may use the following
@@ -424,15 +428,15 @@ constructions for \(100(1-\alpha)\%\) CIs: \[
 \] or \[
  \bigg[ \partial^a \hat{h}_{J}(x) - z_{1-\alpha/2} \hat \sigma_{J}^a(x) ,~ \partial^a \hat{h}_{J}(x) +  z_{1-\alpha/2} \hat \sigma_{J}^a(x) \bigg] ~\mbox{for $\partial^a h_0(x)$},
 \] where \(z_{1-\alpha/2}\) is the \(1-\alpha/2\) quantile of the
-\(N(0,1)\) distribution; \citet{CC15Reg} and \citet{BCCK} provide a
-formal justification for these constructions. These CIs can be (and
-sometimes are) plotted alongside estimates of \(h_0\) or
-\(\partial^a h_0\), but it should be understood that they are only valid
-\emph{pointwise}. That is, they will generally be too narrow to contain
-the entire function \(h_0\) or \(\partial^a h_0\) with desired
-asymptotic coverage probability. By contrast, the above UCB
-constructions will contain the true structural function or its
-derivatives with desired asymptotic coverage probability.
+\(N(0,1)\) distribution; see \citet{ChenPouzo} for a formal
+justification for these constructions. These CIs can be (and sometimes
+are) plotted alongside estimates of \(h_0\) or \(\partial^a h_0\), but
+it should be understood that they are only valid \emph{pointwise}. That
+is, they will generally be too narrow to contain the entire function
+\(h_0\) or \(\partial^a h_0\) with desired asymptotic coverage
+probability. By contrast, the above UCB constructions will contain the
+true structural function or its derivatives with desired asymptotic
+coverage probability.
 
 \hypertarget{desc}{%
 \section{Package description}\label{desc}}
@@ -577,13 +581,14 @@ npiv(y ~ x1 + x2 | x1 + x2)
 
 will perform nonparametric regression of \texttt{y} on \texttt{x1} and
 \texttt{x2}, with a data-driven choice of sieve dimension. Note that
-this choice of sieve dimension will be rate-optimal for sup-norm. This
-choice may therefore differ from the choice of sieve dimension selected
-by other methods that target mean-square error (i.e., \(L^2\) norm),
-such as cross validation, because the optimal choice for sup-norm and
-\(L^2\) norm diverge at different rates. As before, data-driven UCBs for
-the conditional mean function and its derivative will also be computed
-by default using the procedure of \citet{CCK}.
+this choice of sieve dimension will be rate-optimal for estimation of
+\(h_0\) and its derivatives under sup-norm loss. This choice may differ
+from the choice of sieve dimension selected by other methods that target
+mean-square error (i.e., \(L^2\)-norm loss), such as cross validation,
+because the optimal choice for sup-norm and \(L^2\) norm diverge at
+different rates. As before, data-driven UCBs for the conditional mean
+function and its derivative will also be computed by default using the
+procedure of \citet{CCK}.
 
 Estimators based on a deterministic choice of sieve dimension and
 undersmoothed UCBs can be computed by passing \texttt{J.x.segments}.
@@ -593,7 +598,10 @@ In this case, undersmoothed UCBs are constructed using the procedure of
 \citet{CCQE}; see also \citet{BCCK}. Standard errors \texttt{asy.se} and
 \texttt{deriv.asy.se} may also be used to construct (pointwise)
 confidence intervals for \(h_0(x)\) and \(\partial^a h_0(x)\) based on
-undersmoothing.
+undersmoothing, using the method described in
+\protect\hyperlink{pw}{Section 2.5}.
+
+\newpage
 
 \hypertarget{additional-options}{%
 \subsection{Additional options}\label{additional-options}}
@@ -652,8 +660,8 @@ expenditure share on a particular category, say food. The model is \[
 \(X_i\) is log total household expenditure. The ``structural''
 interpretation of the model is that the household would spend the
 fraction \(h_0(x)\) of its total expenditure on food if log total
-expenditure was exogenously specified as \(x\). As is well known
-\citep{BBL, BBC}, total household expenditure is endogenous: \[
+expenditure was exogenously specified as \(x\). As is well known (see,
+e.g., \citet{BBL}), total household expenditure is endogenous: \[
  \E[Y_i | X_i] \neq h_0(X_i),
 \] which follows from the fact that the household's consumption
 preferences determines its expenditure across categories and therefore
@@ -662,10 +670,10 @@ its total expenditure. To deal with this endogeneity, we shall follow
 income (\(W_i\)) as an instrument for expenditure.
 
 We use data from the 1995 British Family Expenditure Survey as in
-\citet{BCK}. We focus on the subset of 1655 married or cohabitating
-couples with the head of household employed and aged between 20 and 55
-and with at most two children. The data are available as part of
-\pkg{npiv} in the data frame \texttt{Engel95}.
+\citet{BCK}. The data consist of 1655 married or cohabitating couples
+with the head of household employed and aged between 20 and 55 and with
+zero, one, or two children. The data are available as part of \pkg{npiv}
+in the data frame \texttt{Engel95}.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -733,7 +741,7 @@ B-spline segments for instruments:           4
 B-spline degree for endogenous predictors:   3
 B-spline segments for endogenous predictors: 1
 
-Estimation time: 3.3 seconds
+Estimation time: 1.8 seconds
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -786,11 +794,12 @@ Undersmoothing}
 \end{figure}
 
 These differences are also apparent when we compare the estimated
-derivatives of the Engel curves. The UCBs for derivatives are generally
-negative, but the zero function lies almost entirely inside both sets of
-UCBs. Therefore, while the estimates appear downwards-sloping, it is
-difficult to conclude that the Engel curves for food are significantly
-downwards-sloping.
+derivatives of the Engel curves. The zero function lies almost entirely
+inside both sets of UCBs over most of of the support of ependiture, but
+significantly above the UCBs for certain sub-intervals of expenditure.
+Therefore, while the estimates appear downwards-sloping, it is difficult
+to conclude that the Engel curves for food are significantly
+downwards-sloping (except over certain sub-intervals of expenditure).
 
 \begin{figure}
 \centering
@@ -828,7 +837,7 @@ B-spline segments for instruments:           4
 B-spline degree for endogenous predictors:   3
 B-spline segments for endogenous predictors: 1
 
-Estimation time: 4.0 seconds
+Estimation time: 1.8 seconds
 \end{CodeOutput}
 \end{CodeChunk}
 
