@@ -17,10 +17,10 @@ Racine~\orcidlink{0000-0002-5680-3705}\\McMaster University
 Variables Models: The \proglang{R} Package \pkg{npiv}}
 
 \Plainauthor{Timothy Christensen, Xiaohong Chen, Jeffrey S. Racine}
-\Plaintitle{Estimation and Inference for Nonparametric Instrumental
-Variables Models: The R Package \pkg{npiv}}
-\Shorttitle{\pkg{npiv}: Estimation and Inference for Nonparametric
-Instrumental Variables Models}
+\Plaintitle{Estimation and Confidence Bands for Nonparametric
+Instrumental Variables Models: The R Package \pkg{npiv}}
+\Shorttitle{\pkg{npiv}: Estimation and Confidence Bands for
+Nonparametric IV Models}
 
 
 \Abstract{
@@ -428,15 +428,15 @@ constructions for \(100(1-\alpha)\%\) CIs: \[
 \] or \[
  \bigg[ \partial^a \hat{h}_{J}(x) - z_{1-\alpha/2} \hat \sigma_{J}^a(x) ,~ \partial^a \hat{h}_{J}(x) +  z_{1-\alpha/2} \hat \sigma_{J}^a(x) \bigg] ~\mbox{for $\partial^a h_0(x)$},
 \] where \(z_{1-\alpha/2}\) is the \(1-\alpha/2\) quantile of the
-\(N(0,1)\) distribution; see \citet{ChenPouzo} for a formal
-justification for these constructions. These CIs can be (and sometimes
-are) plotted alongside estimates of \(h_0\) or \(\partial^a h_0\), but
-it should be understood that they are only valid \emph{pointwise}. That
-is, they will generally be too narrow to contain the entire function
-\(h_0\) or \(\partial^a h_0\) with desired asymptotic coverage
-probability. By contrast, the above UCB constructions will contain the
-true structural function or its derivatives with desired asymptotic
-coverage probability.
+\(N(0,1)\) distribution; see \citet{ChenPouzo} and Appendix D of
+\citet{CCQE} for a formal justification for these constructions. These
+CIs can be (and sometimes are) plotted alongside estimates of \(h_0\) or
+\(\partial^a h_0\), but it should be understood that they are only valid
+\emph{pointwise}. That is, they will generally be too narrow to contain
+the entire function \(h_0\) or \(\partial^a h_0\) with desired
+asymptotic coverage probability. By contrast, the above UCB
+constructions will contain the true structural function or its
+derivatives with desired asymptotic coverage probability.
 
 \hypertarget{desc}{%
 \section{Package description}\label{desc}}
