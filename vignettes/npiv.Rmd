@@ -29,7 +29,7 @@ author:
     url: https://socialsciences.mcmaster.ca/people/racinej
     # To add another line, use \AND at the end of the previous one as above
 title:
-  formatted: "Estimation and Confidence Bands for Nonparametric Instrumental Variables Models: The \\proglang{R} Package \\pkg{npiv}"
+  formatted: "Estimation and Confidence Bands for Nonparametric Instrumental Variables Models: \\\ The \\proglang{R} Package \\pkg{npiv}"
   # If you use tex in the formatted title, also supply version without
   plain:     "Estimation and Confidence Bands for Nonparametric Instrumental Variables Models: The R Package \\pkg{npiv}"
   # For running headers, if needed
@@ -55,7 +55,7 @@ knitr::opts_chunk$set(cache=TRUE,dev='tikz')
 
 # Introduction
 
-Nonparametric instrumental variables (NPIV) methods are well-established, widely used, and have been adopted by practitioners in a range of empirical fields. While there is a relatively long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], NPIV methods have recently been adopted in non-economic areas including causal inference in biostatistics [@WangZhiTT2018] as well as reinforcement learning [@grettonRL2021], and, more generally, causal machine learning [@causalML]. The basic premise underlying NPIV is that we are interested in estimating a nonparametric *structural function* $h_0$ linking a scalar outcome variable $Y$ and a vector of regressors $X$ through the relation
+Nonparametric instrumental variables (NPIV) methods are well-established, widely used, and have been adopted by practitioners in a range of empirical fields. While there is a relatively long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], NPIV methods have recently been adopted in non-economic areas including causal inference in biostatistics [@WangZhiTT2018] as well as reinforcement learning [@grettonRL2021] and, more generally, causal machine learning [@causalML]. The basic premise underlying NPIV is that we are interested in estimating a nonparametric *structural function* $h_0$ linking a scalar outcome variable $Y$ and a vector of regressors $X$ through the relation
 \begin{equation}\label{eq:npiv}
  Y = h_0(X) + u,
 \end{equation}
@@ -132,7 +132,7 @@ where
 \]
 and
 \[
- \tilde \sigma_{J,J_2}(x)  = (\psi^J(x))^\top \mathbf M_J^{\phantom \top} \widehat{\mathbf U}_{J,J_2}^{\phantom \top} \mathbf M_{J_2}^\top \psi^{J_2}(x)
+ \tilde \sigma_{J,J_2}(x)  = (\psi^J(x))^\top \mathbf M_J^{\phantom \top} \widehat{\mathbf U}_{J,J_2}^{\phantom \top} \mathbf M_{J_2}^\top \psi^{J_2}(x),
 \]
 with $\widehat{\mathbf U}_{J,J_2}$ an $n\times n$ diagonal matrix whose $i$th diagonal entry is $\hat u_{i,J} \hat u_{i,J_2}$. A bootstrap version of the contrast is given by
 \[
@@ -314,15 +314,15 @@ The output of the function `npiv()` is a '`npiv`' object. The `summary()` method
 
 * `h`: the estimated structural function evaluated at the sample data (or evaluation data, if provided).
 
-* `h.upper`: the upper UCB for the structural function.
+* `h.upper`: the upper UCB for the structural function evaluated at the sample data (or evaluation data, if provided).
 
-* `h.lower`: the lower UCB for the structural function.
+* `h.lower`: the lower UCB for the structural function evaluated at the sample data (or evaluation data, if provided).
 
 * `deriv`: estimated derivative of the structural function evaluated at the sample data (or evaluation data, if provided).
 
-* `h.upper.deriv`: the upper UCB for the derivative of the structural function.
+* `h.upper.deriv`: the upper UCB for the derivative of the structural function evaluated at the sample data (or evaluation data, if provided).
 
-* `h.lower.deriv`: the lower UCB for the derivative of the structural function.
+* `h.lower.deriv`: the lower UCB for the derivative of the structural function evaluated at the sample data (or evaluation data, if provided).
 
 * `asy.se`: pre-asymptotic standard errors for the estimator of the structural function evaluated at the sample data (or evaluation data, if provided). These may be used to construct (pointwise) confidence intervals for $h_0(x)$ based on undersmoothing when a deterministic sieve dimension is used. 
 
@@ -344,9 +344,9 @@ The command `npiv()` may also be used for data-driven choice of sieve dimension 
 npiv(y ~ x1 + x2 | x1 + x2)
 ```
 
-will perform nonparametric regression of `y` on `x1` and `x2`, with a data-driven choice of sieve dimension. Note that this choice of sieve dimension will be rate-optimal for estimation of $h_0$ and its derivatives under sup-norm loss. This choice may differ from the choice of sieve dimension selected by other methods that target mean-square error (i.e., $L^2$-norm loss), such as cross validation, because the optimal choice for sup-norm and $L^2$ norm diverge at different rates. As before, data-driven UCBs for the conditional mean function and its derivative will also be computed by default using the procedure of @CCK.
+will perform nonparametric regression of `y` on `x1` and `x2`, with a data-driven choice of sieve dimension. Note that this choice of sieve dimension will be rate-optimal for estimation of $h_0$ and its derivatives under sup-norm loss. This choice may differ from the choice of sieve dimension selected by other methods that target mean-square error (i.e., $L^2$-norm loss), such as cross validation, because the optimal choices of sieve dimension for estimation under sup-norm and $L^2$-norm losses diverge at different rates. As before, data-driven UCBs for the conditional mean function and its derivative will also be computed by default using the procedure of @CCK.
 
-Estimators based on a deterministic choice of sieve dimension and undersmoothed UCBs can be computed by passing `J.x.segments`. Note that `K.w.segments` and `K.w.smooth` are both redundant for nonparametric regression and do not need to be specified. In this case, undersmoothed UCBs are constructed using the procedure of @CCQE; see also @BCCK. Standard errors `asy.se` and `deriv.asy.se` may also be used to construct (pointwise) confidence intervals for $h_0(x)$ and $\partial^a h_0(x)$ based on undersmoothing, using the method described in [Section 2.5](#pw).
+Estimators based on a deterministic choice of sieve dimension and undersmoothed UCBs can be computed by passing `J.x.segments`. Both `K.w.segments` and `K.w.smooth` are redundant and do not need to be specified. Undersmoothed UCBs are constructed using the procedure of @CCQE; see also @BCCK. Standard errors `asy.se` and `deriv.asy.se` may also be used to construct (pointwise) confidence intervals for $h_0(x)$ and $\partial^a h_0(x)$ based on undersmoothing, using the method described in [Section 2.5](#pw).
 
 
 \newpage
@@ -362,7 +362,7 @@ if $x$ is multivariate. The following optional arguments can be used to modify t
 
 * `alpha`: nominal size of the uniform confidence bands. Default is 0.05 for 95% uniform confidence bands.
 
-* `deriv.index`: integer indicating for which regressor to compute the derivative. Default is `1`.
+* `deriv.index`: integer indicating for which regressor to compute the derivative. Default is `1` for differentiation with respect to $x_1$.
 
 * `deriv.order`: integer indicating the order of derivative to be computed. Default is `1`.
 
@@ -402,14 +402,14 @@ We first estimate the Engel curve for food. To try to ensure a relatively homoge
 
 ```{r}
 Engel.kids <- subset(Engel95, nkids == 1)
-Engel.kids <- Engel.kids[order(Engel.kids$logexp),] 
 attach(Engel.kids)
 ```
 
-To use a data-driven choice of sieve dimension and construct data-driven UCBs for $h_0$ and its derivative, we first call `npiv()` without specifying the sieve dimensions:
+To use a data-driven choice of sieve dimension and construct data-driven UCBs for $h_0$ and its derivative, we first call `npiv()` without specifying the sieve dimensions. We also pass a grid of points spanning $[4.75, 6.25]$ for plotting the estimator and confidence bands:
 
 ```{r}
-fm.food.dd <- npiv(food ~ logexp | logwages)
+newdata <- data.frame(logexp = seq(4.75, 6.25, length.out = 1000))
+fm.food.dd <- npiv(food ~ logexp | logwages, newdata = newdata)
 summary(fm.food.dd)
 ```
 
@@ -418,8 +418,8 @@ As $X$ and $W$ are both scalar and we use the default cubic B-spline basis for $
 To compare data-driven and undersmoothed UCBs, we  estimate $h_0$ and its derivative again, this time using a deterministic choice of $J$ and $K$ by passing both `J.x.segments` and `K.w.segments`. As the justification for the UCBs is undersmoothing, we must choose a $J$ and $K$ larger than the optimal value so that bias is of smaller order than sampling uncertainty. We choose to estimate with `J.x.segments = 2` and `K.w.segments = 5`, which corresponds to $J = 5$ and $K = 9$.
 
 ```{r}
-fm.food.det <- npiv(food ~ logexp | logwages, J.x.segments = 2, 
-                     K.w.segments = 5)
+fm.food.det <- npiv(food ~ logexp | logwages, newdata = newdata, 
+                    J.x.segments = 2, K.w.segments = 5)
 ```
 
 ```{r food-dd, echo = FALSE, fig.show = 'hide'}
@@ -433,9 +433,9 @@ plot(logexp, food,
      type = "p",
      cex = .5,
      col = "lightgrey")
-lines(logexp, fm.food.dd$h,col="blue",lwd=2,lty=1)
-lines(logexp, fm.food.dd$h.upper,col="blue",lwd=2,lty=2)
-lines(logexp, fm.food.dd$h.lower,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.dd$h,col="blue",lwd=2,lty=1)
+lines(newdata$logexp, fm.food.dd$h.upper,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.dd$h.lower,col="blue",lwd=2,lty=2)
 
 legend("topright",
        legend=c("Estimate",
@@ -457,21 +457,40 @@ plot(logexp, food,
      type = "p",
      cex = .5,
      col = "lightgrey")
-lines(logexp, fm.food.det$h,col="red",lwd=2,lty=1)
-lines(logexp, fm.food.det$h.upper,col="red",lwd=2,lty=2)
-lines(logexp, fm.food.det$h.lower,col="red",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.det$h,
+      col = "red", 
+      lwd = 2, 
+      lty = 1)
+lines(newdata$logexp, fm.food.det$h.upper,
+      col = "red",
+      lwd = 2,
+      lty = 2)
+lines(newdata$logexp, fm.food.det$h.lower,
+      col = "red",
+      lwd = 2,
+      lty = 2)
+
+lines(newdata$logexp, fm.food.det$h + 1.96 * fm.food.det$asy.se,
+      col = "red", 
+      lwd = 2,
+      lty = 3)
+lines(newdata$logexp, fm.food.det$h - 1.96 * fm.food.det$asy.se,
+      col = "red", 
+      lwd = 2,
+      lty = 3)
 
 legend("topright",
        legend=c("Estimate",
-                "95\\% UCBs"),
-       col=c("red","red"),
-       lty=c(1,2),
-       lwd=c(2,2),
+                "95\\% UCBs",
+                "95\\% PCIs"),
+       col=c("red","red","red"),
+       lty=c(1,2,3),
+       lwd=c(2,2,2),
        bty="n")
 ```
 
 
-The estimated Engel curves for food are plotted below, together with their UCBs. Both the data-driven and undersmoothed estimates looks similar and are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of overall household expenditure as household expenditure increases. Note, however, that the data-driven estimate looks close to linear whereas the undersmoothed estimates and UCBs are quite wiggly. This is to be expected: undersmoothed bands use a sub-optimally large choice of sieve dimension and will therefore be less "efficient" than data-driven bands.
+The estimated Engel curves for food are plotted below, together with their UCBs (using `h.upper` and `h.lower`). Both the data-driven and undersmoothed estimates are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of overall household expenditure as household expenditure increases. Note, however, that the data-driven estimate looks close to linear whereas the undersmoothed estimate is more wiggly. The undersmoothed UCBs are also wider over much of the support of expenditure becuase they use a sub-optimally large choice of sieve dimension and are therefore less "efficient" than the data-driven bands. We also plot 95\% pointwise confidence intervals (PCIs) based on undersmoothing (using `asy.se` and a $N(0,1)$ critical value). As expected, these are narrower than the UCBs based on undersmoothing as they are only required to contain the true function at each point, rather than over the entirety of its support. So while they can be used for drawing inference about the value of the function at a given point, they cannot be used for inferring the true shape of the function.
 
 ![Engel Curve for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd', 'pdf')`)
 
@@ -479,17 +498,17 @@ The estimated Engel curves for food are plotted below, together with their UCBs.
 
 ```{r food-dd-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and data-driven UCBs
-plot(logexp, fm.food.dd$deriv,
+plot(newdata$logexp, fm.food.dd$deriv,
      ylab = "Change in Food Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(-0.75, 0.75),
+     ylim = c(-0.5, 0.5),
      col = "blue",
      type = "l",
      lwd=2,
      lty=1)
-lines(logexp, fm.food.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
-lines(logexp, fm.food.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
 abline(0, 0, col = "black", lty = 2, lwd = 2)
 
 legend("topright",
@@ -503,38 +522,50 @@ legend("topright",
 
 ```{r, food-det-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and undersmoothed UCBs
-plot(logexp, fm.food.det$deriv,
+plot(newdata$logexp, fm.food.det$deriv,
      ylab = "Change in Food Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(-0.75, 0.75),
+     ylim = c(-0.5, 0.5),
      col = "red",
      type = "l",
      lwd=2,
      lty=1)
-lines(logexp, fm.food.det$h.upper.deriv,col="red",lwd=2,lty=2)
-lines(logexp, fm.food.det$h.lower.deriv,col="red",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.det$h.upper.deriv,col="red",lwd=2,lty=2)
+lines(newdata$logexp, fm.food.det$h.lower.deriv,col="red",lwd=2,lty=2)
 abline(0, 0, col = "black", lty = 2, lwd = 2)
+
+lines(newdata$logexp, fm.food.det$deriv + 1.96 * fm.food.det$deriv.asy.se,
+      col = "red", 
+      lwd = 2,
+      lty = 3)
+lines(newdata$logexp, fm.food.det$deriv - 1.96 * fm.food.det$deriv.asy.se,
+      col = "red", 
+      lwd = 2,
+      lty = 3)
 
 legend("topright",
        legend=c("Estimate",
-                "95\\% UCBs"),
-       col=c("red","red"),
-       lty=c(1,2),
-       lwd=c(2,2),
+                "95\\% UCBs",
+                "95\\% PCIs"),
+       col=c("red","red","red"),
+       lty=c(1,2,3),
+       lwd=c(2,2,2),
        bty="n")
 ```
 
-These differences are also apparent when we compare the estimated derivatives of the Engel curves. The zero function lies almost entirely inside both sets of UCBs over most of of the support of ependiture, but significantly above the UCBs for certain sub-intervals of expenditure. Therefore, while the estimates appear downwards-sloping, it is difficult to conclude that the Engel curves for food are significantly downwards-sloping (except over certain sub-intervals of expenditure). 
+These differences between the data-driven and undersmoothed methods are also apparent when we compare the estimated derivatives of the Engel curves and their corresponding UCBs (using `h.lower.deriv` and `h.upper.deriv`). The zero function lies significantly above the data-driven UCBs over a sub-interval of expenditure, indicating that the true Engel curve is significantly downwards-sloping over this region. Therefore, one may conclude from the data-driven UCBs that the Engel curve for food differs significantly from a constant. 
+
+Conversely, the UCBs based on undersmoothing are wider, and appear to contain the zero function over the full range of expenditure. Hence, one cannot reject a flat Engel curve using the UCBs based on undersmoothing. We also report pointwise confidence intervals based on undersmoothing (using on `deriv.asy.se` and $N(0,1)$ critical values). These are useful for testing hypotheses about the derivative at a *given* point, but that is a different problem from testing whether the derivative is significantly different from zero at *any* point over its support. 
 
 ![Engel Curve Derivative for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd-deriv', 'pdf')`)
 
 ![Engel Curve Derivative for Food: Estimates and UCBs based on Undersmoothing](`r knitr::fig_chunk('food-det-deriv', 'pdf')`)
 
-We repeat the exercise to estimate an Engel curve for household budget share on fuel:
+We repeat the above exercise, this time estimating an Engel curve for household budget share on fuel:
 
 ```{r}
-fm.fuel.dd <- npiv(fuel ~ logexp | logwages)
+fm.fuel.dd <- npiv(fuel ~ logexp | logwages, newdata = newdata)
 summary(fm.fuel.dd)
 ```
 
@@ -549,9 +580,9 @@ plot(logexp, fuel,
      type = "p",
      cex = .5,
      col = "lightgrey")
-lines(logexp, fm.fuel.dd$h,col="blue",lwd=2,lty=1)
-lines(logexp, fm.fuel.dd$h.upper,col="blue",lwd=2,lty=2)
-lines(logexp, fm.fuel.dd$h.lower,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.fuel.dd$h,col="blue",lwd=2,lty=1)
+lines(newdata$logexp, fm.fuel.dd$h.upper,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.fuel.dd$h.lower,col="blue",lwd=2,lty=2)
 
 legend("topright",
        legend=c("Estimate",
@@ -564,17 +595,17 @@ legend("topright",
 
 ```{r fuel-dd-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and data-driven UCBs
-plot(logexp, fm.fuel.dd$deriv,
+plot(newdata$logexp, fm.fuel.dd$deriv,
      ylab = "Change in Fuel Budget Share",
      xlab = "log(Total Household Expenditure)",
      xlim = c(4.75, 6.25),
-     ylim = c(-0.75, 0.75),
+     ylim = c(-0.5, 0.5),
      col = "blue",
      type = "l",
      lwd=2,
      lty=1)
-lines(logexp, fm.fuel.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
-lines(logexp, fm.fuel.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.fuel.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
+lines(newdata$logexp, fm.fuel.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
 abline(0, 0, col = "black", lty = 2, lwd = 2)
 
 legend("topright",
