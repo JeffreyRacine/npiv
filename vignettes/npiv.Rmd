@@ -494,7 +494,7 @@ The estimated Engel curves for food are plotted below, together with their UCBs 
 
 ![Engel Curve for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd', 'pdf')`)
 
-![Engel Curve for Food: Estimates and UCBs based on Undersmoothing](`r knitr::fig_chunk('food-det', 'pdf')`)
+![Engel Curve for Food: Estimates, UCBs, and PCIs based on Undersmoothing](`r knitr::fig_chunk('food-det', 'pdf')`)
 
 ```{r food-dd-deriv, echo = FALSE, fig.show = 'hide'}
 ## Plot the estimated Engel curve derivative and data-driven UCBs
@@ -560,7 +560,7 @@ Conversely, the UCBs based on undersmoothing are wider, and appear to contain th
 
 ![Engel Curve Derivative for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd-deriv', 'pdf')`)
 
-![Engel Curve Derivative for Food: Estimates and UCBs based on Undersmoothing](`r knitr::fig_chunk('food-det-deriv', 'pdf')`)
+![Engel Curve Derivative for Food: Estimates, UCBs, and PCIs based on Undersmoothing](`r knitr::fig_chunk('food-det-deriv', 'pdf')`)
 
 We repeat the above exercise, this time estimating an Engel curve for household budget share on fuel:
 
