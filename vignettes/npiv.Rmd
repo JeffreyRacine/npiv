@@ -387,7 +387,7 @@ where $Y_i$ is expenditure share for household $i$ on food and $X_i$ is log tota
  \E[Y_i | X_i] \neq h_0(X_i),
 \]
 which follows from the fact that the household's consumption preferences determines its expenditure across categories and therefore its total expenditure.
-To deal with this endogeneity, we shall follow @BBL, @BCK, and several other works and use log household income ($W_i$) as an instrument for expenditure.
+To deal with this endogeneity, we shall follow @BBL, @BCK, and several other works and use log gross earnings of the household head ($W_i$, hereafter log earnings) as an instrument for log total expenditure.
 
 We use data from the 1995 British Family Expenditure Survey as in @BCK. The data consist of 1655 married or cohabitating couples with the head of household employed and aged between 20 and 55 and with zero, one, or two children. The data are available as part of \pkg{npiv} in the data frame `Engel95`.
 
@@ -396,7 +396,7 @@ data("Engel95", package = "npiv")
 head(Engel95)
 ```
 
-The first seven columns of `Engel95` list household budget shares across different expenditure categories. The variables `logexp` and `logwages` are log total household expenditure and log household income. The final variable `nkids` indicates whether the household has zero children (if `nkids = 0`; 628 households in total), or 1-2 two children (if `nkids = 1`; 1027 households in total).
+The first seven columns of `Engel95` list household budget shares across different expenditure categories. The variables `logexp` and `logwages` are log total household expenditure and log earnings. The final variable `nkids` indicates whether the household has zero children (if `nkids = 0`; 628 households in total), or 1-2 two children (if `nkids = 1`; 1027 households in total).
 
 We first estimate the Engel curve for food. To try to ensure a relatively homogeneous set of households, we focus on the subset of households with 1-2 children. 
 
@@ -490,7 +490,7 @@ legend("topright",
 ```
 
 
-The estimated Engel curves for food are plotted below, together with their UCBs (using `h.upper` and `h.lower`). Both the data-driven and undersmoothed estimates are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of overall household expenditure as household expenditure increases. Note, however, that the data-driven estimate looks close to linear whereas the undersmoothed estimate is more wiggly. The undersmoothed UCBs are also wider over much of the support of expenditure becuase they use a sub-optimally large choice of sieve dimension and are therefore less "efficient" than the data-driven bands. We also plot 95\% pointwise confidence intervals (PCIs) based on undersmoothing (using `asy.se` and a $N(0,1)$ critical value). As expected, these are narrower than the UCBs based on undersmoothing as they are only required to contain the true function at each point, rather than over the entirety of its support. So while they can be used for drawing inference about the value of the function at a given point, they cannot be used for inferring the true shape of the function.
+The estimated Engel curves for food are plotted below, together with their UCBs (using `h.upper` and `h.lower`). Both the data-driven and undersmoothed estimates are downward-sloping. This seems reasonable from an economic standpoint: food is a necessary good, and so it should decrease as a proportion of total household expenditure as total household expenditure increases. Note, however, that the data-driven estimate looks close to linear whereas the undersmoothed estimate is more wiggly. The undersmoothed UCBs are also wider over much of the support of total expenditure because they use a sub-optimally large choice of sieve dimension and are therefore less "efficient" than the data-driven bands. We also plot 95\% pointwise confidence intervals (PCIs) based on undersmoothing (using `asy.se` and a $N(0,1)$ critical value). As expected, these are narrower than the UCBs based on undersmoothing as they are only required to contain the true function at each point, rather than over the entirety of its support. So while PCIs can be used for drawing inference about the value of the function at a given point, they cannot be used for inferring the true shape of the function.
 
 ![Engel Curve for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd', 'pdf')`)
 
@@ -509,7 +509,7 @@ plot(newdata$logexp, fm.food.dd$deriv,
      lty=1)
 lines(newdata$logexp, fm.food.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
 lines(newdata$logexp, fm.food.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
-abline(0, 0, col = "black", lty = 2, lwd = 2)
+abline(0, 0, col = "black", lty = 1, lwd = 2)
 
 legend("topright",
        legend=c("Estimate",
@@ -533,7 +533,7 @@ plot(newdata$logexp, fm.food.det$deriv,
      lty=1)
 lines(newdata$logexp, fm.food.det$h.upper.deriv,col="red",lwd=2,lty=2)
 lines(newdata$logexp, fm.food.det$h.lower.deriv,col="red",lwd=2,lty=2)
-abline(0, 0, col = "black", lty = 2, lwd = 2)
+abline(0, 0, col = "black", lty = 1, lwd = 2)
 
 lines(newdata$logexp, fm.food.det$deriv + 1.96 * fm.food.det$deriv.asy.se,
       col = "red", 
@@ -554,9 +554,9 @@ legend("topright",
        bty="n")
 ```
 
-These differences between the data-driven and undersmoothed methods are also apparent when we compare the estimated derivatives of the Engel curves and their corresponding UCBs (using `h.lower.deriv` and `h.upper.deriv`). The zero function lies significantly above the data-driven UCBs over a sub-interval of expenditure, indicating that the true Engel curve is significantly downwards-sloping over this region. Therefore, one may conclude from the data-driven UCBs that the Engel curve for food differs significantly from a constant. 
+These differences between the data-driven and undersmoothed methods are also apparent when we compare the estimated derivatives of the Engel curves and their corresponding UCBs (using `h.lower.deriv` and `h.upper.deriv`). The zero function lies significantly above the data-driven UCBs over a sub-interval of total expenditure, indicating that the true Engel curve is significantly downwards-sloping over this region. Therefore, one may conclude from the data-driven UCBs that the Engel curve for food differs significantly from a constant. 
 
-Conversely, the UCBs based on undersmoothing are wider, and appear to contain the zero function over the full range of expenditure. Hence, one cannot reject a flat Engel curve using the UCBs based on undersmoothing. We also report pointwise confidence intervals based on undersmoothing (using on `deriv.asy.se` and $N(0,1)$ critical values). These are useful for testing hypotheses about the derivative at a *given* point, but that is a different problem from testing whether the derivative is significantly different from zero at *any* point over its support. 
+Conversely, the UCBs based on undersmoothing are wider, and appear to contain the zero function over the full range of total expenditure. Hence, one cannot reject a flat Engel curve using the UCBs based on undersmoothing. We also report PCIs for the derivative based on undersmoothing (using on `deriv.asy.se` and $N(0,1)$ critical values). These are useful for testing hypotheses about the derivative at a *given* point, but that is a different problem from testing whether the derivative is significantly different from zero at *any* point over its support. 
 
 ![Engel Curve Derivative for Food: Data-driven Estimates and UCBs](`r knitr::fig_chunk('food-dd-deriv', 'pdf')`)
 
@@ -606,7 +606,7 @@ plot(newdata$logexp, fm.fuel.dd$deriv,
      lty=1)
 lines(newdata$logexp, fm.fuel.dd$h.upper.deriv,col="blue",lwd=2,lty=2)
 lines(newdata$logexp, fm.fuel.dd$h.lower.deriv,col="blue",lwd=2,lty=2)
-abline(0, 0, col = "black", lty = 2, lwd = 2)
+abline(0, 0, col = "black", lty = 1, lwd = 2)
 
 legend("topright",
        legend=c("Estimate",
@@ -617,7 +617,7 @@ legend("topright",
        bty="n")
 ```
 
-We see from the estimated Engel curve and its derivative that budget shares on fuel decrease significantly at low income levels and then flatten out completely at moderate to high income levels. As there is much less variation in households' fuel expenditure than their food expenditure, these curves are estimated with greater precision and the UCBs are correspondingly much narrower.
+We see from the estimated Engel curve and its derivative that budget shares on fuel decrease significantly at low total expenditure levels and then flatten out completely at moderate to high total expenditure levels. As there is much less variation in households' fuel expenditure than their food expenditure, these curves are estimated with greater precision and the UCBs are correspondingly much narrower.
 
 ![Engel Curve for Fuel: Data-driven Estimates and UCBs](`r knitr::fig_chunk('fuel-dd', 'pdf')`)
 
