@@ -387,7 +387,7 @@ where $Y_i$ is expenditure share for household $i$ on food and $X_i$ is log tota
  \E[Y_i | X_i] \neq h_0(X_i),
 \]
 which follows from the fact that the household's consumption preferences determines its expenditure across categories and therefore its total expenditure.
-To deal with this endogeneity, we shall follow @BBL, @BCK, and several other works and use log gross earnings of the household head ($W_i$, hereafter log earnings) as an instrument for log total expenditure.
+To deal with this endogeneity, we shall follow @BBL, @BCK, and several other works and use log gross earnings of the household head ($W_i$, hereafter log wages) as an instrument for log total expenditure.
 
 We use data from the 1995 British Family Expenditure Survey as in @BCK. The data consist of 1655 married or cohabitating couples with the head of household employed and aged between 20 and 55 and with zero, one, or two children. The data are available as part of \pkg{npiv} in the data frame `Engel95`.
 
@@ -396,7 +396,7 @@ data("Engel95", package = "npiv")
 head(Engel95)
 ```
 
-The first seven columns of `Engel95` list household budget shares across different expenditure categories. The variables `logexp` and `logwages` are log total household expenditure and log earnings. The final variable `nkids` indicates whether the household has zero children (if `nkids = 0`; 628 households in total), or 1-2 two children (if `nkids = 1`; 1027 households in total).
+The first seven columns of `Engel95` list household budget shares across different expenditure categories. The variables `logexp` and `logwages` are log total household expenditure and log wages The final variable `nkids` indicates whether the household has zero children (if `nkids = 0`; 628 households in total), or 1-2 two children (if `nkids = 1`; 1027 households in total).
 
 We first estimate the Engel curve for food. To try to ensure a relatively homogeneous set of households, we focus on the subset of households with 1-2 children. 
 

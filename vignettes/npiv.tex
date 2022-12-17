@@ -671,7 +671,7 @@ e.g., \citet{BBL}), total household expenditure is endogenous: \[
 preferences determines its expenditure across categories and therefore
 its total expenditure. To deal with this endogeneity, we shall follow
 \citet{BBL}, \citet{BCK}, and several other works and use log gross
-earnings of the household head (\(W_i\), hereafter log earnings) as an
+earnings of the household head (\(W_i\), hereafter log wages) as an
 instrument for log total expenditure.
 
 We use data from the 1995 British Family Expenditure Survey as in
@@ -705,11 +705,10 @@ R> head(Engel95)
 
 The first seven columns of \texttt{Engel95} list household budget shares
 across different expenditure categories. The variables \texttt{logexp}
-and \texttt{logwages} are log total household expenditure and log
-earnings. The final variable \texttt{nkids} indicates whether the
-household has zero children (if \texttt{nkids\ =\ 0}; 628 households in
-total), or 1-2 two children (if \texttt{nkids\ =\ 1}; 1027 households in
-total).
+and \texttt{logwages} are log total household expenditure and log wages
+The final variable \texttt{nkids} indicates whether the household has
+zero children (if \texttt{nkids\ =\ 0}; 628 households in total), or 1-2
+two children (if \texttt{nkids\ =\ 1}; 1027 households in total).
 
 We first estimate the Engel curve for food. To try to ensure a
 relatively homogeneous set of households, we focus on the subset of
