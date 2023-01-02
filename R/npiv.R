@@ -279,7 +279,7 @@ npivEst <- function(Y,
     ## predictors).
     
     check1 <- check2 <- FALSE
-    if(all(X == W)){
+    if(identical(X, W)){
       # Regression case; check if J is provided
       if(is.null(J.x.segments)){
         check2 <- TRUE
@@ -295,7 +295,7 @@ npivEst <- function(Y,
       ## Save a flag for data driven to detm
       data.driven <- TRUE
       ## Check for regression and update splines accordingly
-      if(all(X == W)) {
+      if(identical(X, W)) {
         K.w.degree <- J.x.degree
         K.w.smooth <- 0
       }
@@ -323,7 +323,7 @@ npivEst <- function(Y,
       K.w.segments.set <- test1$K.w.segments.set
     } else {
       data.driven <- FALSE
-      if(all(X == W)) {
+      if(identical(X, W)) {
         K.w.degree <- J.x.degree
         K.w.segments <- J.x.segments
         K.w.smooth <- 0
@@ -446,7 +446,7 @@ npivEst <- function(Y,
     ## NB When X==W and computing asy.se and asy.se.deriv, we can get
     ## entries that are extremely small (essentially zero it appears)
     ## that can have a negative sign (e.g., -2.2e-18) which then throw
-    ## an error with sqrt() which gets propogated to, say, quantile
+    ## an error with sqrt() which gets propagated to, say, quantile
     ## which throws an error (NaN gives rise to NA which halts
     ## quantile() unless na.rm=TRUE is set). This does not appear to
     ## occur otherwise (when X!=W) so this ought to be completely
@@ -1087,7 +1087,7 @@ npiv_Jhat_max <- function(X,
 
       ## Estimate measure of ill-posedness if IV model; if regression set to constant by default
 
-      if(all(X == W)){
+      if(identical(X, W)){
 
         s.hat.J <- max(1, (0.1 * log(NROW(X)))^4)
 
