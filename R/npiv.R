@@ -523,14 +523,14 @@ npivEst <- function(Y,
                                                    basis=basis,
                                                    x.min=X.min,
                                                    x.max=X.max)
-            if(ucb.deriv) Psi.x.J.deriv.eval <- prod.spline(x=X,
-                                                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
-                                                            knots=knots,
-                                                            basis=basis,
-                                                            deriv.index=deriv.index,
-                                                            deriv=deriv.order,
-                                                            x.min=X.min,
-                                                            x.max=X.max)
+            if(ucb.deriv) Psi.x.J.deriv.eval <- Psi.x.J.deriv <- prod.spline(x=X,
+                                                                             K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
+                                                                             knots=knots,
+                                                                             basis=basis,
+                                                                             deriv.index=deriv.index,
+                                                                             deriv=deriv.order,
+                                                                             x.min=X.min,
+                                                                             x.max=X.max)
             if(!is.null(X.eval)) {
               Psi.x.J.eval <- prod.spline(x=X,
                                           xeval=X.eval,
@@ -1056,7 +1056,7 @@ npiv_Jhat_max <- function(X,
   ## Generate set of J K combinations given input J.x.degree and
   ## K.w.degree to search over up to a maximum resolution level of
   ## log(n, base = (2 * dim(X))), which will have a singular
-  ## denominator matrix because
+  ## denominator matrix
 
   L.max <- max(floor(log(NROW(X), base = 2 * NCOL(X))), 3)
   J.x.segments.set <- (2^(0:L.max))
