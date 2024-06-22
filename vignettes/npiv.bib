@@ -129,9 +129,10 @@ year = {2018}
 @article{CCK,
  title = "{Adaptive Estimation and Uniform Confidence Bands for Nonparametric Structural Functions and Elasticities}",
  author = "Xiaohong Chen and Timothy Christensen and Sid Kankanala",
- year = "2022",
- journal = "arXiv preprint arXiv:2107.11869 [econ.EM]",
- url = "https://arxiv.org/abs/2107.11869"
+ year = "2024",
+ journal = "Review of Economic Studies",
+ volume = "forthcoming",
+ url = "https://doi.org/10.1093/restud/rdae025"
 }
 
 
@@ -156,11 +157,21 @@ year = {2018}
 }
 
 
-@techreport{grettonRL2021,
-      title={On Instrumental Variable Regression for Deep Offline Policy Evaluation}, 
-      author={Yutian Chen and Liyuan Xu and Caglar Gulcehre and Tom Le Paine and Arthur Gretton and Nando de Freitas and Arnaud Doucet},
-      year={2021},
-      type={arXiv:2105.10148 [cs.LG]}
+@article{grettonRL2021,
+author = {Chen, Yutian and Xu, Liyuan and Gulcehre, Caglar and Paine, Tom Le and Gretton, Arthur and De Freitas, Nando and Doucet, Arnaud},
+title = {On instrumental variable regression for deep offline policy evaluation},
+year = {2022},
+issue_date = {January 2022},
+publisher = {JMLR.org},
+volume = {23},
+number = {1},
+issn = {1532-4435},
+abstract = {We show that the popular reinforcement learning (RL) strategy of estimating the stateaction value (Q-function) by minimizing the mean squared Bellman error leads to a regression problem with confounding, the inputs and output noise being correlated. Hence, direct minimization of the Bellman error can result in significantly biased Q-function estimates. We explain why fixing the target Q-network in Deep Q-Networks and Fitted Q Evaluation provides a way of overcoming this confounding, thus shedding new light on this popular but not well understood trick in the deep RL literature. An alternative approach to address confounding is to leverage techniques developed in the causality literature, notably instrumental variables (IV). We bring together here the literature on IV and RL by investigating whether IV approaches can lead to improved Q-function estimates. This paper analyzes and compares a wide range of recent IV methods in the context of offline policy evaluation (OPE), where the goal is to estimate the value of a policy using logged data only. By applying different IV techniques to OPE, we are not only able to recover previously proposed OPE methods such as model-based techniques but also to obtain competitive new techniques. We find empirically that state-of-the-art OPE methods are closely matched in performance by some IV methods such as AGMM, which were not developed for OPE.},
+journal = {Journal of Machine Learning Research},
+month = {jan},
+articleno = {302},
+numpages = {40},
+keywords = {offline policy evaluation, two stage least squares, reinforcement learning, generalized method of moments, instrumental variable regression}
 }
 
 
