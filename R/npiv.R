@@ -211,7 +211,7 @@ summary.npiv <- function(object, ...){
 
 ## Nonparametric IV estimation and UCB construction.  If sieve
 ## dimension is not provided by the user, it is determined using the
-## method of Chen, Christensen and Kankanala (2021, CCK) and UCBs are
+## method of Chen, Christensen and Kankanala (2024, CCK) and UCBs are
 ## constructed as in CCK. If sieve dimension is provided, then UCBs
 ## are constructed using the method of Chen and Christensen (2018).
 ## We follow the notation of CCK and append .x and .w where needed for
@@ -267,10 +267,10 @@ npivEst <- function(Y,
         if(!is.fullrank(W)) stop("W is not of full column rank")
     }
 
-    ## Per Chen, Christensen and Kankanala (2021), notation-wise, Psi
+    ## Per Chen, Christensen and Kankanala (2024), notation-wise, Psi
     ## is the bases matrix for X, B for W. Note that I append .x to
     ## Psi and .w to B for clarity. Per Chen, Christensen and
-    ## Kankanala (2021), notation-wise, Psi is of dimension J and B of
+    ## Kankanala (2024), notation-wise, Psi is of dimension J and B of
     ## dimension K. For clarity I adopt K.w.degree/.segments
     ## (corresponding to B hence "K") and J.x.degree/.segments
     ## (corresponding to Psi hence "J"). Note K >= J is necessary
@@ -292,7 +292,7 @@ npivEst <- function(Y,
     }
 
     if(check1 || check2) {
-      ## Save a flag for data driven to detm
+      ## Save a flag for data driven
       data.driven <- TRUE
       ## Check for regression and update splines accordingly
       if(identical(X, W)) {
