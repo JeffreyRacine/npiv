@@ -28,9 +28,9 @@ author:
     url: https://socialsciences.mcmaster.ca/people/racinej
     # To add another line, use \AND at the end of the previous one as above
 title:
-  formatted: "Estimation and Confidence Bands for Nonparametric Instrumental Variables Models: \\\ The \\proglang{R} Package \\pkg{npiv}"
+  formatted: "\\pkg{npiv}: Estimation and Confidence Bands for Nonparametric Instrumental Variables Models Using \\proglang{R}"
   # If you use tex in the formatted title, also supply version without
-  plain:     "Estimation and Confidence Bands for Nonparametric Instrumental Variables Models: The R Package \\pkg{npiv}"
+  plain:     "\\pkg{npiv}: Estimation and Confidence Bands for Nonparametric Instrumental Variables Models Using R"
   # For running headers, if needed
   short:     "\\pkg{npiv}: Estimation and Confidence Bands for Nonparametric IV Models"
 abstract: >
@@ -54,7 +54,7 @@ knitr::opts_chunk$set(cache=TRUE,dev='tikz')
 
 # Introduction
 
-Nonparametric instrumental variables (NPIV) methods are well-established, widely used, and have been adopted by practitioners in a range of empirical fields. While there is a long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], NPIV methods have recently been adopted in causal inference in biostatistics [@WangZhiTT2018], reinforcement learning [@grettonRL2021], and causal machine learning [@causalML]. 
+Nonparametric instrumental variables (NPIV) methods are well-established, widely used, and have been adopted by practitioners in a range of empirical fields. While there is a long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], NPIV methods have recently been adopted in causal inference in biostatistics [@WangZhiTT2018], reinforcement learning [@grettonRL2021], and causal machine learning [@causalML]. In this paper, we introduce the \proglang{R} package \pkg{npiv}. The package makes a novel set of estimation and inference methods for NPIV models, including with data-driven choice of tuning parameters, newly accessible to \proglang{R} users.
 
 We are interested in estimating a nonparametric *structural function*, denoted $h_0$, linking a scalar outcome variable $Y$ and a vector of regressors $X$ through the relation
 \begin{equation}\label{eq:npiv}
@@ -63,8 +63,7 @@ We are interested in estimating a nonparametric *structural function*, denoted $
 where $u$ is a disturbance term. The function $h_0$ is not necessarily the conditional mean of $Y$ given $X$ (as in nonparametric regression) but rather has a particular *structural* or *causal* interpretation. Equivalently, $X$ is *endogenous* in the sense that $\E[u|X]$ is not necessarily zero.^[To simplify exposition, we shall omit the "almost surely" qualifier when specifying conditional moment restrictions.] NPIV methods allow for the estimation of $h_0$ using a vector of *instrumental variables* $W$ for which $\E[u|W] = 0$. For instance, in a demand estimation context the variable $Y$ denotes the quantity demanded, $X$ denotes the price, and $W$ is a "cost-shifter" that causes variation in the marginal cost of production. Derivatives of $h_0$ may also be of interest as they have important "structural" interpretations as elasticities or other marginal effects.
 
 This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The methods are developed in the context of sieve NPIV estimators, which are implemented in a very simple manner using two-stage least-squares (TSLS) [@AC; @NP].
-
-The main methods implemented in this package are (i) a data-driven choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands (UCBs) for the structural function $h_0$ and its derivatives. As shown in @CCK, the single data-driven choice of sieve dimension is minimax sup-norm rate adaptive for estimating both $h_0$ and derivatives of $h_0$. Moreover, the data-driven *uniform* confidence bands contain the entire true structural function and its derivatives with desired asymptotic coverage probability and contract at the optimal rate (up to log terms). Additional functionality allows for constructing (non-data driven) UCBs based on the methods proposed in @CCQE as well as *pointwise* confidence intervals for $h_0(x)$ or its derivatives at a point $x$ based on the method of @ChenPouzo. All methods subsume nonparametric regression as a special case.
+The main methods implemented in \pkg{npiv} are (i) a data-driven choice of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands (UCBs) for the structural function $h_0$ and its derivatives. As shown in @CCK, the single data-driven choice of sieve dimension is minimax sup-norm rate adaptive for estimating both $h_0$ and derivatives of $h_0$. Moreover, the data-driven *uniform* confidence bands contain the entire true structural function and its derivatives with desired asymptotic coverage probability and contract at the optimal rate (up to log terms). Additional functionality allows for constructing (non-data driven) UCBs based on the methods proposed in @CCQE as well as *pointwise* confidence intervals for $h_0(x)$ or its derivatives at a point $x$ based on the method of @ChenPouzo. All methods subsume nonparametric regression as a special case.
 
 The remainder of this article is organized as follows. [Section 2](#method) reviews sieve NPIV estimators and describes the data-driven methods from @CCK and the UCB constructions from @CCQE. [Section 3](#desc) gives a description of the main functionality of the package \pkg{npiv} and describes its implementation. [Section 4](#engel) then illustrates the methods in the context of Engel curve estimation based on household consumption data.
 
@@ -623,3 +622,9 @@ We see from the estimated Engel curve and its derivative that budget shares on f
 ![Engel Curve for Fuel: Data-driven Estimates and UCBs](`r knitr::fig_chunk('fuel-dd', 'pdf')`)
 
 ![Engel Curve Derivative for Fuel: Data-driven Estimates and UCBs](`r knitr::fig_chunk('fuel-dd-deriv', 'pdf')`)
+
+# Conclusion 
+
+The package \pkg{npiv} makes available a set of novel, fully-data driven estimation and inference methods for NPIV models estimated using B-spline bases. The methods include (i) a data-driven choice of sieve dimension that leads to estimators of the structural function and its derivative that converge at the minimax sup-norm rate, and (ii) data-driven uniform confidence bands for the structural function and its derivative that contract at the minimax rate (up to log terms). Additional functionality allows for the construction of uniform confidence bands and pointwise confidence intervals based on undersmoothing. The design is user-friendly with syntax similar to the widely used package \pkg{ivreg} [@IVREG] for linear IV models. 
+
+Overall, the methods should be useful to researchers engaged in demand estimation, causal inference, and reinforcement learning to name a few. We welcome suggestions from the community for additional features to be implemented.
