@@ -75,7 +75,8 @@ basis; default is \sQuote{FALSE} }
   
 \references{
 
-Chen, X., T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
+Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric Structural Functions and Elasticities.} \emph{Review of Economic Studies}, \strong{forthcoming}. doi: \url{https://doi.org/10.1093/restud/rdae025}
+
 }
 
 \author{

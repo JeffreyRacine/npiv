@@ -6,7 +6,7 @@
 Nonparametric Instrumental Variable Estimation and Inference
 }
 \description{
-\code{npiv} performs nonparametric two-stage least-squares estimation of, and constructs uniform confidence bands for, a structural function \code{h0} and its derivatives using a B-spline sieve. Sieve dimensions are determined in a data-dependent way if not provided by the user, via the methods described in Chen, Christensen, and Kankanala (2021). This data-driven choice of sieve dimension ensures estimators of \code{h0} and its derivatives converge at the best possible (i.e., minimax) sup-norm rate. The resulting uniform confidence bands for \code{h0} and its derivatives are honest and adaptive; see Chen, Christensen, and Kankanala (2021).
+\code{npiv} performs nonparametric two-stage least-squares estimation of, and constructs uniform confidence bands for, a structural function \code{h0} and its derivatives using a B-spline sieve. Sieve dimensions are determined in a data-dependent way if not provided by the user, via the methods described in Chen, Christensen, and Kankanala (2024). This data-driven choice of sieve dimension ensures estimators of \code{h0} and its derivatives converge at the best possible (i.e., minimax) sup-norm rate. The resulting uniform confidence bands for \code{h0} and its derivatives also converge at the minimax rate up to log factors; see Chen, Christensen, and Kankanala (2024).
 
 If sieve dimensions are provided by the user, \code{npiv} implements the bootstrap-based procedure of Chen and Christensen (2018) to construct uniform confidence bands for \code{h0} and its derivatives. 
 
@@ -168,7 +168,7 @@ npiv(\dots)
 
 \code{npiv} estimates and constructs uniform confidence bands for a nonparametric structural function \eqn{h_0}{h0} and its derivatives in the model 
  \eqn{Y=h_0(X)+U,\quad E[U|W]=0\quad{(\rm almost\, surely).}}{Y=h0(X)+U, E[U|W]=0 (almost surely).}
-Estimation is performed using nonparametric two-stage least-squares with a B-spline sieve. The key tuning parameter is the dimension \eqn{J}{J} of the sieve used to approximate \eqn{h_0}{h0}. The dimension is tuned via modifying the number and placement of interior knots in the B-spline basis  (equivalently, the number of segments of the basis). Sieve dimensions can be user-provided or data-determined using the procedure of Chen, Christensen, and Kankanala (2021).
+Estimation is performed using nonparametric two-stage least-squares with a B-spline sieve. The key tuning parameter is the dimension \eqn{J}{J} of the sieve used to approximate \eqn{h_0}{h0}. The dimension is tuned via modifying the number and placement of interior knots in the B-spline basis  (equivalently, the number of segments of the basis). Sieve dimensions can be user-provided or data-determined using the procedure of Chen, Christensen, and Kankanala (2024).
 
 Typical usages mirror \code{ivreg} (see above and below for a list of options and the example at the bottom of this document)
   \preformatted{
@@ -179,7 +179,7 @@ Typical usages mirror \code{ivreg} (see above and below for a list of options an
 
 \code{npiv} can be used in two ways:
 
-  1. Data-driven sieve dimension is invoked if either \code{K.w.segments} or \code{J.x.segments} are unspecified or \code{NULL} (the default). Sieve dimensions are chosen automatically using \code{npiv_choose_J}. Uniform confidence bands for \eqn{h_0}{h0} and its derivatives are constructed using the data-driven method of Chen, Christensen, and Kankanala (2021).
+  1. Data-driven sieve dimension is invoked if either \code{K.w.segments} or \code{J.x.segments} are unspecified or \code{NULL} (the default). Sieve dimensions are chosen automatically using \code{npiv_choose_J}. Uniform confidence bands for \eqn{h_0}{h0} and its derivatives are constructed using the data-driven method of Chen, Christensen, and Kankanala (2024).
 
   2. The user may specify the sieve dimensions of both bases by specifying values for \code{K.w.segments} and \code{J.x.segments}. Uniform confidence bands for \eqn{h_0}{h0} and its derivatives are constructed using the method of Chen and Christensen (2018).
 
@@ -209,7 +209,7 @@ The function \code{npiv} returns a list with the following components:
 
 Chen, X. and T. Christensen (2018). \dQuote{Optimal Sup-norm Rates and Uniform Inference on Nonlinear Functionals of Nonparametric IV Regression.} \emph{Quantitative Economics}, \strong{9}(1), 39-85. doi: \url{https://doi.org/10.3982/QE722}
 
-Chen, X., T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
+Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric Structural Functions and Elasticities.} \emph{Review of Economic Studies}, \strong{forthcoming}. doi: \url{https://doi.org/10.1093/restud/rdae025}
 
 }
 \author{

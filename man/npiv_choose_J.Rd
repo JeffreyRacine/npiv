@@ -5,7 +5,7 @@
 Data-driven Choice of Sieve Dimension for Nonparametric Instrumental Variables Estimation and Inference
 }
 \description{
-\code{npiv_choose_J} implements the data-driven choice of sieve dimension developed in Chen, Christensen, and Kankanala (2021) for nonparametric instrumental variables estimation using a B-spline sieve. It applies to nonparametric regression as a special case when predictors are exogenous.
+\code{npiv_choose_J} implements the data-driven choice of sieve dimension developed in Chen, Christensen, and Kankanala (2024) for nonparametric instrumental variables estimation using a B-spline sieve. It applies to nonparametric regression as a special case when predictors are exogenous.
 }
 \usage{
 npiv_choose_J(Y, 
@@ -106,13 +106,13 @@ npiv_choose_J(Y,
 \item{J.hat.max}{largest element of candidate set of sieve dimensions searched over.}
 \item{J.hat.n}{second largest element of candidate set of sieve dimensions searched over.}
 \item{J.hat}{bootstrap-based Lepski choice of sieve dimension.}
-\item{J.tilde}{data-driven choice of sieve dimension using the method of Chen, Christensen, and Kankanala (2021). Minimum of \code{J.hat} and \code{J.hat.n}.}
-\item{J.x.seg}{data-driven number of segments for \code{X} using the method of Chen, Christensen, and Kankanala (2021).}
-\item{K.w.seg}{data-driven number of segments for \code{W} using the method of Chen, Christensen, and Kankanala (2021).}
+\item{J.tilde}{data-driven choice of sieve dimension using the method of Chen, Christensen, and Kankanala (2024). Minimum of \code{J.hat} and \code{J.hat.n}.}
+\item{J.x.seg}{data-driven number of segments for \code{X} using the method of Chen, Christensen, and Kankanala (2024).}
+\item{K.w.seg}{data-driven number of segments for \code{W} using the method of Chen, Christensen, and Kankanala (2024).}
 \item{theta.star}{Lepski critical value used in determination of \code{J.hat}.}
 }
 \references{
-Chen, X., T. Christensen and S. Kankanala (2021). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric IV.} \url{https://arxiv.org/pdf/2107.11869.pdf}
+Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric Structural Functions and Elasticities.} \emph{Review of Economic Studies}, \strong{forthcoming}. doi: \url{https://doi.org/10.1093/restud/rdae025}
 }
 \author{
 Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
