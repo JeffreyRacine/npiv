@@ -937,12 +937,19 @@ npivJ <- function(Y,
         ## Set seed to ensure same bootstrap draws across rows of J1.J2
 
         set.seed(random.seed)
+        
+        tPsi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.xJ1TB.wB.wTB.w.invB.w)
+        tPsi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.xJ2TB.wB.wTB.w.invB.w)
 
         for(b in 1:boot.num) {
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
             
-            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws)) / NZD(asy.se)))
+            ## Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws)) / NZD(asy.se)))
+            beta.J1.boot <- .lm.fit(tPsi.xJ1TB.wB.wTB.w.invB.w, U.J1*boot.draws)$coefficients
+            beta.J2.boot <- .lm.fit(tPsi.xJ2TB.wB.wTB.w.invB.w, U.J2*boot.draws)$coefficients
+            
+            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%beta.J1.boot - Psi.x.J2.eval%*%beta.J2.boot) / NZD(asy.se)))
             
         }
 
