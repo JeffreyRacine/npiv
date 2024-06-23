@@ -942,7 +942,7 @@ npivJ <- function(Y,
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
             
-            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws)) / NZD(asy.se)))
+            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%(tmp.J1%*%(U.J1*boot.draws)) - Psi.x.J2.eval%*%(tmp.J2%*%(U.J2*boot.draws))) / NZD(asy.se)))
             
         }
 
