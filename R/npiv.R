@@ -594,8 +594,8 @@ npivEst <- function(Y,
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
 
-            if(ucb.h) Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%tmp.J%*%(U.J*boot.draws))  / NZD(asy.se.J)))
-            if(ucb.deriv) Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%tmp.J%*%(U.J*boot.draws))  / NZD(asy.se.J.deriv)))
+            if(ucb.h) Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%(tmp.J%*%(U.J*boot.draws)))  / NZD(asy.se.J)))
+            if(ucb.deriv) Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%(tmp.J%*%(U.J*boot.draws)))  / NZD(asy.se.J.deriv)))
 
           }
 
