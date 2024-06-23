@@ -442,8 +442,8 @@ npivEst <- function(Y,
 
     U.hat <- Y-Psi.x%*%beta
     ## new!!
-    ## D.inv.rho.D.inv <- t(t(tmp) * as.numeric(U.hat))%*%(t(tmp) * as.numeric(U.hat))
-    D.inv.rho.D.inv <- crossprod(t(tmp) * as.numeric(U.hat))
+    D.inv.rho.D.inv <- t(t(tmp) * as.numeric(U.hat))%*%(t(tmp) * as.numeric(U.hat))
+    ## D.inv.rho.D.inv <- crossprod(t(tmp) * as.numeric(U.hat))
 
     ## NB When X==W and computing asy.se and asy.se.deriv, we can get
     ## entries that are extremely small (essentially zero it appears)
@@ -577,8 +577,8 @@ npivEst <- function(Y,
           ## of abs() when X==W)
           
           ## new!!
-          ## D.J.inv.rho.D.J.inv <- t(t(tmp.J) * as.numeric(U.J))%*%(t(tmp.J) * as.numeric(U.J))
-          D.J.inv.rho.D.J.inv <- crossprod(t(tmp.J) * as.numeric(U.J))
+          D.J.inv.rho.D.J.inv <- t(t(tmp.J) * as.numeric(U.J))%*%(t(tmp.J) * as.numeric(U.J))
+          ## D.J.inv.rho.D.J.inv <- crossprod(t(tmp.J) * as.numeric(U.J))
           if(ucb.h) asy.se.J <- sqrt(abs(rowSums((Psi.x.J.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.eval)))
           if(ucb.deriv) asy.se.J.deriv <- sqrt(abs(rowSums((Psi.x.J.deriv.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.deriv.eval)))
 
@@ -917,13 +917,13 @@ npivJ <- function(Y,
         ## Compute asymptotic variances and covariances
 
         ## new!!
-        ## D.J1.inv.rho.D.J1.inv <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
-        D.J1.inv.rho.D.J1.inv <- crossprod(t(tmp.J1) * as.numeric(U.J1))
+        D.J1.inv.rho.D.J1.inv <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
+        ## D.J1.inv.rho.D.J1.inv <- crossprod(t(tmp.J1) * as.numeric(U.J1))
         asy.var.J1 <- rowSums((Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv)*Psi.x.J1.eval)
 
         ## new!!
-        ## D.J2.inv.rho.D.J2.inv <- t(t(tmp.J2) * as.numeric(U.J2))%*%(t(tmp.J2) * as.numeric(U.J2))
-        D.J2.inv.rho.D.J2.inv <- crossprod(t(tmp.J2) * as.numeric(U.J2))
+        D.J2.inv.rho.D.J2.inv <- t(t(tmp.J2) * as.numeric(U.J2))%*%(t(tmp.J2) * as.numeric(U.J2))
+        ## D.J2.inv.rho.D.J2.inv <- crossprod(t(tmp.J2) * as.numeric(U.J2))
         asy.var.J2 <- rowSums((Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv)*Psi.x.J2.eval)
 
         ## Compute the covariance
