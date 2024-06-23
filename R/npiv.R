@@ -441,6 +441,7 @@ npivEst <- function(Y,
     ## derivatives
 
     U.hat <- Y-Psi.x%*%beta
+    ## new!!
     ## D.inv.rho.D.inv <- t(t(tmp) * as.numeric(U.hat))%*%(t(tmp) * as.numeric(U.hat))
     D.inv.rho.D.inv <- crossprod(t(tmp) * as.numeric(U.hat))
 
@@ -574,7 +575,8 @@ npivEst <- function(Y,
 
           ## Compute asymptotic variances (see NB above for inclusion
           ## of abs() when X==W)
-
+          
+          ## new!!
           ## D.J.inv.rho.D.J.inv <- t(t(tmp.J) * as.numeric(U.J))%*%(t(tmp.J) * as.numeric(U.J))
           D.J.inv.rho.D.J.inv <- crossprod(t(tmp.J) * as.numeric(U.J))
           if(ucb.h) asy.se.J <- sqrt(abs(rowSums((Psi.x.J.eval%*%D.J.inv.rho.D.J.inv)*Psi.x.J.eval)))
@@ -890,17 +892,22 @@ npivJ <- function(Y,
         ## Code re-use/storage where possible... generate all objects
         ## needed to compute the t-stat vector
 
-        B.w.J1.TB.w.J1.inv <- ginv(t(B.w.J1)%*%B.w.J1)
-        B.w.J2.TB.w.J2.inv <- ginv(t(B.w.J2)%*%B.w.J2)
+        ## new!!
+        ## B.w.J1.TB.w.J1.inv <- ginv(t(B.w.J1)%*%B.w.J1)
+        ## B.w.J2.TB.w.J2.inv <- ginv(t(B.w.J2)%*%B.w.J2)
 
-        Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w.J1%*%B.w.J1.TB.w.J1.inv%*%t(B.w.J1)
+        ## new!!
+        ## Psi.xJ1TB.wB.wTB.w.invB.w <- t(Psi.x.J1)%*%B.w.J1%*%B.w.J1.TB.w.J1.inv%*%t(B.w.J1)
+        Psi.xJ1TB.wB.wTB.w.invB.w <- t(fitted(lm.fit(B.w.J1, Psi.x.J1)))
         tmp.J1 <- ginv(Psi.xJ1TB.wB.wTB.w.invB.w%*%Psi.x.J1)%*%Psi.xJ1TB.wB.wTB.w.invB.w
         beta.J1 <- tmp.J1%*%Y
 
         U.J1 <- Y-Psi.x.J1%*%beta.J1
         hhat.J1 <- Psi.x.J1.eval%*%beta.J1
 
-        Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
+        ## new!!
+        ## Psi.xJ2TB.wB.wTB.w.invB.w <- t(Psi.x.J2)%*%B.w.J2%*%B.w.J2.TB.w.J2.inv%*%t(B.w.J2)
+        Psi.xJ2TB.wB.wTB.w.invB.w <- t(fitted(lm.fit(B.w.J2, Psi.x.J2)))
         tmp.J2 <- ginv(Psi.xJ2TB.wB.wTB.w.invB.w%*%Psi.x.J2)%*%Psi.xJ2TB.wB.wTB.w.invB.w
         beta.J2 <- tmp.J2%*%Y
 
@@ -909,10 +916,12 @@ npivJ <- function(Y,
 
         ## Compute asymptotic variances and covariances
 
+        ## new!!
         ## D.J1.inv.rho.D.J1.inv <- t(t(tmp.J1) * as.numeric(U.J1))%*%(t(tmp.J1) * as.numeric(U.J1))
         D.J1.inv.rho.D.J1.inv <- crossprod(t(tmp.J1) * as.numeric(U.J1))
         asy.var.J1 <- rowSums((Psi.x.J1.eval%*%D.J1.inv.rho.D.J1.inv)*Psi.x.J1.eval)
 
+        ## new!!
         ## D.J2.inv.rho.D.J2.inv <- t(t(tmp.J2) * as.numeric(U.J2))%*%(t(tmp.J2) * as.numeric(U.J2))
         D.J2.inv.rho.D.J2.inv <- crossprod(t(tmp.J2) * as.numeric(U.J2))
         asy.var.J2 <- rowSums((Psi.x.J2.eval%*%D.J2.inv.rho.D.J2.inv)*Psi.x.J2.eval)
@@ -945,8 +954,14 @@ npivJ <- function(Y,
         for(b in 1:boot.num) {
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
-
-            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws)) / NZD(asy.se)))
+            
+            ## new!!
+            ## Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%tmp.J1%*%(U.J1*boot.draws) - Psi.x.J2.eval%*%tmp.J2%*%(U.J2*boot.draws)) / NZD(asy.se)))
+            
+            beta.J1.boot <- .lm.fit(Psi.xJ1TB.wB.wTB.w.invB.w, U.J1*boot.draws)$coefficients
+            beta.J2.boot <- .lm.fit(Psi.xJ2TB.wB.wTB.w.invB.w, U.J2*boot.draws)$coefficients
+            
+            Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%beta.J1.boot - Psi.x.J2.eval%*%beta.J2.boot) / NZD(asy.se)))
 
         }
 
