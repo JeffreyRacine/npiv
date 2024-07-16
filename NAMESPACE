@@ -15,3 +15,5 @@ S3method(summary, npiv)
 
 S3method(gsl.bs, default)
 S3method(predict, gsl.bs)
+
+S3method(plot, npiv)

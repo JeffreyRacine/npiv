@@ -1255,3 +1255,31 @@ npiv_choose_J <- function(Y,
 
 }
 
+## Add a simple plot method for npiv objects to plot estimates and uniform
+## confidence bands obtained via bootstrapping
+
+plot.npiv <- function(x, type = c("func", "deriv"), ...) {
+  
+  type <- match.arg(type)
+  if(ncol(x$X) > 1) stop("simple npiv plot method only works for univariate X")
+  ## If data is unordered then order it so that lines appear correctly
+  if(type == "func") {
+    
+    ylim <- range(c(x$h, x$h.lower, x$h.upper))
+    plot(x$X[order(x$X)], x$h[order(x$X)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Function", ...)
+    lines(x$X[order(x$X)], x$h.lower[order(x$X)], col = "red", lty = 2)
+    lines(x$X[order(x$X)], x$h.upper[order(x$X)], col = "red", lty = 2)
+    legend("topright", legend = c("Estimate", "Lower Bound", "Upper Bound"), col = c("blue", "red", "red"), lty = c(1, 2, 2),bty="n")
+    
+  } else {
+    
+    ylim <- range(c(x$deriv, x$h.lower.deriv, x$h.upper.deriv))
+    plot(x$X[order(x$X)], x$deriv[order(x$X)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Derivative", ...)
+    lines(x$X[order(x$X)], x$h.lower.deriv[order(x$X)], col = "red", lty = 2)
+    lines(x$X[order(x$X)], x$h.upper.deriv[order(x$X)], col = "red", lty = 2)
+    legend("topright", legend = c("Estimate", "Lower Bound", "Upper Bound"), col = c("blue", "red", "red"), lty = c(1, 2, 2),bty="n")
+    
+  }
+  
+}
+
