@@ -2,7 +2,7 @@ Package: npiv
 Type: Package
 Title: Nonparametric Instrumental Variables Estimation and Inference
 Version: 0.10-03
-Date: 2022-12-10
+Date: 2024-12-10
 Imports: progress, MASS, Formula
 Author:  Jeffrey S. Racine, Timothy Christensen
 Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c("aut","cre"), email = "racinej@mcmaster.ca"),
