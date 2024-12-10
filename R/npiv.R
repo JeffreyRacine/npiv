@@ -1267,17 +1267,17 @@ plot.npiv <- function(x, type = c("func", "deriv"), ...) {
   if(type == "func") {
     
     ylim <- range(c(x$h, x$h.lower, x$h.upper))
-    plot(x$X[order(x$X.eval)], x$h[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Function", ...)
-    lines(x$X[order(x$X.eval)], x$h.lower[order(x$X.eval)], col = "red", lty = 2)
-    lines(x$X[order(x$X.eval)], x$h.upper[order(x$X.eval)], col = "red", lty = 2)
+    plot(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Function", ...)
+    lines(x$X.eval[order(x$X.eval)], x$h.lower[order(x$X.eval)], col = "red", lty = 2)
+    lines(x$X.eval[order(x$X.eval)], x$h.upper[order(x$X.eval)], col = "red", lty = 2)
     legend("topright", legend = c("Estimate", "Lower Bound", "Upper Bound"), col = c("blue", "red", "red"), lty = c(1, 2, 2),bty="n")
     
   } else {
     
     ylim <- range(c(x$deriv, x$h.lower.deriv, x$h.upper.deriv))
-    plot(x$X[order(x$X.eval)], x$deriv[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Derivative", ...)
-    lines(x$X[order(x$X.eval)], x$h.lower.deriv[order(x$X.eval)], col = "red", lty = 2)
-    lines(x$X[order(x$X.eval)], x$h.upper.deriv[order(x$X.eval)], col = "red", lty = 2)
+    plot(x$X.eval[order(x$X.eval)], x$deriv[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Derivative", ...)
+    lines(x$X.eval[order(x$X.eval)], x$h.lower.deriv[order(x$X.eval)], col = "red", lty = 2)
+    lines(x$X.eval[order(x$X.eval)], x$h.upper.deriv[order(x$X.eval)], col = "red", lty = 2)
     legend("topright", legend = c("Estimate", "Lower Bound", "Upper Bound"), col = c("blue", "red", "red"), lty = c(1, 2, 2),bty="n")
     
   }
