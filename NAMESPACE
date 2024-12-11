@@ -1,5 +1,6 @@
 useDynLib(npiv, .registration = TRUE)
 import(stats,progress,MASS,Formula)
+importFrom("graphics", "legend", "lines", "points")
 export(npiv,
        npiv_choose_J,
        gsl.bs)
