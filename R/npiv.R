@@ -1259,7 +1259,7 @@ npiv_choose_J <- function(Y,
 ## Add a simple plot method for npiv objects to plot estimates and uniform
 ## confidence bands obtained via bootstrapping
 
-plot.npiv <- function(x, type = c("func", "deriv"), ...) {
+plot.npiv <- function(x, type = c("func", "deriv"), showdata = FALSE, ...) {
   
   type <- match.arg(type)
   if(is.vector(x$X.eval) == FALSE && ncol(x$X.eval) > 1) stop("simple npiv plot method only works for univariate X")
@@ -1267,18 +1267,23 @@ plot.npiv <- function(x, type = c("func", "deriv"), ...) {
   if(type == "func") {
     
     ylim <- range(c(x$h, x$h.lower, x$h.upper))
-    plot(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Function", ...)
+    if(showdata == TRUE){
+      plot(x$X, x$Y, cex=0.25, col = "lightgrey", ylim = ylim)
+      lines(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], type = "l", col = "blue", xlab = "X", ylab = "Function", ...)
+    }else{
+      plot(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "Function", ...)
+    }
     lines(x$X.eval[order(x$X.eval)], x$h.lower[order(x$X.eval)], col = "red", lty = 2)
     lines(x$X.eval[order(x$X.eval)], x$h.upper[order(x$X.eval)], col = "red", lty = 2)
-    legend("topright", legend = c("Estimate", "Lower Bound", "Upper Bound"), col = c("blue", "red", "red"), lty = c(1, 2, 2),bty="n")
+    legend("topright", legend = c("Estimate", "Confidence Band"), col = c("blue", "red"), lty = c(1, 2),bty="n")
     
   } else {
     
     ylim <- range(c(x$deriv, x$h.lower.deriv, x$h.upper.deriv))
-    plot(x$X.eval[order(x$X.eval)], x$deriv[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "IV Derivative", ...)
+    plot(x$X.eval[order(x$X.eval)], x$deriv[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "Derivative", ...)
     lines(x$X.eval[order(x$X.eval)], x$h.lower.deriv[order(x$X.eval)], col = "red", lty = 2)
     lines(x$X.eval[order(x$X.eval)], x$h.upper.deriv[order(x$X.eval)], col = "red", lty = 2)
-    legend("topright", legend = c("Estimate", "Lower Bound", "Upper Bound"), col = c("blue", "red", "red"), lty = c(1, 2, 2),bty="n")
+    legend("topright", legend = c("Estimate", "Confidence Band"), col = c("blue", "red"), lty = c(1, 2),bty="n")
     
   }
   
