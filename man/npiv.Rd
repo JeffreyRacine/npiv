@@ -6,11 +6,13 @@
 Nonparametric Instrumental Variable Estimation and Inference
 }
 \description{
-\code{npiv} performs nonparametric two-stage least-squares estimation of, and constructs uniform confidence bands for, a structural function \code{h0} and its derivatives using a B-spline sieve. Sieve dimensions are determined in a data-dependent way if not provided by the user, via the methods described in Chen, Christensen, and Kankanala (2024). This data-driven choice of sieve dimension ensures estimators of \code{h0} and its derivatives converge at the best possible (i.e., minimax) sup-norm rate. The resulting uniform confidence bands for \code{h0} and its derivatives also converge at the minimax rate up to log factors; see Chen, Christensen, and Kankanala (2024).
+\code{npiv} performs nonparametric a structural function \code{h0} and its derivatives using a B-spline sieve. It also constructs uniform confidence bands for \code{h0} and its derivative. 
 
-If sieve dimensions are provided by the user, \code{npiv} implements the bootstrap-based procedure of Chen and Christensen (2018) to construct uniform confidence bands for \code{h0} and its derivatives. 
+Sieve dimensions are determined in a data-dependent way if not provided by the user, via the methods described in Chen, Christensen, and Kankanala (2024). This data-driven choice of sieve dimension ensures estimators of \code{h0} and its derivatives converge at the optimal sup-norm rate. The resulting uniform confidence bands for \code{h0} and its derivatives also converge at the minimax rate up to log factors; see Chen, Christensen, and Kankanala (2024).
 
-\code{npiv} may also be used for nonparametric estimation and inference on a regression function as a special case.
+If sieve dimensions are provided by the user, \code{npiv} implements the bootstrap-based procedure of Chen and Christensen (2018) to construct uniform confidence bands based on undersmoothing for \code{h0} and its derivatives. 
+
+The methods in \code{npiv} apply to estimation and inference on a nonparametric regression function as a special case.
 }
 \usage{
 npiv(\dots)
@@ -132,9 +134,9 @@ npiv(\dots)
   \item{knots}{
   knots type, a character string. Options are:
 
-  \code{quantiles} interior knots are placed at equally spaced quantiles (equal number of observations lie in each segment). Default option. 
+  \code{quantiles} interior knots are placed at equally spaced quantiles (equal number of observations lie in each segment). 
 
-  \code{uniform} interior knots are placed at equally spoaced intervals over the support of the variable.
+  \code{uniform} interior knots are placed at equally spoaced intervals over the support of the variable. Default option.
 }
   \item{progress}{
   whether to display progress bar or not. Default is \code{TRUE}.
@@ -188,7 +190,7 @@ Typical usages mirror \code{ivreg} (see above and below for a list of options an
 }
 \value{
 
- \code{npiv} returns a \code{npiv} object. The generic function \code{\link{fitted}} extracts the estimated values for the sample (or evaluation data, if provided), while the generic function \code{\link{residuals}} extracts the sample residuals. The generic function \code{\link{summary}} provides a simple model summary.
+ \code{npiv} returns a \code{npiv} object. The generic function \code{\link{fitted}} extracts the estimated values for the sample (or evaluation data, if provided), while the generic function \code{\link{residuals}} extracts the sample residuals. The generic function \code{\link{summary}} provides a simple model summary. The generic function \code{\link{plot}} also plots the estimated function and derivative, together with uniform confidence bands.
 
 The function \code{npiv} returns a list with the following components:
 
@@ -213,17 +215,13 @@ Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation an
 
 }
 \author{
-Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy Christensen <timothy.christensen@yale.edu>
 }
-%%\note{
-%%TBD
-%%}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{npiv_choose_J}}
 }
+
 \examples{
 ## load data
 data("Engel95", package = "npiv")
@@ -300,12 +298,3 @@ legend("topright",
        lty=c(1,2,2,3),
        lwd=c(2,2,2,2))
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory (show via RShowDoc("KEYWORDS")):
-% \keyword{ ~kwd1 }
-% \keyword{ ~kwd2 }
-% Use only one keyword per line.
-% For non-standard keywords, use \concept instead of \keyword:
-% \concept{ ~cpt1 }
-% \concept{ ~cpt2 }
-% Use only one concept per line.

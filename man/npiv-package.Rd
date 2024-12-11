@@ -5,21 +5,22 @@
 \packageTitle{npiv}
 }
 \description{
-This package provides tools for data-driven statistical analysis using the nonparametric instrumental variables methods described in Chen, Christensen and Kankanala (2024) and Chen and Christensen (2018): \code{npiv} performs performs nonparametric two-stage least-squares estimation of, and constructs uniform confidence bands for, a structural function \code{h0} and its derivatives using a B-spline sieve, and \code{npiv_choose_J} performs data-driven choice of sieve dimension.
-}
+This package implements the nonparametric instrumental variables estimation and inference methods described in Chen, Christensen, and Kankanala (2024) and Chen and Christensen (2018). The function \code{npiv} estimates the nonparametric structural function \code{h0} using B-splines and constructs uniform confidence bands for \code{h0}. The function \code{npiv_choose_J} performs data-driven choice of sieve dimension. All methods in this package apply to estimation and inference for nonparametric regression as a special case.}
 \details{
-This package provides a function with a simple interface for conducting nonparametric instrumental variable (IV) estimation and inference, \code{npiv(...)} given a dependent variable vector \code{Y}, matrix of endogenous predictors \code{X}, and matrix of instruments \code{W}. All methods in this package apply to nonparametric regression as a special case when \code{X} is exogenous.
+This package provides a function \code{npiv(...)} with a simple interface for performing nonparametric instrumental variable estimation and inference. 
 
-The function \code{npiv} performs nonparametric two-stage least-squares estimation of, and constructs uniform confidence bands for, a structural function \code{h0} and its derivatives. Sieve dimensions are determined in a data-dependent way if not provided by the user, via the function \code{npiv_choose_J} which implements the methods described in Chen, Christensen, and Kankanala (2024). This data-driven choice of sieve dimension ensures estimators of \code{h0} and its derivatives converge at the best possible (i.e., minimax) sup-norm rate. The resulting uniform confidence bands for \code{h0} and its derivatives contract within a logarithmic factor of the minimax rate.
+Given a dependent variable vector \code{Y}, matrix of endogenous regressors \code{X}, and matrix of instruments \code{W}, \code{npiv} nonparametrically estimates the structural function \code{h0} and its derivative using B-splines. \code{npiv} can also be used for estimting the conditional mean \code{h0} of \code{Y} given \code{X}, as as well as the derivative of the conditional mean function, by nonparametric regression. 
 
-If sieve dimensions are provided by the user, \code{npiv} implements the bootstrap-based procedure of Chen and Christensen (2018) to construct uniform confidence bands for \code{h0} and its derivatives. 
+The function \code{npiv} also constructs uniform confidence bands for \code{h0} and its derivative.
 
+Sieve dimensions are determined in a data-dependent way if not provided by the user via the function \code{npiv_choose_J}, which implements the methods described in Chen, Christensen, and Kankanala (2024). This data-driven choice of sieve dimension ensures estimators of \code{h0} and its derivatives converge at the optimal sup-norm rate. The resulting uniform confidence bands for \code{h0} and its derivative contract within a logarithmic factor of the optimal rate. In this way, \code{npiv} facilitates fully data-driven estimation and uniform inference on \code{h0} and its derivative.
 
+If sieve dimensions are provided by the user, \code{npiv} implements the bootstrap-based procedure of Chen and Christensen (2018) to construct uniform confidence bands for \code{h0} and its derivative. 
 }
 \author{
-Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy M. Christensen <timothy.christensen@nyu.edu>
+Jeffrey S. Racine <racinej@mcmaster.ca>, Timothy Christensen <timothy.christensen@yale.edu>
 
-Maintainer: Jeffrey S. Racine <racinej@mcmaster.ca>
+Maintainer: Timothy Christensen <timothy.christensen@yale.edu>
 }
 \references{
 

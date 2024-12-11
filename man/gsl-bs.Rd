@@ -2,7 +2,9 @@
 \alias{gsl.bs}
 \alias{gsl.bs.default}
 \alias{gsl.bs.predict}
-\title{GSL (GNU Scientific Library) B-spline/B-spline Derivatives}
+\title{
+GSL (GNU Scientific Library) B-spline/B-spline Derivatives
+}
 
 \description{ \code{gsl.bs} generates the B-spline basis matrix for a
   polynomial spline and (optionally) the B-spline basis matrix
@@ -104,5 +106,4 @@ B <- gsl.bs(x,degree=5,intercept=FALSE)
 plot(x,y,cex=.5,col="grey")
 lines(x,fitted(lm(y~B)))
 }
-\keyword{B-spline}
-
+\keyword{ B-spline }

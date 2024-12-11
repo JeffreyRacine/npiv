@@ -3,11 +3,7 @@
 \alias{Engel95}
 \title{ 1995 British Family Expenditure Survey  }
 \description{
-British cross-section data consisting of a random sample taken from
-the British Family Expenditure Survey for 1995. The households consist
-of married or co-habitating couples with an employed head-of-household 
-between the ages of 25 and 55 years and at most two children. There are 
-1655 household-level observations in total.
+This dataset is based on a sample taken from the British Family Expenditure Survey for 1995. It includes households consisting of married or cohabiting couples with an employed head of household, aged between 25 and 55 years, and with at most two children. There are 1655 household-level observations in total.
 }
 \usage{data("Engel95")}
 \format{ A data frame with 10 columns, and 1655 rows.
@@ -38,34 +34,17 @@ Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation an
 \keyword{datasets}
 
 \examples{
-## load data
+## Load data
 data("Engel95", package = "npiv")
 
-## sort on logexp (the regressor) for plotting purposes
+## Sort on logexp (the regressor) for plotting purposes
 Engel95 <- Engel95[order(Engel95$logexp),] 
 attach(Engel95)
+logexp.eval <- seq(4.5,6.5,length=100)
 
 ## Estimate the Engel curve for food using logwages as an instrument
-fm1 <- npiv(food ~ logexp | logwages)
+food_engel <- npiv(food, logexp, logwages, X.eval = logexp.eval)
 
-## Plot the estimated Engel curve and data-driven uniform confidence bands
-plot(logexp,food,
-     ylab="Food Budget Share",
-     xlab="log(Total Household Expenditure)",
-     xlim=c(4.75, 6.25),
-     ylim=c(0, 0.4),
-     main="",
-     type="p",
-     cex=.5,
-     col="lightgrey")
-lines(logexp,fm1$h,col="blue",lwd=2,lty=1)
-lines(logexp,fm1$h.upper,col="blue",lwd=2,lty=2)
-lines(logexp,fm1$h.lower,col="blue",lwd=2,lty=2)
-
-legend("topright",
-       legend=c("Estimate",
-                "95 per cent UCBs"),
-       col=c("blue","blue"),
-       lty=c(1,2),
-       lwd=c(2,2))
+## Plot the estimated function and uniform confidence bands
+plot(food_engel, showdata = TRUE)
 }
