@@ -23,11 +23,11 @@ This dataset is based on a sample taken from the British Family Expenditure Surv
 \source{ Richard Blundell and Dennis Kristensen }
 \references{
 
-Blundell, R., X. Chen and D. Kristensen (2007). \dQuote{Semi-Nonparametric IV Estimation of Shape-Invariant Engel Curves.} \emph{Econometrica}, \strong{75}(6), 1613-1669. doi: \url{https://doi.org/10.1111/j.1468-0262.2007.00808.x}
+Blundell, R., X. Chen and D. Kristensen (2007). \dQuote{Semi-Nonparametric IV Estimation of Shape-Invariant Engel Curves.} \emph{Econometrica}, \strong{75}(6), 1613-1669. doi: \doi{10.1111/j.1468-0262.2007.00808.x}
   
-Chen, X. and T. Christensen (2018). \dQuote{Optimal Sup-norm Rates and Uniform Inference on Nonlinear Functionals of Nonparametric IV Regression.} \emph{Quantitative Economics}, \strong{9}(1), 39-85. doi: \url{https://doi.org/10.3982/QE722}
+Chen, X. and T. Christensen (2018). \dQuote{Optimal Sup-norm Rates and Uniform Inference on Nonlinear Functionals of Nonparametric IV Regression.} \emph{Quantitative Economics}, \strong{9}(1), 39-85. doi: \doi{10.3982/QE722}
     
-Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric Structural Functions and Elasticities.} \emph{Review of Economic Studies}, \strong{forthcoming}. doi: \url{https://doi.org/10.1093/restud/rdae025}
+Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation and Uniform Confidence Bands for Nonparametric Structural Functions and Elasticities.} \emph{Review of Economic Studies}, \strong{forthcoming}. doi: \doi{10.1093/restud/rdae025}
 
 }
 
