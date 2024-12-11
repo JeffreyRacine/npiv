@@ -1,51 +1,29 @@
+## Numerical illustration: simulation with a wiggly regression function
+
 library(npiv)
-
-#?npiv
-
-## Simulate data using the mvrnorm() function in the MASS package
-
 library(MASS)
 
-## Simulate data using the mvrnorm() function in the MASS package
-
+## Simulate the data
 n <- 10000
-
 X <- runif(n)
 U <- rnorm(n)
-
-## h0 is the instrumental DGP function
-
+## Wiggly regression function
 h0 <- sin(15*pi*X)*cos(X)
 Y <- h0 + U
+## Create evaluation data for plotting
 X.eval <- seq(min(X),max(X),length=100)
 h0 <- sin(15*pi*X.eval)*cos(X.eval)
-
-## Create evaluation data and instrumental regression function for the
-## endogenous predictor (for plotting with lines as this is sorted)
-
-
+d0 <- 15*pi*cos(X.eval)*cos(15*pi*X.eval) - sin(X.eval)*sin(15*pi*X.eval)
 
 ## Call the npiv() function with specific arguments
+model <- npiv(Y, X, X, X.eval=X.eval)
 
-model <- npiv(Y,
-              X,
-              X,
-              X.eval=X.eval)
+## Plot the estimated function and uniform confidence bands
+plot(model, showdata = TRUE)
+## Add true function
+lines(X.eval, h0)
 
-## Create a plot of the instrumental regression function and its
-## asymptotic standard error bounds
-
-ylim <- c(min(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se),
-          max(Y,model$h-1.96*model$h.asy.se,model$h+1.96*model$h.asy.se))
-
-plot(X,Y,cex=0.25,
-     col="lightgrey",
-     ylim=ylim,
-     sub=paste("n = ",format(n,format="d", big.mark=','),sep=""),
-     xlab="X",
-     ylab="Y")
-
-lines(X.eval,h0,lty=1,col=1,lwd=1)
-lines(X.eval,model$h,lty=2,col=2,lwd=2)
-
-legend("topleft",c("NP-DGP","NPREG"),col=1:2,lty=1:2,lwd=c(1,2),bty="n")
+## Plot the estimated derivative and uniform confidence bands
+plot(model, type = "deriv")
+## Add true function
+lines(X.eval, d0)
