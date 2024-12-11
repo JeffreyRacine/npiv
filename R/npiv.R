@@ -1267,11 +1267,10 @@ plot.npiv <- function(x, type = c("func", "deriv"), showdata = FALSE, ...) {
   if(type == "func") {
     
     ylim <- range(c(x$h, x$h.lower, x$h.upper))
+    plot(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "Function", ...)
     if(showdata == TRUE){
-      plot(x$X, x$Y, cex=0.25, col = "lightgrey", ylim = ylim, xlab = "X", ylab = "Function")
+      points(x$X, x$Y, cex=0.25, col = "lightgrey")
       lines(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], type = "l", col = "blue", ...)
-    }else{
-      plot(x$X.eval[order(x$X.eval)], x$h[order(x$X.eval)], ylim = ylim, type = "l", col = "blue", xlab = "X", ylab = "Function", ...)
     }
     lines(x$X.eval[order(x$X.eval)], x$h.lower[order(x$X.eval)], col = "red", lty = 2)
     lines(x$X.eval[order(x$X.eval)], x$h.upper[order(x$X.eval)], col = "red", lty = 2)
