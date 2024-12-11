@@ -5,8 +5,8 @@ Version: 0.10-03
 Date: 2024-12-10
 Imports: progress, MASS, Formula
 Author:  Jeffrey S. Racine, Timothy Christensen
-Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c("aut","cre"), email = "racinej@mcmaster.ca"),
-             person(given = "Timothy", family = "Christensen", role = c("aut"), email = "timothy.christensen@yale.edu"))
+Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c("aut"), email = "racinej@mcmaster.ca"),
+             person(given = "Timothy", family = "Christensen", role = c("aut","cre"), email = "timothy.christensen@yale.edu"))
 Maintainer:  Timothy Christensen <timothy.christensen@yale.edu> 
 Description: This package provides tools for adptive estimation and inference for nonparametric structural functions using instrumental variables. The methods apply to nonparametric regression as a special case. 
 License: GPL (>=3)
