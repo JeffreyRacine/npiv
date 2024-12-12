@@ -342,7 +342,7 @@ npivEst <- function(Y,
     if(K.w.degree==0) {
         B.w <- matrix(1,NROW(W),1)
     } else {
-        B.w <- prod.spline(x=W,
+        B.w <- prodspline(x=W,
                            K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                            knots=knots,
                            basis=basis,
@@ -360,14 +360,14 @@ npivEst <- function(Y,
         Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
         Psi.x.deriv.eval <- Psi.x.deriv <- matrix(0,NROW(X),1)
     } else {
-        Psi.x.eval <- Psi.x <- prod.spline(x=X,
+        Psi.x.eval <- Psi.x <- prodspline(x=X,
                                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                            knots=knots,
                                            basis=basis,
                                            x.min=X.min,
                                            x.max=X.max)
 
-        Psi.x.deriv.eval <- Psi.x.deriv <- prod.spline(x=X,
+        Psi.x.deriv.eval <- Psi.x.deriv <- prodspline(x=X,
                                                        K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                                        knots=knots,
                                                        basis=basis,
@@ -376,7 +376,7 @@ npivEst <- function(Y,
                                                        x.min=X.min,
                                                        x.max=X.max)
         if(!is.null(X.eval)) {
-            Psi.x.eval <- prod.spline(x=X,
+            Psi.x.eval <- prodspline(x=X,
                                       xeval=X.eval,
                                       K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                       knots=knots,
@@ -384,7 +384,7 @@ npivEst <- function(Y,
                                       x.min=X.min,
                                       x.max=X.max)
 
-           Psi.x.deriv.eval <- prod.spline(x=X,
+           Psi.x.deriv.eval <- prodspline(x=X,
                                            xeval=X.eval,
                                            K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                            knots=knots,
@@ -500,7 +500,7 @@ npivEst <- function(Y,
           if(K.w.degree==0) {
             B.w.J <- matrix(1,NROW(W),1)
           } else {
-            B.w.J <- prod.spline(x=W,
+            B.w.J <- prodspline(x=W,
                                  K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                                  knots=knots,
                                  basis=basis,
@@ -517,13 +517,13 @@ npivEst <- function(Y,
             Psi.x.eval <- Psi.x <- matrix(1,NROW(X),1)
             if(ucb.deriv) Psi.x.deriv.eval <- Psi.x.deriv <- matrix(0,NROW(X),1)
           } else {
-            Psi.x.J.eval <- Psi.x.J <- prod.spline(x=X,
+            Psi.x.J.eval <- Psi.x.J <- prodspline(x=X,
                                                    K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                                    knots=knots,
                                                    basis=basis,
                                                    x.min=X.min,
                                                    x.max=X.max)
-            if(ucb.deriv) Psi.x.J.deriv.eval <- Psi.x.J.deriv <- prod.spline(x=X,
+            if(ucb.deriv) Psi.x.J.deriv.eval <- Psi.x.J.deriv <- prodspline(x=X,
                                                                              K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                                                              knots=knots,
                                                                              basis=basis,
@@ -532,14 +532,14 @@ npivEst <- function(Y,
                                                                              x.min=X.min,
                                                                              x.max=X.max)
             if(!is.null(X.eval)) {
-              Psi.x.J.eval <- prod.spline(x=X,
+              Psi.x.J.eval <- prodspline(x=X,
                                           xeval=X.eval,
                                           K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                           knots=knots,
                                           basis=basis,
                                           x.min=X.min,
                                           x.max=X.max)
-              if(ucb.deriv) Psi.x.J.deriv.eval <- prod.spline(x=X,
+              if(ucb.deriv) Psi.x.J.deriv.eval <- prodspline(x=X,
                                                               xeval=X.eval,
                                                               K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                                               knots=knots,
@@ -820,14 +820,14 @@ npivJ <- function(Y,
         if(K.w.degree==0) {
             B.w.J1 <- B.w.J2 <- matrix(1,NROW(W),1)
         } else {
-            B.w.J1 <- prod.spline(x=W,
+            B.w.J1 <- prodspline(x=W,
                                   K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.J1.segments,NCOL(W))),
                                   knots=knots,
                                   basis=basis,
                                   x.min=W.min,
                                   x.max=W.max)
 
-            B.w.J2 <- prod.spline(x=W,
+            B.w.J2 <- prodspline(x=W,
                                   K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.J2.segments,NCOL(W))),
                                   knots=knots,
                                   basis=basis,
@@ -846,13 +846,13 @@ npivJ <- function(Y,
             Psi.x.J1.eval <- Psi.x.J1 <- matrix(1,NROW(X),1)
             Psi.x.J2.eval <- Psi.x.J2 <- matrix(1,NROW(X),1)
         } else {
-            Psi.x.J1.eval <- Psi.x.J1 <- prod.spline(x=X,
+            Psi.x.J1.eval <- Psi.x.J1 <- prodspline(x=X,
                                                      K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J1.segments,NCOL(X))),
                                                      knots=knots,
                                                      basis=basis,
                                                      x.min=X.min,
                                                      x.max=X.max)
-            Psi.x.J2.eval <- Psi.x.J2 <- prod.spline(x=X,
+            Psi.x.J2.eval <- Psi.x.J2 <- prodspline(x=X,
                                                      K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J2.segments,NCOL(X))),
                                                      knots=knots,
                                                      basis=basis,
@@ -860,14 +860,14 @@ npivJ <- function(Y,
                                                      x.max=X.max)
 
             if(!is.null(X.grid)) {
-                Psi.x.J1.eval <- prod.spline(x=X,
+                Psi.x.J1.eval <- prodspline(x=X,
                                              xeval=X.grid,
                                              K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J1.segments,NCOL(X))),
                                              knots=knots,
                                              basis=basis,
                                              x.min=X.min,
                                              x.max=X.max)
-                Psi.x.J2.eval <- prod.spline(x=X,
+                Psi.x.J2.eval <- prodspline(x=X,
                                              xeval=X.grid,
                                              K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.J2.segments,NCOL(X))),
                                              knots=knots,
@@ -1099,7 +1099,7 @@ npiv_Jhat_max <- function(X,
         if(K.w.degree==0) {
           B.w.J <- matrix(1,NROW(W),1)
         } else {
-          B.w.J <- prod.spline(x=W,
+          B.w.J <- prodspline(x=W,
                                K=cbind(rep(K.w.degree,NCOL(W)),rep(K.w.segments,NCOL(W))),
                                knots=knots,
                                basis=basis,
@@ -1116,7 +1116,7 @@ npiv_Jhat_max <- function(X,
         if(J.x.degree==0) {
           Psi.x.J <- matrix(1,NROW(X),1)
         } else {
-          Psi.x.J <- prod.spline(x=X,
+          Psi.x.J <- prodspline(x=X,
                                  K=cbind(rep(J.x.degree,NCOL(X)),rep(J.x.segments,NCOL(X))),
                                  knots=knots,
                                  basis=basis,

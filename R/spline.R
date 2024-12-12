@@ -8,7 +8,7 @@
 ## Complexity can be modified via the number of knots (segments) or
 ## the spline degree (degree)
 
-prod.spline <- function(x,
+prodspline <- function(x,
                         z=NULL,
                         K=NULL,
                         I=NULL,
