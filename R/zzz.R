@@ -1,3 +1,3 @@
 .onAttach <- function (lib, pkg) {
-	packageStartupMessage("Nonparametric Instrumental Regression (version 0.10-03)", domain = NULL,  appendLF = TRUE)
+	packageStartupMessage("Nonparametric Instrumental Regression (version 0.1.3)", domain = NULL,  appendLF = TRUE)
 }
