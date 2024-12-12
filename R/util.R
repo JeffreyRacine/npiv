@@ -49,7 +49,7 @@ NZD <- function(a) {
 ## Function that determines the dimension of the multivariate basis
 ## without precomputing it.
 
-dim.bs <- function(basis="additive",degree=NULL,segments=NULL) {
+dimbs <- function(basis="additive",degree=NULL,segments=NULL) {
   
   ## This function computes the dimension of the glp basis without the
   ## memory overhead associated with computing the glp basis itself
