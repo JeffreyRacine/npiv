@@ -1,7 +1,7 @@
 Package: npiv
 Type: Package
 Title: Nonparametric Instrumental Variables Estimation and Inference
-Version: 0.10-03
+Version: 0.1.3
 Date: 2024-12-10
 Imports: progress, MASS, Formula
 Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c("aut"), email = "racinej@mcmaster.ca"),
