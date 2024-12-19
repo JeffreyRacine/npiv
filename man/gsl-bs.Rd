@@ -85,9 +85,6 @@ Chen, X., T. Christensen and S. Kankanala (2024). \dQuote{Adaptive Estimation an
   Jeffrey S. Racine \email{racinej@mcmaster.ca}
 }
 
-%\section{Usage Issues}{
-%}
-
 \seealso{
   \code{\link[splines]{bs}}
 }

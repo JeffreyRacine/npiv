@@ -1,6 +1,5 @@
 \name{npiv_choose_J}
 \alias{npiv_choose_J}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Data-driven Choice of Sieve Dimension for Nonparametric Instrumental Variables Estimation and Inference
 }
@@ -27,7 +26,6 @@ npiv_choose_J(Y,
               check.is.fullrank = FALSE,
               progress = TRUE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Y}{
   dependent variable vector.
@@ -94,15 +92,7 @@ npiv_choose_J(Y,
   whether to display progress bar or not. Default is \code{TRUE}.
 }  
 }
-%%\details{
-%%TBD
-%%
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
 \item{J.hat.max}{largest element of candidate set of sieve dimensions searched over.}
 \item{J.hat.n}{second largest element of candidate set of sieve dimensions searched over.}
 \item{J.hat}{bootstrap-based Lepski choice of sieve dimension.}
