@@ -23,7 +23,6 @@ npiv.default <- function(Y,
                          K.w.smooth=2,
                          knots=c("uniform","quantiles"),
                          progress=TRUE,
-                         random.seed=42,
                          ucb.h=TRUE,
                          ucb.deriv=TRUE,
                          W.max=NULL,
@@ -53,7 +52,6 @@ npiv.default <- function(Y,
                  K.w.smooth=K.w.smooth,
                  knots=knots,
                  progress=progress,
-                 random.seed=random.seed,
                  ucb.h=ucb.h,
                  ucb.deriv=ucb.deriv,
                  W.max=W.max,
@@ -75,7 +73,6 @@ npiv.default <- function(Y,
   est$grid.num=grid.num
   est$knots=knots
   est$progress=progress
-  est$random.seed=random.seed
   est$W.max=W.max
   est$W.min=W.min
   est$X.min=X.min
@@ -162,7 +159,6 @@ predict.npiv <- function(object, newdata, ...) {
                           K.w.smooth=object$K.w.smooth,
                           knots=object$knots,
                           progress=object$progress,
-                          random.seed=object$random.seed,
                           ucb.h=FALSE,
                           ucb.deriv=FALSE,
                           W.max=object$W.max,
@@ -236,7 +232,6 @@ npivEst <- function(Y,
                     K.w.smooth=2,
                     knots=c("uniform","quantiles"),
                     progress=TRUE,
-                    random.seed=42,
                     ucb.h=TRUE,
                     ucb.deriv=TRUE,
                     W.max=NULL,
@@ -314,7 +309,6 @@ npivEst <- function(Y,
                              W.max=W.max,
                              grid.num=grid.num,
                              boot.num=boot.num,
-                             random.seed=random.seed,
                              check.is.fullrank=check.is.fullrank,
                              progress=progress)
       K.w.segments <- test1$K.w.seg
@@ -460,19 +454,6 @@ npivEst <- function(Y,
 
     if(ucb.h || ucb.deriv){
 
-      ## Save seed prior to setting for bootstrap
-
-      if(exists(".Random.seed", .GlobalEnv)) {
-
-        save.seed <- get(".Random.seed", .GlobalEnv)
-        exists.seed = TRUE
-
-      } else {
-
-        exists.seed = FALSE
-
-      }
-
       ## Check if sieve dimension is provided or data-driven
 
       if(data.driven) {
@@ -489,6 +470,11 @@ npivEst <- function(Y,
 
         if(ucb.h) Z.sup.boot <- matrix(NA,boot.num,length(J.x.segments.boot))
         if(ucb.deriv) Z.sup.boot.deriv <- matrix(NA,boot.num,length(J.x.segments.boot))
+
+        ## Set seed to ensure same bootstrap draws across J
+
+        if(!exists(".Random.seed", .GlobalEnv)) runif(1)
+        saved.seed <- get(".Random.seed", .GlobalEnv)
 
         for(ii in 1:length(J.x.segments.boot)) {
 
@@ -587,7 +573,7 @@ npivEst <- function(Y,
 
           ## Set seed to ensure same bootstrap draws across J
 
-          set.seed(random.seed)
+          set.seed(saved.seed)
 
           for(b in 1:boot.num) {
 
@@ -634,8 +620,6 @@ npivEst <- function(Y,
                                 width = 60,
                                 total = boot.num)
 
-        set.seed(random.seed)
-
         for(b in 1:boot.num) {
 
           if(progress) pbbb$tick()
@@ -665,10 +649,6 @@ npivEst <- function(Y,
       } else {
         h.lower.deriv <- h.upper.deriv <- cv.deriv <- NULL
       }
-
-      ## Restore seed
-
-      if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
 
     } else {
       h.lower <- h.upper <- cv <- NULL
@@ -730,7 +710,6 @@ npivJ <- function(Y,
                   grid.num=50,
                   boot.num=99,
                   alpha=0.5,
-                  random.seed=42,
                   check.is.fullrank=FALSE,
                   progress=TRUE) {
 
@@ -778,19 +757,6 @@ npivJ <- function(Y,
 
     J1.J2.w <- apply(J1.J2.x, c(1,2), function(u) K.w.segments.set[which(J.x.segments.set == u)])
 
-    ## Save seed prior to setting for bootstrap
-
-    if(exists(".Random.seed", .GlobalEnv)) {
-
-      save.seed <- get(".Random.seed", .GlobalEnv)
-      exists.seed = TRUE
-
-    } else {
-
-      exists.seed = FALSE
-
-    }
-
     ## In what follows we loop over _rows_ of J1.J2 (makes for easy
     ##  parallelization if needed)
 
@@ -801,6 +767,11 @@ npivJ <- function(Y,
                            clear = TRUE,
                            width= 60,
                            total = NROW(J1.J2.x))
+
+    ## Set seed to ensure same bootstrap draws across rows of J1.J2
+
+    if(!exists(".Random.seed", .GlobalEnv)) runif(1)
+    saved.seed <- get(".Random.seed", .GlobalEnv)
 
     for(ii in 1:NROW(J1.J2.x)) {
 
@@ -937,7 +908,7 @@ npivJ <- function(Y,
 
         ## Set seed to ensure same bootstrap draws across rows of J1.J2
 
-        set.seed(random.seed)
+        set.seed(saved.seed)
 
         for(b in 1:boot.num) {
             if(progress) pbb$tick()
@@ -948,10 +919,6 @@ npivJ <- function(Y,
         }
 
     }
-
-    ## Restore seed
-
-    if(exists.seed) assign(".Random.seed", save.seed, .GlobalEnv)
 
     ## Compute maximum over J set for each bootstrap draw (should
     ## produce a boot.num x 1 vector)
@@ -1198,7 +1165,6 @@ npiv_choose_J <- function(Y,
                           W.max=NULL,
                           grid.num=50,
                           boot.num=99,
-                          random.seed=42,
                           check.is.fullrank=FALSE,
                           progress=TRUE) {
 
@@ -1237,7 +1203,6 @@ npiv_choose_J <- function(Y,
                 grid.num=grid.num,
                 boot.num=boot.num,
                 alpha=tmp1$alpha.hat,
-                random.seed=random.seed,
                 check.is.fullrank=check.is.fullrank,
                 progress=progress)
 
