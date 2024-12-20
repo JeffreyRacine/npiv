@@ -471,11 +471,6 @@ npivEst <- function(Y,
         if(ucb.h) Z.sup.boot <- matrix(NA,boot.num,length(J.x.segments.boot))
         if(ucb.deriv) Z.sup.boot.deriv <- matrix(NA,boot.num,length(J.x.segments.boot))
 
-        ## Set seed to ensure same bootstrap draws across J
-
-        if(!exists(".Random.seed", .GlobalEnv)) runif(1)
-        saved.seed <- get(".Random.seed", .GlobalEnv)
-
         for(ii in 1:length(J.x.segments.boot)) {
 
           J.x.segments <- J.x.segments.set[ii]
@@ -573,18 +568,18 @@ npivEst <- function(Y,
 
           ## Set seed to ensure same bootstrap draws across J
 
-          set.seed(saved.seed)
+          with_preserve_seed({
 
-          for(b in 1:boot.num) {
+            for(b in 1:boot.num) {
 
-            if(progress) pbb$tick()
-            boot.draws <- rnorm(length(Y))
+              if(progress) pbb$tick()
+              boot.draws <- rnorm(length(Y))
 
-            if(ucb.h) Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%(tmp.J%*%(U.J*boot.draws)))  / NZD(asy.se.J)))
-            if(ucb.deriv) Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%(tmp.J%*%(U.J*boot.draws)))  / NZD(asy.se.J.deriv)))
+              if(ucb.h) Z.sup.boot[b,ii] <- max(abs((Psi.x.J.eval%*%(tmp.J%*%(U.J*boot.draws)))  / NZD(asy.se.J)))
+              if(ucb.deriv) Z.sup.boot.deriv[b,ii] <- max(abs((Psi.x.J.deriv.eval%*%(tmp.J%*%(U.J*boot.draws)))  / NZD(asy.se.J.deriv)))
 
-          }
-
+            }
+          })
         }
 
         ## Compute maximum over J set for each bootstrap draw,
@@ -768,11 +763,6 @@ npivJ <- function(Y,
                            width= 60,
                            total = NROW(J1.J2.x))
 
-    ## Set seed to ensure same bootstrap draws across rows of J1.J2
-
-    if(!exists(".Random.seed", .GlobalEnv)) runif(1)
-    saved.seed <- get(".Random.seed", .GlobalEnv)
-
     for(ii in 1:NROW(J1.J2.x)) {
 
         if(progress) pb$tick()
@@ -908,15 +898,17 @@ npivJ <- function(Y,
 
         ## Set seed to ensure same bootstrap draws across rows of J1.J2
 
-        set.seed(saved.seed)
+        with_preserve_seed({
 
-        for(b in 1:boot.num) {
+          for(b in 1:boot.num) {
             if(progress) pbb$tick()
             boot.draws <- rnorm(length(Y))
             
             Z.sup.boot[b,ii] <- max(abs((Psi.x.J1.eval%*%(tmp.J1%*%(U.J1*boot.draws)) - Psi.x.J2.eval%*%(tmp.J2%*%(U.J2*boot.draws))) / NZD(asy.se)))
             
-        }
+          }
+
+        })
 
     }
 
