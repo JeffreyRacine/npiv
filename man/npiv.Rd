@@ -44,7 +44,6 @@ npiv(\dots)
      K.w.smooth=2,
      knots=c("uniform","quantiles"),
      progress=TRUE,
-     random.seed=42,
      ucb.h=TRUE,
      ucb.deriv=TRUE,
      W.max=NULL,
@@ -140,9 +139,6 @@ npiv(\dots)
 }
   \item{progress}{
   whether to display progress bar or not. Default is \code{TRUE}.
-}
-\item{random.seed}{
-  random seed to initialize bootstrap replications for reproducibility. Default is \code{42}.
 }
 \item{ucb.h}{
   whether to compute a uniform confidence band for the structural function. Default is \code{TRUE}.

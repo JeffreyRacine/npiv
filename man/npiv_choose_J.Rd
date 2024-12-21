@@ -22,7 +22,6 @@ npiv_choose_J(Y,
               W.max = NULL,
               grid.num = 50,
               boot.num = 99,
-              random.seed = 42,
               check.is.fullrank = FALSE,
               progress = TRUE)
 }
@@ -81,9 +80,6 @@ npiv_choose_J(Y,
 }
   \item{boot.num}{
   number of bootstrap replications.
-}
-  \item{random.seed}{
-  random seed to initialize bootstrap replications for reproducibility. Default is \code{42}.
 }
   \item{check.is.fullrank}{
   check that \code{X} and \code{W} have full rank. Default is \code{FALSE}.
