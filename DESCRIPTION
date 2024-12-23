@@ -4,8 +4,11 @@ Title: Nonparametric Instrumental Variables Estimation and Inference
 Version: 0.1.3
 Date: 2024-12-10
 Imports: progress, MASS, Formula, withr
-Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c("aut"), email = "racinej@mcmaster.ca"),
-             person(given = "Timothy", family = "Christensen", role = c("aut","cre"), email = "timothy.christensen@yale.edu"))
+Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c"aut", email = "racinej@mcmaster.ca"),
+             person(given = "Timothy", family = "Christensen", role = c("aut","cre"), email = "timothy.christensen@yale.edu"),
+             person(given = "Patrick", family = "Alken", role = "ctb"),
+             person(given = "Rhys", family = "Ulerich", role = "ctb"),
+             person(given = "Simon N.", family = "Wood", role = "ctb", email = "simon.wood@r-project.org"))
 Maintainer:  Timothy Christensen <timothy.christensen@yale.edu> 
 Description: Implements methods introduced in Chen, Christensen, and Kankanala (2024) <doi:10.1093/restud/rdae025> for estimating and constructing uniform confidence bands for nonparametric structural functions using instrumental variables, including data-driven choice of tuning parameters. All methods in this package apply to nonparametric regression as a special case. 
 License: GPL (>=3)
