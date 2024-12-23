@@ -4,7 +4,7 @@ Title: Nonparametric Instrumental Variables Estimation and Inference
 Version: 0.1.3
 Date: 2024-12-10
 Imports: progress, MASS, Formula, withr
-Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = c"aut", email = "racinej@mcmaster.ca"),
+Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = "aut", email = "racinej@mcmaster.ca"),
              person(given = "Timothy", family = "Christensen", role = c("aut","cre"), email = "timothy.christensen@yale.edu"),
              person(given = "Patrick", family = "Alken", role = "ctb"),
              person(given = "Rhys", family = "Ulerich", role = "ctb"),
