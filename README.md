@@ -110,8 +110,8 @@ The plot is wiggly, indicating that the algorithm has selected a fairly
 large sieve dimension. This can sometimes happen when the data are far
 from uniform, because the default method uses splines with knots placed
 uniformly over the support of the data. We can restore good performance
-by by including `knots = "quantiles"` to use splines with knots placed
-at the quantiles of the data.
+by including `knots = "quantiles"` to use splines with knots placed at
+the quantiles of the data.
 
 ``` r
 food_engel_reg_quantiles <- npiv(food, logexp, logexp, X.eval = logexp.eval, knots = "quantiles")
