@@ -1,31 +1,34 @@
 ---
 documentclass: jss
 author:
+  - name: Xiaohong Chen
+    orcid: 0000-0003-1125-675X
+    address: Department of Economics
+    affiliation: 'Yale University'
+    email: \email{xiaohong.chen@yale.edu}
+    url: https://economics.yale.edu/people/faculty/xiaohong-chen
   - name: Timothy Christensen
     orcid: 0000-0002-4639-5015
-    affiliation: |
-      | Yale University
-    address: |
-      | Department of Economics
+    affiliation: 'Yale University \AND'
+    address: Department of Economics 
     email: \email{timothy.christensen@yale.edu}
-    url: https://economics.yale.edu/people/timothy-christensen
+    url: https://economics.yale.edu/people/timothy-christensen 
+    
+  - name: Sid Kankanala
+    address: Booth School of Business
+    affiliation: 'University of Chicago'
+    email: \email{sid.kankanala@chicagobooth.edu}
+    url: https://www.chicagobooth.edu/faculty/directory/k/sid-kankanala
   - name: Jeffrey S. Racine
     orcid: 0000-0002-5680-3705
-    affiliation: McMaster University
-    # use this syntax to add text on several lines
+    affiliation: 'McMaster University'
     address: |
       | Department of Economics and
       | Graduate Program in Statistics
     email: \email{racinej@mcmaster.ca}
     url: https://socialsciences.mcmaster.ca/people/racinej
     # To add another line, use \AND at the end of the previous one as above
-  - name: Xiaohong Chen
-    orcid: 0000-0003-1125-675X
-    address: |
-      | Department of Economics
-    affiliation: Yale University
-    email: \email{xiaohong.chen@yale.edu}
-    url: https://economics.yale.edu/people/faculty/xiaohong-chen
+
 title:
   formatted: "\\pkg{npiv}: Estimation and Inference for Nonparametric Instrumental Variables Models Using \\proglang{R}"
   # If you use tex in the formatted title, also supply version without
@@ -33,7 +36,7 @@ title:
   # For running headers, if needed
   short:     "\\pkg{npiv}: Estimation and Inference for Nonparametric IV Models"
 abstract: >
-  Nonparametric instrumental variables (NPIV) methods are widely used in economics, causal inference, and machine learning. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) data-driven, rate-optimal choices of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. Additional functionality allows for constructing uniform confidence bands for the structural function and its derivatives based on the methods proposed in @CCQE. All methods apply to nonparametric regression as a special case.
+  Nonparametric instrumental variables (NPIV) methods are widely used in economics, causal inference, and machine learning. This article discusses the \proglang{R} package \pkg{npiv}, which implements novel, fully data-driven NPIV estimation and inference methods proposed in @CCK. The main methods implemented in this package are (i) data-driven, rate-optimal choices of sieve dimension for sieve NPIV estimators and (ii) data-driven uniform confidence bands for the structural function and its derivatives. The package also allows for constructing uniform confidence bands for the structural function and its derivatives based on the methods proposed in @CCQE. All methods apply to nonparametric regression as a special case.
 keywords:
   # at least one keyword must be supplied
   formatted: [nonparametric instrumental variables, nonparametric regression, minimax rate-adaptive estimation, adaptive uniform confidence bands, "\\proglang{R}"]
@@ -49,11 +52,12 @@ output: rticles::jss_article
 options(prompt = 'R> ', 
         continue = '+ ')
 knitr::opts_chunk$set(cache=TRUE,dev='tikz')
+library(npiv)
 ```
 
 # Introduction
 
-Nonparametric instrumental variables (NPIV) methods are well-established and have been adopted in a range of empirical fields. While there is a long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], recent applications include causal inference in biostatistics [@WangZhiTT2018], reinforcement learning [@grettonRL2021], and causal machine learning [@causalML]. 
+Nonparametric instrumental variables (NPIV) methods are well-established and have been adopted in a range of empirical fields. While there is a long tradition of their use in demand estimation in economics [@BCK; @BHP; @BerryHaile2014], recent applications include causal inference in biostatistics [@WangZhiTT2018], reinforcement learning [@chen2022well; @grettonRL2021], and causal machine learning [@causalML]. 
 In this paper, we introduce the \proglang{R} [@R] package \pkg{npiv} [@NPIV]. This package implements several estimation and inference methods for NPIV models, including with data-driven choice of tuning parameters, thereby making the methods newly accessible to \proglang{R} users. The package \pkg{npiv} is available from the Comprehensive R Archive Network (CRAN) at \url{https://CRAN.R-project.org/package=npiv}.
 
 
