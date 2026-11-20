@@ -12,3 +12,4 @@ Authors@R: c(person(given = "Jeffrey S.", family = "Racine", role = "aut", email
 Maintainer:  Timothy Christensen <timothy.christensen@yale.edu> 
 Description: Implements methods introduced in Chen, Christensen, and Kankanala (2024) <doi:10.1093/restud/rdae025> for estimating and constructing uniform confidence bands for nonparametric structural functions using instrumental variables, including data-driven choice of tuning parameters. All methods in this package apply to nonparametric regression as a special case. 
 License: GPL (>=3)
+URL: https://github.com/JeffreyRacine/npiv
