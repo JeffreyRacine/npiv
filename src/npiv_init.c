@@ -4,13 +4,9 @@
 #include <R_ext/Rdynload.h>
 #include "mgcv.h"
 
-/* FIXME: 
-   Check these declarations against the C/Fortran source code.
-*/
-
 /* .C calls */
-extern void gsl_bspline(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gsl_bspline_deriv(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern int gsl_bspline(double *, int *, int *, int *, double *, double *, double *, int *, double *);
+extern int gsl_bspline_deriv(double *, int *, int *, int *, int *, int *, double *, double *, double *, int *, double *);
 
 static const R_CMethodDef CEntries[] = {
     {"gsl_bspline",       (DL_FUNC) &gsl_bspline,        9},
